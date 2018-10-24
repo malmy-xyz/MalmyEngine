@@ -1,33 +1,153 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="main\tests">
+      <UniqueIdentifier>{F9AF4428-E52A-3DF9-9311-ED0C7B476828}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    <Filter Include="core">
+      <UniqueIdentifier>{3C1AC44C-16E1-3189-9501-EB8F527D8C17}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="core\rendering">
+      <UniqueIdentifier>{821A4E78-B661-390B-BD0F-699BEE93F610}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="maths">
+      <UniqueIdentifier>{F35738AD-B423-31B6-8C0B-23CA23558CEB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="components">
+      <UniqueIdentifier>{EF4A733C-9A00-3B6F-9B63-FF87DE25C192}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="main">
+      <UniqueIdentifier>{F352A136-D6FA-36F9-AD59-436E40F33CD4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\glfw-3.2.1\include\GLFW">
+      <UniqueIdentifier>{877EB23B-64D4-3369-9EA4-8D95D15E4E6E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="thirdparty\glew-2.1.0\include\GL">
+      <UniqueIdentifier>{B00FD971-F0DE-3935-806D-49EEAED90C60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scene">
+      <UniqueIdentifier>{9FCD1EC7-46B4-397C-929F-C0C431479FF4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main\main.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include=".\components\meshRenderer.h">
+      <Filter>components</Filter>
     </ClInclude>
-    <ClInclude Include="main\tests\testClass.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include=".\maths\vector3.h">
+      <Filter>maths</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glxew.h">
+      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include=".\main\tests\testClass.h">
+      <Filter>main\tests</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glew.h">
+      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\debug.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\rendering\color.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\rendering\shader.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\wglew.h">
+      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include=".\main\tests\testScene.h">
+      <Filter>main\tests</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\rendering\texture.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include=".\scene\scene.h">
+      <Filter>scene</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\rendering\mesh.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3native.h">
+      <Filter>thirdparty\glfw-3.2.1\include\GLFW</Filter>
+    </ClInclude>
+    <ClInclude Include=".\components\component.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include=".\components\transform.h">
+      <Filter>components</Filter>
+    </ClInclude>
+    <ClInclude Include=".\maths\quaternion.h">
+      <Filter>maths</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\eglew.h">
+      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\rendering\material.h">
+      <Filter>core\rendering</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\window.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include=".\core\gameObject.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h">
+      <Filter>thirdparty\glfw-3.2.1\include\GLFW</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main\main.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include=".\components\transform.cpp">
+      <Filter>components</Filter>
     </ClCompile>
-    <ClCompile Include="main\tests\testClass.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include=".\core\rendering\texture.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include=".\main\main.cpp">
+      <Filter>main</Filter>
+    </ClCompile>
+    <ClCompile Include=".\maths\quaternion.cpp">
+      <Filter>maths</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\rendering\mesh.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\rendering\color.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include=".\components\component.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include=".\components\meshRenderer.cpp">
+      <Filter>components</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\rendering\material.cpp">
+      <Filter>core\rendering</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\debug.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\gameObject.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include=".\main\tests\testScene.cpp">
+      <Filter>main\tests</Filter>
+    </ClCompile>
+    <ClCompile Include=".\main\tests\testClass.cpp">
+      <Filter>main\tests</Filter>
+    </ClCompile>
+    <ClCompile Include=".\maths\vector3.cpp">
+      <Filter>maths</Filter>
+    </ClCompile>
+    <ClCompile Include=".\scene\scene.cpp">
+      <Filter>scene</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\window.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include=".\core\rendering\shader.cpp">
+      <Filter>core\rendering</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
