@@ -6,6 +6,10 @@
 #include "../../components/meshRenderer.h"
 
 #include "../../core/window.h"
+#include "../../core/engine.h"
+#include "../../core/rendering/renderEngine.h"
+
+
 
 class TestScene
 {

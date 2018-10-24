@@ -79,6 +79,8 @@
     <ClInclude Include=".\core\window.h" />
     <ClInclude Include=".\core\gameObject.h" />
     <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h" />
+    <ClInclude Include="core\engine.h" />
+    <ClInclude Include="core\rendering\renderEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\components\transform.cpp" />
@@ -98,6 +100,8 @@
     <ClCompile Include=".\scene\scene.cpp" />
     <ClCompile Include=".\core\window.cpp" />
     <ClCompile Include=".\core\rendering\shader.cpp" />
+    <ClCompile Include="core\engine.cpp" />
+    <ClCompile Include="core\rendering\renderEngine.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

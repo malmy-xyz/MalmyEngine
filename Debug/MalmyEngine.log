@@ -1,20 +1,6 @@
-﻿  shader.cpp
-  window.cpp
-  scene.cpp
-  vector3.cpp
-  testClass.cpp
-  testScene.cpp
-  gameObject.cpp
-  debug.cpp
-  material.cpp
-  meshRenderer.cpp
-  component.cpp
-  color.cpp
-  mesh.cpp
-  quaternion.cpp
+﻿  testScene.cpp
   main.cpp
-  texture.cpp
-  transform.cpp
+  window.cpp
   Generating Code...
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library

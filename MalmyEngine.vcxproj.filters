@@ -19,12 +19,6 @@
     <Filter Include="main">
       <UniqueIdentifier>{F352A136-D6FA-36F9-AD59-436E40F33CD4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="thirdparty\glfw-3.2.1\include\GLFW">
-      <UniqueIdentifier>{877EB23B-64D4-3369-9EA4-8D95D15E4E6E}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="thirdparty\glew-2.1.0\include\GL">
-      <UniqueIdentifier>{B00FD971-F0DE-3935-806D-49EEAED90C60}</UniqueIdentifier>
-    </Filter>
     <Filter Include="scene">
       <UniqueIdentifier>{9FCD1EC7-46B4-397C-929F-C0C431479FF4}</UniqueIdentifier>
     </Filter>
@@ -36,14 +30,8 @@
     <ClInclude Include=".\maths\vector3.h">
       <Filter>maths</Filter>
     </ClInclude>
-    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glxew.h">
-      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
-    </ClInclude>
     <ClInclude Include=".\main\tests\testClass.h">
       <Filter>main\tests</Filter>
-    </ClInclude>
-    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glew.h">
-      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
     </ClInclude>
     <ClInclude Include=".\core\debug.h">
       <Filter>core</Filter>
@@ -53,9 +41,6 @@
     </ClInclude>
     <ClInclude Include=".\core\rendering\shader.h">
       <Filter>core\rendering</Filter>
-    </ClInclude>
-    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\wglew.h">
-      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
     </ClInclude>
     <ClInclude Include=".\main\tests\testScene.h">
       <Filter>main\tests</Filter>
@@ -69,9 +54,6 @@
     <ClInclude Include=".\core\rendering\mesh.h">
       <Filter>core\rendering</Filter>
     </ClInclude>
-    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3native.h">
-      <Filter>thirdparty\glfw-3.2.1\include\GLFW</Filter>
-    </ClInclude>
     <ClInclude Include=".\components\component.h">
       <Filter>components</Filter>
     </ClInclude>
@@ -80,9 +62,6 @@
     </ClInclude>
     <ClInclude Include=".\maths\quaternion.h">
       <Filter>maths</Filter>
-    </ClInclude>
-    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\eglew.h">
-      <Filter>thirdparty\glew-2.1.0\include\GL</Filter>
     </ClInclude>
     <ClInclude Include=".\core\rendering\material.h">
       <Filter>core\rendering</Filter>
@@ -93,9 +72,14 @@
     <ClInclude Include=".\core\gameObject.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h">
-      <Filter>thirdparty\glfw-3.2.1\include\GLFW</Filter>
-    </ClInclude>
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glxew.h" />
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glew.h" />
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\wglew.h" />
+    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3native.h" />
+    <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\eglew.h" />
+    <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h" />
+    <ClInclude Include="core\engine.h" />
+    <ClInclude Include="core\rendering\renderEngine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\components\transform.cpp">
@@ -149,5 +133,7 @@
     <ClCompile Include=".\core\rendering\shader.cpp">
       <Filter>core\rendering</Filter>
     </ClCompile>
+    <ClCompile Include="core\engine.cpp" />
+    <ClCompile Include="core\rendering\renderEngine.cpp" />
   </ItemGroup>
 </Project>

@@ -2,10 +2,9 @@
 
 
 
-Window::Window(int width, int height)
+Window::Window()
 {
 	
-
 	/* Initialize the library */
 	if (!glfwInit())
 		Debug::LogError("glfwInit ");
@@ -13,7 +12,7 @@ Window::Window(int width, int height)
 
 
 	/* Create a windowed mode window and its OpenGL context */
-	m_Window = glfwCreateWindow(width, height, "Malmy Engine v0.0.0 ", NULL, NULL);
+	m_Window = glfwCreateWindow(m_Width, m_Height, "Malmy Engine v0.0.0 ", NULL, NULL);
 	if (!m_Window)
 	{
 		

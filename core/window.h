@@ -9,7 +9,7 @@ class Window
 {
 	//functions
 	public:
-		Window(int width, int height);
+		Window();
 		~Window();
 
 		void Update();
@@ -25,7 +25,8 @@ class Window
 
 	//variables
 	private:
-
+		int m_Width = 1366;
+		int m_Height = 768;
 
 
 };
