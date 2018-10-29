@@ -9,6 +9,11 @@
 
 #include "../debug.h"
 
+//
+#include <cassert>
+#include <map>
+//
+
 class Material
 {
 	//functions
@@ -22,13 +27,13 @@ class Material
 	//variables
 	public:
 
-		Color m_Color;
+		//Color m_Color;
 
-		Shader m_Shader;
+		//Shader m_Shader;
 
-		Texture m_MainTexture;
+		//Texture m_MainTexture;
 
-		Texture m_NormalMap;
+		//Texture m_NormalMap;
 
 
 	//variables

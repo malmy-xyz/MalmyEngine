@@ -39,6 +39,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)thirdparty\glfw-3.2.1\lib-vc2015;$(SolutionDir)thirdparty\glew-2.1.0\lib\Release\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glew32s.lib;glfw3.lib;opengl32.lib;User32.lib;Gdi32.lib;Shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -58,7 +59,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include=".\components\meshRenderer.h" />
-    <ClInclude Include=".\maths\vector3.h" />
     <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glxew.h" />
     <ClInclude Include=".\main\tests\testClass.h" />
     <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\glew.h" />
@@ -69,25 +69,26 @@
     <ClInclude Include=".\main\tests\testScene.h" />
     <ClInclude Include=".\core\rendering\texture.h" />
     <ClInclude Include=".\scene\scene.h" />
-    <ClInclude Include=".\core\rendering\mesh.h" />
     <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3native.h" />
     <ClInclude Include=".\components\component.h" />
     <ClInclude Include=".\components\transform.h" />
-    <ClInclude Include=".\maths\quaternion.h" />
     <ClInclude Include=".\thirdparty\glew-2.1.0\include\GL\eglew.h" />
     <ClInclude Include=".\core\rendering\material.h" />
     <ClInclude Include=".\core\window.h" />
     <ClInclude Include=".\core\gameObject.h" />
     <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h" />
+    <ClInclude Include="components\camera.h" />
     <ClInclude Include="core\engine.h" />
     <ClInclude Include="core\rendering\renderEngine.h" />
+    <ClInclude Include="maths\maths.h" />
+    <ClInclude Include="core\rendering\mesh.h" />
+    <ClInclude Include="core\io\meshLoader.h" />
+    <ClInclude Include="main\tests\testRender.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\components\transform.cpp" />
     <ClCompile Include=".\core\rendering\texture.cpp" />
     <ClCompile Include=".\main\main.cpp" />
-    <ClCompile Include=".\maths\quaternion.cpp" />
-    <ClCompile Include=".\core\rendering\mesh.cpp" />
     <ClCompile Include=".\core\rendering\color.cpp" />
     <ClCompile Include=".\components\component.cpp" />
     <ClCompile Include=".\components\meshRenderer.cpp" />
@@ -96,12 +97,16 @@
     <ClCompile Include=".\core\gameObject.cpp" />
     <ClCompile Include=".\main\tests\testScene.cpp" />
     <ClCompile Include=".\main\tests\testClass.cpp" />
-    <ClCompile Include=".\maths\vector3.cpp" />
     <ClCompile Include=".\scene\scene.cpp" />
     <ClCompile Include=".\core\window.cpp" />
     <ClCompile Include=".\core\rendering\shader.cpp" />
+    <ClCompile Include="components\camera.cpp" />
     <ClCompile Include="core\engine.cpp" />
     <ClCompile Include="core\rendering\renderEngine.cpp" />
+    <ClCompile Include="maths\maths.cpp" />
+    <ClCompile Include="core\rendering\mesh.cpp" />
+    <ClCompile Include="core\io\meshLoader.cpp" />
+    <ClCompile Include="main\tests\testRender.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

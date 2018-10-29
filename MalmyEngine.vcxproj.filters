@@ -27,9 +27,6 @@
     <ClInclude Include=".\components\meshRenderer.h">
       <Filter>components</Filter>
     </ClInclude>
-    <ClInclude Include=".\maths\vector3.h">
-      <Filter>maths</Filter>
-    </ClInclude>
     <ClInclude Include=".\main\tests\testClass.h">
       <Filter>main\tests</Filter>
     </ClInclude>
@@ -51,17 +48,11 @@
     <ClInclude Include=".\scene\scene.h">
       <Filter>scene</Filter>
     </ClInclude>
-    <ClInclude Include=".\core\rendering\mesh.h">
-      <Filter>core\rendering</Filter>
-    </ClInclude>
     <ClInclude Include=".\components\component.h">
       <Filter>components</Filter>
     </ClInclude>
     <ClInclude Include=".\components\transform.h">
       <Filter>components</Filter>
-    </ClInclude>
-    <ClInclude Include=".\maths\quaternion.h">
-      <Filter>maths</Filter>
     </ClInclude>
     <ClInclude Include=".\core\rendering\material.h">
       <Filter>core\rendering</Filter>
@@ -80,6 +71,11 @@
     <ClInclude Include=".\thirdparty\glfw-3.2.1\include\GLFW\glfw3.h" />
     <ClInclude Include="core\engine.h" />
     <ClInclude Include="core\rendering\renderEngine.h" />
+    <ClInclude Include="maths\maths.h" />
+    <ClInclude Include="core\rendering\mesh.h" />
+    <ClInclude Include="components\camera.h" />
+    <ClInclude Include="core\io\meshLoader.h" />
+    <ClInclude Include="main\tests\testRender.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\components\transform.cpp">
@@ -90,12 +86,6 @@
     </ClCompile>
     <ClCompile Include=".\main\main.cpp">
       <Filter>main</Filter>
-    </ClCompile>
-    <ClCompile Include=".\maths\quaternion.cpp">
-      <Filter>maths</Filter>
-    </ClCompile>
-    <ClCompile Include=".\core\rendering\mesh.cpp">
-      <Filter>core\rendering</Filter>
     </ClCompile>
     <ClCompile Include=".\core\rendering\color.cpp">
       <Filter>core\rendering</Filter>
@@ -121,9 +111,6 @@
     <ClCompile Include=".\main\tests\testClass.cpp">
       <Filter>main\tests</Filter>
     </ClCompile>
-    <ClCompile Include=".\maths\vector3.cpp">
-      <Filter>maths</Filter>
-    </ClCompile>
     <ClCompile Include=".\scene\scene.cpp">
       <Filter>scene</Filter>
     </ClCompile>
@@ -135,5 +122,10 @@
     </ClCompile>
     <ClCompile Include="core\engine.cpp" />
     <ClCompile Include="core\rendering\renderEngine.cpp" />
+    <ClCompile Include="maths\maths.cpp" />
+    <ClCompile Include="core\rendering\mesh.cpp" />
+    <ClCompile Include="components\camera.cpp" />
+    <ClCompile Include="core\io\meshLoader.cpp" />
+    <ClCompile Include="main\tests\testRender.cpp" />
   </ItemGroup>
 </Project>

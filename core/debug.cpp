@@ -13,11 +13,11 @@ void Debug::Log(std::string log)
 
 void Debug::LogInfo(std::string log)
 {
-	std::cout << "!! " << log << std::endl;
+	std::clog << "!! " << log << std::endl;
 }
 
 void Debug::LogError(std::string log)
 {
 
-	std::cout << "?? " << log << std::endl;
+	std::cerr << "?? " << log << std::endl;
 }

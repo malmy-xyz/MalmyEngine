@@ -42,6 +42,7 @@ TestScene::TestScene()
 	m_Scene->Update();
 
 	Window* m_Window = new Window();
+		
 	RenderEngine* m_RenderEngine = new RenderEngine();
 	Engine* m_Engine = new Engine();
 
@@ -50,6 +51,8 @@ TestScene::TestScene()
 	m_Engine->Start();
 
 	//parent child dene burda
+
+
 
 
 
