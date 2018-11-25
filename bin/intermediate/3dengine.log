@@ -1,0 +1,460 @@
+﻿  freeLook.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  freeMove.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsEngineComponent.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsObjectComponent.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  coreEngine.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  entity.cpp
+  game.cpp
+  input.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  mappedValues.cpp
+  math3d.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  profiling.cpp
+  timing.cpp
+  transform.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  util.cpp
+  main.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\main.cpp(140): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\main.cpp(146): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  aabb.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  boundingSphere.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  collider.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsEngine.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsObject.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  Generating Code...
+  Compiling...
+  plane.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  camera.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  lighting.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\rendering\lighting.cpp(82): warning C4305: 'argument': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+  material.cpp
+  mesh.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  renderingEngine.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  shader.cpp
+  texture.cpp
+  window.cpp
+  testing.cpp
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(911): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(83): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(873): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(273): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  c:\users\ynsbalci\desktop\3dengine\3dengine\src\core\math3d.h(807): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  Generating Code...
+  stb_image.c
+  3dengine.vcxproj -> C:\Users\ynsbalci\Desktop\3dengine\bin\3dengine.exe
