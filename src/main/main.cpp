@@ -1,27 +1,11 @@
-/*
- * Copyright (C) 2014 Benny Bobaganoosh
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include "3DEngine.h"
 #include "testing.h"
 
-#include "components/freeLook.h"
-#include "components/freeMove.h"
-#include "components/physicsEngineComponent.h"
-#include "components/physicsObjectComponent.h"
-#include "physics/boundingSphere.h"
+#include "../components/freeLook.h"
+#include "../components/freeMove.h"
+#include "../components/physicsEngineComponent.h"
+#include "../components/physicsObjectComponent.h"
+#include "../physics/boundingSphere.h"
 
 class TestGame : public Game
 {
@@ -163,40 +147,11 @@ int main()
 	Testing::RunAllTests();
 
 	TestGame game;
-	Window window(800, 600, "3D Game Engine");
+	Window window(1280, 720, "Malmy Engine !");
 	RenderingEngine renderer(window);
-	
-	//window.SetFullScreen(true);
 	
 	CoreEngine engine(60, &window, &renderer, &game);
 	engine.Start();
-	
-	//window.SetFullScreen(false);
-
-//	Window window(800, 600, "My Window");
-//	RenderingEngine engine(window);
-//	
-//	Material bricks2("bricks2", Texture("bricks2.jpg"), 1, 8, Texture("bricks2_normal.png"), Texture("bricks2_disp.jpg"), 0.04f, -1.0f);
-//	GameObject root;
-//	Transform cameraTransform;
-//	Camera camera(Matrix4f().InitPerspective(ToRadians(70.0f), window.GetAspect(), 0.1f, 1000.0f), &cameraTransform);
-//	
-//	root.AddChild((new GameObject(Vector3f(0, 2, 0), Quaternion(Vector3f(0,1,0), 0.4f), 1.0f))
-//		->AddComponent(new MeshRenderer(Mesh("plane3.obj"), Material("bricks2")))
-//		->AddChild((new GameObject(Vector3f(0, 0, 25)))
-//			->AddComponent(new MeshRenderer(Mesh("plane3.obj"), Material("bricks2")))
-//			//->AddChild((new GameObject())
-//				->AddComponent(new FreeLook(window.GetCenter()))
-//				->AddComponent(new FreeMove())));
-//	
-//	while(!window.IsCloseRequested())
-//	{
-//		window.Update();
-//		root.ProcessInputAll(window.GetInput(), 0.01f);
-//		root.UpdateAll(0.01f);
-//		engine.Render(root, camera);
-//		window.SwapBuffers();
-//	}
 	
 	return 0;
 }

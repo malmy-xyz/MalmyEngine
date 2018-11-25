@@ -1,9 +1,9 @@
 #include "testing.h"
 
-#include "physics/boundingSphere.h"
-#include "physics/aabb.h"
-#include "physics/plane.h"
-#include "physics/physicsObject.h"
+#include "../physics/boundingSphere.h"
+#include "../physics/aabb.h"
+#include "../physics/plane.h"
+#include "../physics/physicsObject.h"
 
 #include <iostream>
 #include <cassert>
