@@ -1,1 +1,462 @@
-﻿  MalmyEngine.vcxproj -> C:\Users\ynsbalci\Desktop\Projects\MalmyEngine\bin\MalmyEngine.exe
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
+C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  freeLook.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  freeMove.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsEngineComponent.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsObjectComponent.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  coreEngine.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  entity.cpp
+  game.cpp
+  input.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  mappedValues.cpp
+  math3d.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  profiling.cpp
+  timing.cpp
+  transform.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  util.cpp
+  main.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\main\main.cpp(124): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\main\main.cpp(130): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  testing.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  aabb.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  boundingSphere.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  collider.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  physicsEngine.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  Generating Code...
+  Compiling...
+  physicsObject.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  plane.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  camera.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  lighting.cpp
+d:\projects\github\malmyengine\src\rendering\lighting.cpp(66): warning C4305: 'argument': truncation from 'double' to 'T'
+          with
+          [
+              T=float
+          ]
+  material.cpp
+  mesh.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  renderingEngine.cpp
+d:\projects\github\malmyengine\src\core\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+d:\projects\github\malmyengine\src\core\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(67): note: while compiling class template member function 'T Vector<T,4>::Length(void) const'
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(857): note: see reference to function template instantiation 'T Vector<T,4>::Length(void) const' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(257): note: see reference to class template instantiation 'Vector<T,4>' being compiled
+          with
+          [
+              T=float
+          ]
+  d:\projects\github\malmyengine\src\core\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  shader.cpp
+  texture.cpp
+  window.cpp
+  Generating Code...
+  stb_image.c
+  MalmyEngine.vcxproj -> D:\Projects\Github\MalmyEngine\src\..\bin\MalmyEngine.exe

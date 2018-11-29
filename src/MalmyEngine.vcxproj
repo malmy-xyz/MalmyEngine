@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{0B31AB20-8725-4D28-AE23-6E2B5F21A587}</ProjectGuid>
+    <RootNamespace>MalmyEngine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>..\bin</OutDir>
+    <IntDir>..\bin\intermediate</IntDir>
+    <IncludePath>$(SolutionDir)lib\SDL2\include;$(SolutionDir)lib\glew\include;$(SolutionDir)lib\Assimp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\Assimp\lib\x86;$(SolutionDir)lib\glew\lib\Release\Win32;$(SolutionDir)lib\SDL2\lib\x86;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS.;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;SDL2.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS.;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="components\freeLook.cpp" />
+    <ClCompile Include="components\freeMove.cpp" />
+    <ClCompile Include="components\physicsEngineComponent.cpp" />
+    <ClCompile Include="components\physicsObjectComponent.cpp" />
+    <ClCompile Include="core\coreEngine.cpp" />
+    <ClCompile Include="core\entity.cpp" />
+    <ClCompile Include="core\game.cpp" />
+    <ClCompile Include="core\input.cpp" />
+    <ClCompile Include="core\mappedValues.cpp" />
+    <ClCompile Include="core\math3d.cpp" />
+    <ClCompile Include="core\profiling.cpp" />
+    <ClCompile Include="core\timing.cpp" />
+    <ClCompile Include="core\transform.cpp" />
+    <ClCompile Include="core\util.cpp" />
+    <ClCompile Include="main\main.cpp" />
+    <ClCompile Include="main\testing.cpp" />
+    <ClCompile Include="physics\aabb.cpp" />
+    <ClCompile Include="physics\boundingSphere.cpp" />
+    <ClCompile Include="physics\collider.cpp" />
+    <ClCompile Include="physics\physicsEngine.cpp" />
+    <ClCompile Include="physics\physicsObject.cpp" />
+    <ClCompile Include="physics\plane.cpp" />
+    <ClCompile Include="rendering\camera.cpp" />
+    <ClCompile Include="rendering\lighting.cpp" />
+    <ClCompile Include="rendering\material.cpp" />
+    <ClCompile Include="rendering\mesh.cpp" />
+    <ClCompile Include="rendering\renderingEngine.cpp" />
+    <ClCompile Include="rendering\shader.cpp" />
+    <ClCompile Include="rendering\texture.cpp" />
+    <ClCompile Include="rendering\window.cpp" />
+    <ClCompile Include="staticLibs\stb_image.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="components\freeLook.h" />
+    <ClInclude Include="components\freeMove.h" />
+    <ClInclude Include="components\meshRenderer.h" />
+    <ClInclude Include="components\physicsEngineComponent.h" />
+    <ClInclude Include="components\physicsObjectComponent.h" />
+    <ClInclude Include="core\coreEngine.h" />
+    <ClInclude Include="core\entity.h" />
+    <ClInclude Include="core\entityComponent.h" />
+    <ClInclude Include="core\game.h" />
+    <ClInclude Include="core\input.h" />
+    <ClInclude Include="core\mappedValues.h" />
+    <ClInclude Include="core\math3d.h" />
+    <ClInclude Include="core\profiling.h" />
+    <ClInclude Include="core\referenceCounter.h" />
+    <ClInclude Include="core\timing.h" />
+    <ClInclude Include="core\transform.h" />
+    <ClInclude Include="core\util.h" />
+    <ClInclude Include="main\3DEngine.h" />
+    <ClInclude Include="main\testing.h" />
+    <ClInclude Include="physics\aabb.h" />
+    <ClInclude Include="physics\boundingSphere.h" />
+    <ClInclude Include="physics\collider.h" />
+    <ClInclude Include="physics\intersectData.h" />
+    <ClInclude Include="physics\physicsEngine.h" />
+    <ClInclude Include="physics\physicsObject.h" />
+    <ClInclude Include="physics\plane.h" />
+    <ClInclude Include="rendering\camera.h" />
+    <ClInclude Include="rendering\lighting.h" />
+    <ClInclude Include="rendering\material.h" />
+    <ClInclude Include="rendering\mesh.h" />
+    <ClInclude Include="rendering\renderingEngine.h" />
+    <ClInclude Include="rendering\shader.h" />
+    <ClInclude Include="rendering\texture.h" />
+    <ClInclude Include="rendering\window.h" />
+    <ClInclude Include="staticLibs\simdaccel.h" />
+    <ClInclude Include="staticLibs\simddefines.h" />
+    <ClInclude Include="staticLibs\simdemulator.h" />
+    <ClInclude Include="staticLibs\stb_image.h" />
+    <ClInclude Include="staticLibs\x86simdaccel.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
