@@ -1,6 +1,6 @@
 #ifndef MYINPUT_H
 #define MYINPUT_H
-#include "math3d.h"
+#include "../maths/math3d.h"
 
 class Window;
 

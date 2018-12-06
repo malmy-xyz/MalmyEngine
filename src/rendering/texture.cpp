@@ -1,6 +1,6 @@
 #include "texture.h"
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/profiling.h"
 
 #include "../staticLibs/stb_image.h"

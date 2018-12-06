@@ -2,7 +2,7 @@
 #define MATERIAL_H
 
 #include "texture.h"
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/mappedValues.h"
 #include <map>
 

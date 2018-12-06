@@ -1,7 +1,7 @@
 #ifndef FREEMOVE_H
 #define FREEMOVE_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/entityComponent.h"
 
 class FreeMove : public EntityComponent

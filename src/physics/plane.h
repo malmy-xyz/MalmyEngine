@@ -1,7 +1,7 @@
 #ifndef PLANE_INCLUDED_H
 #define PLANE_INCLUDED_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "boundingSphere.h"
 
 /**

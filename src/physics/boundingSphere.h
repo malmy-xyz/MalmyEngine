@@ -1,7 +1,7 @@
 #ifndef BOUNDING_SPHERE_INCLUDED_H
 #define BOUNDING_SPHERE_INCLUDED_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "intersectData.h"
 #include "collider.h"
 

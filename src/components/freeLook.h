@@ -1,7 +1,7 @@
 #ifndef FREELOOK_H
 #define FREELOOK_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/entityComponent.h"
 
 class FreeLook : public EntityComponent

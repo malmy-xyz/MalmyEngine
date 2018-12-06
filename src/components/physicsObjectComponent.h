@@ -4,7 +4,7 @@
 #include "../core/entityComponent.h"
 #include "../physics/physicsEngine.h"
 
-/** This class is temporary! */
+/** Gecici */
 class PhysicsObjectComponent : public EntityComponent
 {
 public:

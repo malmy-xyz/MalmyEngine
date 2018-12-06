@@ -4,7 +4,7 @@
 #include <map>
 
 #include "../rendering/texture.h"
-#include "math3d.h"
+#include "../maths/math3d.h"
 
 class MappedValues
 {

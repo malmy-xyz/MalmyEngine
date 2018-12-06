@@ -42,9 +42,6 @@
     <ClCompile Include="core\mappedValues.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="core\math3d.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\profiling.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -108,6 +105,12 @@
     <ClCompile Include="staticLibs\stb_image.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="main\testGame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="maths\math3d.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\freeLook.h">
@@ -143,9 +146,6 @@
     <ClInclude Include="core\mappedValues.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\math3d.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\profiling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -159,9 +159,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main\3DEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="main\testing.h">
@@ -225,6 +222,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="staticLibs\x86simdaccel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main\testGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="maths\math3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

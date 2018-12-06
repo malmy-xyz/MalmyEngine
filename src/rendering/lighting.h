@@ -3,7 +3,7 @@
 
 #include "shader.h"
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/entityComponent.h"
 
 class CoreEngine;

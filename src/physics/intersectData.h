@@ -1,7 +1,7 @@
 #ifndef INTERSECT_DATA_INCLUDED_H
 #define INTERSECT_DATA_INCLUDED_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 
 /**
  * The IntersectData class stores information about two intersecting objects.

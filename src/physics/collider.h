@@ -2,7 +2,7 @@
 #define COLLIDER_INCLUDED_H
 
 #include "intersectData.h"
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/referenceCounter.h"
 
 /**

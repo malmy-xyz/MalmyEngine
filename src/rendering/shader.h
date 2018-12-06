@@ -6,7 +6,7 @@
 #include <string>
 
 #include "../core/referenceCounter.h"
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/transform.h"
 #include "material.h"
 #include "camera.h"

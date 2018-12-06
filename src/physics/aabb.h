@@ -1,7 +1,7 @@
 #ifndef AABB_INCLUDED_H
 #define AABB_INCLUDED_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "intersectData.h"
 
 /**

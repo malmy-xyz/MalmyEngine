@@ -1,7 +1,7 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/referenceCounter.h"
 
 #include <string>

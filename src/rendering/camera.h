@@ -1,7 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include "../core/math3d.h"
+#include "../maths/math3d.h"
 #include "../core/entityComponent.h"
 
 //Cameras represent a location, orientation, and projection from
