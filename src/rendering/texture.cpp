@@ -80,8 +80,8 @@ void TextureData::InitRenderTargets(GLenum* attachments)
 	if(attachments == 0)
 		return;
 
-	GLenum drawBuffers[32];      //32 is the max number of bound textures in OpenGL
-	assert(m_numTextures <= 32); //Assert to be sure no buffer overrun should occur
+	GLenum drawBuffers[32];      //maksimun 32 tane oluyomus OpenGl de
+	assert(m_numTextures <= 32); //32 den az olmasi lazm tasma varsa cokuyo
 
 	bool hasDepth = false;
 	for(int i = 0; i < m_numTextures; i++)

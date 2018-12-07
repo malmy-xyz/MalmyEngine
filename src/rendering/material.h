@@ -6,6 +6,8 @@
 #include "../core/mappedValues.h"
 #include <map>
 
+//materialler otomatik olusuyo ama bunlari texden okuyack resin altinda
+//bu sayede deflarca kez kullanialbileckle
 class MaterialData : public ReferenceCounter, public MappedValues
 {
 public:

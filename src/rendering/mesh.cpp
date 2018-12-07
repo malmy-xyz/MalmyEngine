@@ -135,12 +135,6 @@ void IndexedModel::CalcTangents()
         tangent.SetY(f * (deltaV2 * edge1.GetY() - deltaV1 * edge2.GetY()));
         tangent.SetZ(f * (deltaV2 * edge1.GetZ() - deltaV1 * edge2.GetZ()));
 
-//Bitangent example, in Java
-//		Vector3f bitangent = new Vector3f(0,0,0);
-//		
-//		bitangent.setX(f * (-deltaU2 * edge1.getX() - deltaU1 * edge2.getX()));
-//		bitangent.setX(f * (-deltaU2 * edge1.getY() - deltaU1 * edge2.getY()));
-//		bitangent.setX(f * (-deltaU2 * edge1.getZ() - deltaU1 * edge2.getZ()));
 
 		m_tangents[i0] += tangent;
 		m_tangents[i1] += tangent;

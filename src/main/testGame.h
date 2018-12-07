@@ -1,4 +1,3 @@
-
 #ifndef __TESTGAME_H_INCLUDED
 #define __TESTGAME_H_INCLUDED
 
@@ -15,7 +14,7 @@
 #include "../core/coreEngine.h"
 #include "../core/game.h"
 
-//SDL2 defines a main macro, which can prevent certain compilers from finding the main function.
+//SDL makrosu burasi
 #undef main
 
 #endif // TESTGAME_H_INCLUDED
