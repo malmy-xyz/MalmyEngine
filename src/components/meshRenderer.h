@@ -24,3 +24,8 @@ private:
 };
 
 #endif // MESHRENDERER_H_INCLUDED
+
+/*
+
+render funksiyonlari Update ile degiscek
+*/

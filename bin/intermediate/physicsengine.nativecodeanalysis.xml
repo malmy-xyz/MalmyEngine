@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\maths</FILEPATH>
+      <FILENAME>math3d.h</FILENAME>
+      <LINE>891</LINE>
+      <COLUMN>20</COLUMN>
+    </SFA>
+    <DEFECTCODE>26451</DEFECTCODE>
+    <DESCRIPTION>Arithmetic overflow: Using operator '-' on a 4 byte value and then casting the result to a 8 byte value. Cast the value to the wider type before calling operator '-' to avoid overflow (io.2).</DESCRIPTION>
+    <FUNCTION>Quaternion::SLerp</FUNCTION>
+    <DECORATED>?SLerp@Quaternion@@QBE?AV1@ABV1@M_N@Z</DECORATED>
+    <FUNCLINE>876</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\maths</FILEPATH>
+      <FILENAME>math3d.h</FILENAME>
+      <LINE>33</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Vector&lt;float,4&gt;::values' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Vector&lt;float,4&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$Vector@M$03@@QAE@XZ</DECORATED>
+    <FUNCLINE>33</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\maths</FILEPATH>
+      <FILENAME>math3d.h</FILENAME>
+      <LINE>33</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Vector&lt;float,3&gt;::values' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Vector&lt;float,3&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$Vector@M$02@@QAE@XZ</DECORATED>
+    <FUNCLINE>33</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

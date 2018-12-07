@@ -4,7 +4,9 @@
 #include "../core/entityComponent.h"
 #include "../physics/physicsEngine.h"
 
-/** Gecici */
+/** rigidbody yap
+Update i FixedUpdate Yap
+*/
 class PhysicsObjectComponent : public EntityComponent
 {
 public:

@@ -8,6 +8,12 @@
 #define PROFILING_SET_1x1_VIEWPORT 0
 #define PROFILING_SET_2x2_TEXTURE 0
 
+//burasi ststus kismi 
+//burda yazdigi kism degiscek
+//sdl ile ekranin kosesine alicak
+//ya da baska bi pencere yoneticiyskle
+
+
 class ProfileTimer
 {
 public:

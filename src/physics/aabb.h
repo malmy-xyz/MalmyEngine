@@ -5,41 +5,36 @@
 #include "intersectData.h"
 
 /**
- * The AABB class represents an Axis Aligned Bounding Box that can be used as
- * a collider in a physics engine.
+burasi fizik motirunda carpisma icin
  */
 class AABB
 {
 public:
-	/** 
-	 * Creates an AABB in a usable state.
-	 * 
-	 * @param minExtents The corner of the AABB with the smallest coordinates.
-	 * @param maxExtents The corner of the AABB with the largest coordinates.
-	 */
+	
+	//kullanilabir bi AABB olusutr
+	//min ve mak koordinatlari ayarla
+	//bunu asarsa fizik  ootru coker
+
 	AABB(const Vector3f& minExtents, const Vector3f& maxExtents) :
 		m_minExtents(minExtents),
 		m_maxExtents(maxExtents) {}
 	
-	/**
-	 * Computes information about if this AABB intersects another AABB.
-	 *
-	 * @param other The AABB that's being tested for intersection with this
-	 *                AABB.
-	 */
+	//iki AABB kesisirse haber ver
+	//carpisma burasi iste
+	//daha fazl hareket etmesini eneglle bu duurmda
 	IntersectData IntersectAABB(const AABB& other) const;
 
-	/** Basic getter for the min extents */
+	//min uzunluk
 	inline const Vector3f& GetMinExtents() const { return m_minExtents; }
-	/** Basic getter for the max extents */
+	//maks uzunluk
 	inline const Vector3f& GetMaxExtents() const { return m_maxExtents; }
 
-	/** Performs a Unit test of this class */
+	//birim testi icin
 	static void Test();
 private:
-	/** The corner of the AABB with the smallest coordinates */
+	//en kucuk kkordinatlariini kosesi
 	const Vector3f m_minExtents;
-	/** The corner of the AABB with the largest coordinates */
+	//en buyuk koorinatlarinin kosesi
 	const Vector3f m_maxExtents;
 };
 

@@ -23,3 +23,9 @@ private:
 };
 
 #endif // FREELOOK_H
+
+/*
+Bu class sadece editorde calicacak
+cameranin hareki icin
+freeMove ile birlestir
+*/

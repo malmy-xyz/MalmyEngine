@@ -4,7 +4,10 @@
 #include "../core/entityComponent.h"
 #include "../physics/physicsEngine.h"
 
-/** This class is temporary! */
+/** rigidbody yap
+Update i FixedUpdate Yap
+*/
+
 class PhysicsEngineComponent : public EntityComponent
 {
 public:

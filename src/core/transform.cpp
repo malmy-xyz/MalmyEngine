@@ -1,5 +1,7 @@
 #include "transform.h"
 
+
+
 bool Transform::HasChanged()
 {	
 	if(m_parent != 0 && m_parent->HasChanged())

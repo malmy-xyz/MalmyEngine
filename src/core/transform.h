@@ -3,6 +3,10 @@
 
 #include "../maths/math3d.h"
 
+//aslinda bu bir componet ama cok falza ozelligi var 
+//biraz daha toplayinca compnete ata 
+//kullaici scrip yarken bunu kullnicak cunku
+
 class Transform
 {
 public:

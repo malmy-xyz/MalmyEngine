@@ -1,0 +1,2 @@
+buraya freeLook freeMove vs tasincak 
+input ikiye ayrilip editorInput yazilcak

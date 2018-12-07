@@ -15,17 +15,17 @@ public:
 	Camera(const Matrix4f& projection, Transform* transform) :
 		m_projection(projection),
 		m_transform(transform) {}
-	
-	inline Transform* GetTransform()             { return m_transform; }
+
+	inline Transform* GetTransform() { return m_transform; }
 	inline const Transform& GetTransform() const { return *m_transform; }
-	
+
 	//This is the primary function of the camera. Multiplying a point by the returned matrix
 	//will transform the point into it's location on the screen, where -1 represents the bottom/left
 	//of the screen, and 1 represents the top/right of the screen.
 	Matrix4f GetViewProjection()           const;
-	
+
 	inline void SetProjection(const Matrix4f& projection) { m_projection = projection; }
-	inline void SetTransform(Transform* transform)        { m_transform = transform; }
+	inline void SetTransform(Transform* transform) { m_transform = transform; }
 protected:
 private:
 	Matrix4f   m_projection; //The projection with which the camera sees the world (i.e. perspective, orthographic, identity, etc.)
@@ -42,11 +42,11 @@ public:
 	//and therefore doesn't have access to a valid transform.
 	CameraComponent(const Matrix4f& projection) :
 		m_camera(projection, 0) {}
-	
+
 	virtual void AddToEngine(CoreEngine* engine) const;
-	
+
 	inline Matrix4f GetViewProjection() const { return m_camera.GetViewProjection(); }
-	
+
 	inline void SetProjection(const Matrix4f& projection) { m_camera.SetProjection(projection); }
 	virtual void SetParent(Entity* parent);
 protected:

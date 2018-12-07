@@ -7,6 +7,7 @@
 class RenderingEngine;
 class Shader;
 
+//Game object gibi bisey bu 
 class EntityComponent
 {
 public:

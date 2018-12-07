@@ -5,24 +5,25 @@
 #include <string>
 class Game;
 
-//This is the central part of the game engine. It's purpose is to manage interaction 
-//between the various sub-engines (such as the rendering and physics engines) and the game itself.
+//ana motor kismi etkilesimleri vs yonetmek icin
+//render + physic den olusuyo ilerde baska seylerde eklencek
+//inputu da ayirabilirz
 class CoreEngine
 {
 public:
 	CoreEngine(double frameRate, Window* window, RenderingEngine* renderingEngine, Game* game);
 	
-	void Start(); //Starts running the game; contains central game loop.
-	void Stop();  //Stops running the game, and disables all subsystems.
+	void Start(); //Update icinde //motoru baslatnakcicn
+	void Stop();  //oyunu ve diger altsistemleri durdur
 	
 	inline RenderingEngine* GetRenderingEngine() { return m_renderingEngine; }
 protected:
 private:
-	bool             m_isRunning;       //Whether or not the engine is running
-	double           m_frameTime;       //How long, in seconds, one frame should take
-	Window*          m_window;          //Used to display the game
-	RenderingEngine* m_renderingEngine; //Used to render the game. Stored as pointer so the user can pass in a derived class.
-	Game*            m_game;            //The game itself. Stored as pointer so the user can pass in a derived class.
+	bool             m_isRunning;       //motor calsiiyomu
+	double           m_frameTime;       //frame ne kadar suruyo fps = 1 / frameTime
+	Window*          m_window;          //oyunun cizildigi window
+	RenderingEngine* m_renderingEngine; //render motoru
+	Game*            m_game;            //ekran cizile oyun iste
 };
 
 #endif // COREENGINE_H

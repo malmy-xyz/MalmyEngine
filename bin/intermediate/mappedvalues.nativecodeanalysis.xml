@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_textureID' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_frameBuffer' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_height' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_textureTarget' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_width' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_numTextures' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\rendering</FILEPATH>
+      <FILENAME>texture.h</FILENAME>
+      <LINE>23</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'TextureData::m_renderBuffer' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>TextureData::{ctor}</FUNCTION>
+    <DECORATED>??0TextureData@@AAE@AAV0@@Z</DECORATED>
+    <FUNCLINE>23</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\maths</FILEPATH>
+      <FILENAME>math3d.h</FILENAME>
+      <LINE>33</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Vector&lt;float,4&gt;::values' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Vector&lt;float,4&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$Vector@M$03@@QAE@XZ</DECORATED>
+    <FUNCLINE>33</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>c:\users\ynsbalci\documents\github\malmyengine\src\maths</FILEPATH>
+      <FILENAME>math3d.h</FILENAME>
+      <LINE>33</LINE>
+      <COLUMN>1</COLUMN>
+    </SFA>
+    <DEFECTCODE>26495</DEFECTCODE>
+    <DESCRIPTION>Variable 'Vector&lt;float,3&gt;::values' is uninitialized. Always initialize a member variable (type.6).</DESCRIPTION>
+    <FUNCTION>Vector&lt;float,3&gt;::{ctor}</FUNCTION>
+    <DECORATED>??0?$Vector@M$02@@QAE@XZ</DECORATED>
+    <FUNCLINE>33</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

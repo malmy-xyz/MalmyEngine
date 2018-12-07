@@ -1,6 +1,10 @@
 #ifndef REFERENCECOUNTER_H
 #define REFERENCECOUNTER_H
 
+//sahne vs saymak icin
+//bauna vertex count tris polygon vs sayma ozeloig eknelcek
+//prifllling de de yazicak
+
 class ReferenceCounter
 {
 public:
