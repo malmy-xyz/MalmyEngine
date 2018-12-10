@@ -1,5 +1,6 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  main.cpp
   testGame.cpp
 c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
@@ -23,4 +24,5 @@ c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(67): warning C
               T=float
           ]
   c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(791): note: see reference to class template instantiation 'Vector4<float>' being compiled
+  Generating Code...
   MalmyEngine.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\bin\MalmyEngine.exe

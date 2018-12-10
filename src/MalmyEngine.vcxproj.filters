@@ -21,12 +21,6 @@
     <ClCompile Include="components\freeMove.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="components\physicsEngineComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="components\physicsObjectComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\coreEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,27 +49,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main\testing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\aabb.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\boundingSphere.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\collider.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\physicsEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\physicsObject.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="physics\plane.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rendering\camera.cpp">
@@ -122,12 +95,6 @@
     <ClInclude Include="components\meshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="components\physicsEngineComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="components\physicsObjectComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\coreEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -159,30 +126,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\util.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main\testing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\aabb.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\boundingSphere.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\collider.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\intersectData.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\physicsEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\physicsObject.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="physics\plane.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\camera.h">

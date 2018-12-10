@@ -21,9 +21,7 @@
 
 #include "../components/freeLook.h"
 #include "../components/freeMove.h"
-#include "../components/physicsEngineComponent.h"
-#include "../components/physicsObjectComponent.h"
-#include "../physics/boundingSphere.h"
+
 
 class TestGame : public Game
 {

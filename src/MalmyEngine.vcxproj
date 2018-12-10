@@ -79,8 +79,6 @@
   <ItemGroup>
     <ClCompile Include="components\freeLook.cpp" />
     <ClCompile Include="components\freeMove.cpp" />
-    <ClCompile Include="components\physicsEngineComponent.cpp" />
-    <ClCompile Include="components\physicsObjectComponent.cpp" />
     <ClCompile Include="core\coreEngine.cpp" />
     <ClCompile Include="core\entity.cpp" />
     <ClCompile Include="core\game.cpp" />
@@ -92,13 +90,6 @@
     <ClCompile Include="core\transform.cpp" />
     <ClCompile Include="core\util.cpp" />
     <ClCompile Include="main\main.cpp" />
-    <ClCompile Include="main\testing.cpp" />
-    <ClCompile Include="physics\aabb.cpp" />
-    <ClCompile Include="physics\boundingSphere.cpp" />
-    <ClCompile Include="physics\collider.cpp" />
-    <ClCompile Include="physics\physicsEngine.cpp" />
-    <ClCompile Include="physics\physicsObject.cpp" />
-    <ClCompile Include="physics\plane.cpp" />
     <ClCompile Include="rendering\camera.cpp" />
     <ClCompile Include="rendering\lighting.cpp" />
     <ClCompile Include="rendering\material.cpp" />
@@ -114,8 +105,6 @@
     <ClInclude Include="components\freeLook.h" />
     <ClInclude Include="components\freeMove.h" />
     <ClInclude Include="components\meshRenderer.h" />
-    <ClInclude Include="components\physicsEngineComponent.h" />
-    <ClInclude Include="components\physicsObjectComponent.h" />
     <ClInclude Include="core\coreEngine.h" />
     <ClInclude Include="core\entity.h" />
     <ClInclude Include="core\entityComponent.h" />
@@ -128,14 +117,6 @@
     <ClInclude Include="core\timing.h" />
     <ClInclude Include="core\transform.h" />
     <ClInclude Include="core\util.h" />
-    <ClInclude Include="main\testing.h" />
-    <ClInclude Include="physics\aabb.h" />
-    <ClInclude Include="physics\boundingSphere.h" />
-    <ClInclude Include="physics\collider.h" />
-    <ClInclude Include="physics\intersectData.h" />
-    <ClInclude Include="physics\physicsEngine.h" />
-    <ClInclude Include="physics\physicsObject.h" />
-    <ClInclude Include="physics\plane.h" />
     <ClInclude Include="rendering\camera.h" />
     <ClInclude Include="rendering\lighting.h" />
     <ClInclude Include="rendering\material.h" />
