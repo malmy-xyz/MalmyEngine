@@ -1,5 +1,5 @@
 #include "entity.h"
-#include "entityComponent.h"
+#include "gameObject.h"
 #include "coreEngine.h"
 
 //entity //UNity de object iste
@@ -33,7 +33,7 @@ Entity* Entity::AddChild(Entity* child)
 }
 
 //componet ekelem
-Entity* Entity::AddComponent(EntityComponent* component)
+Entity* Entity::AddComponent(GameObject* component)
 {
 	m_components.push_back(component);
 	component->SetParent(this);

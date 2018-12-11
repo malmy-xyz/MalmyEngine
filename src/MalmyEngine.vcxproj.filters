@@ -15,12 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="components\freeLook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="components\freeMove.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\coreEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,14 +78,11 @@
     <ClCompile Include="maths\math3d.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="editor\editorCameraMove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="components\freeLook.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="components\freeMove.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="components\meshRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -99,9 +90,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\entity.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\entityComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\game.h">
@@ -171,6 +159,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="maths\math3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\editorCameraMove.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\gameObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

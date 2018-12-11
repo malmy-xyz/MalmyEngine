@@ -24,13 +24,11 @@ void TestGame::Init(const Window& window)
 			)
 		)		
 		->AddComponent(
-			new FreeLook(
+			new EditorCameraMove(
 				window.GetCenter()
 			)
 		)
-		->AddComponent(
-			new FreeMove(10.0f)
-		)
+
 	);
 	
 
@@ -50,15 +48,13 @@ void TestGame::Init(const Window& window)
 		->AddComponent(new MeshRenderer(Mesh("plane3.obj"), Material("plane"))));
 
 	
-	//
-	//3 taen spot isik olustur
-	
+
 	//Red Point Light
 	/*AddToScene((new Entity(Vector3f(0, 1, -5)))
 		->AddComponent(new PointLight(Vector3f(1.0f, 0, 0), 10.0f, Attenuation(1, 0, 1))));*/
 
 
-
+	// 3 tane spot isik olustur
 	AddToScene((new Entity(Vector3f(0, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f)) ))
 		->AddComponent(new SpotLight(Vector3f(0, 0, 1), 0.4f, Attenuation(0, 0, 0.02f), ToRadians(91.1f), 7, 1.0f, 0.5f)));
 

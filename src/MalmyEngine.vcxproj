@@ -77,13 +77,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="components\freeLook.cpp" />
-    <ClCompile Include="components\freeMove.cpp" />
     <ClCompile Include="core\coreEngine.cpp" />
     <ClCompile Include="core\entity.cpp" />
     <ClCompile Include="core\game.cpp" />
     <ClCompile Include="core\input.cpp" />
     <ClCompile Include="core\mappedValues.cpp" />
+    <ClCompile Include="editor\editorCameraMove.cpp" />
     <ClCompile Include="maths\math3d.cpp" />
     <ClCompile Include="core\profiling.cpp" />
     <ClCompile Include="core\timing.cpp" />
@@ -102,15 +101,14 @@
     <ClCompile Include="main\testGame.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="components\freeLook.h" />
-    <ClInclude Include="components\freeMove.h" />
     <ClInclude Include="components\meshRenderer.h" />
     <ClInclude Include="core\coreEngine.h" />
     <ClInclude Include="core\entity.h" />
-    <ClInclude Include="core\entityComponent.h" />
+    <ClInclude Include="core\gameObject.h" />
     <ClInclude Include="core\game.h" />
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
+    <ClInclude Include="editor\editorCameraMove.h" />
     <ClInclude Include="maths\math3d.h" />
     <ClInclude Include="core\profiling.h" />
     <ClInclude Include="core\referenceCounter.h" />

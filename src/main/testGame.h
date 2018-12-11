@@ -19,8 +19,7 @@
 
 #endif // TESTGAME_H_INCLUDED
 
-#include "../components/freeLook.h"
-#include "../components/freeMove.h"
+#include "../editor/editorCameraMove.h"
 
 
 class TestGame : public Game
