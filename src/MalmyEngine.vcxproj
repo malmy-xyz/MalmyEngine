@@ -82,6 +82,8 @@
     <ClCompile Include="core\game.cpp" />
     <ClCompile Include="core\input.cpp" />
     <ClCompile Include="core\mappedValues.cpp" />
+    <ClCompile Include="core\debug.cpp" />
+    <ClCompile Include="editor\EditorInput.cpp" />
     <ClCompile Include="editor\editorCameraMove.cpp" />
     <ClCompile Include="maths\math3d.cpp" />
     <ClCompile Include="core\profiling.cpp" />
@@ -104,10 +106,12 @@
     <ClInclude Include="components\meshRenderer.h" />
     <ClInclude Include="core\coreEngine.h" />
     <ClInclude Include="core\entity.h" />
-    <ClInclude Include="core\gameObject.h" />
+    <ClInclude Include="core\entityComponent.h" />
     <ClInclude Include="core\game.h" />
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
+    <ClInclude Include="core\debug.h" />
+    <ClInclude Include="editor\EditorInput.h" />
     <ClInclude Include="editor\editorCameraMove.h" />
     <ClInclude Include="maths\math3d.h" />
     <ClInclude Include="core\profiling.h" />

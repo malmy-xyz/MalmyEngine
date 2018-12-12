@@ -24,7 +24,7 @@ void CameraComponent::AddToEngine(CoreEngine* engine) const
 
 void CameraComponent::SetParent(Entity* parent)
 {
-	GameObject::SetParent(parent);
+	EntityComponent::SetParent(parent);
 
 	//cameranin pzosyonunu yatla
 	m_camera.SetTransform(GetTransform());

@@ -1,12 +1,12 @@
-#ifndef ENTITYOBJECT_H
-#define ENTITYOBJECT_H
+#ifndef EntityComponent_H
+#define EntityComponent_H
 
 #include <vector>
 #include "transform.h"
 #include "input.h"
 class Camera;
 class CoreEngine;
-class GameObject;
+class EntityComponent;
 class Shader;
 class RenderingEngine;
 
@@ -20,7 +20,7 @@ public:
 	virtual ~Entity();
 	
 	Entity* AddChild(Entity* child);
-	Entity* AddComponent(GameObject* component);
+	Entity* AddComponent(EntityComponent* component);
 	
 	void ProcessInputAll(const Input& input, float delta);
 	void UpdateAll(float delta);
@@ -33,7 +33,7 @@ public:
 protected:
 private:
 	std::vector<Entity*>          m_children;
-	std::vector<GameObject*> m_components;
+	std::vector<EntityComponent*> m_components;
 	Transform                     m_transform;
 	CoreEngine*                   m_coreEngine;
 
@@ -45,4 +45,4 @@ private:
 	void operator=(const Entity& other) {}
 };
 
-#endif // GAMEOBJECT_H
+#endif // EntityComponent_H

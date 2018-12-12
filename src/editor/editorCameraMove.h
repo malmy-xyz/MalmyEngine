@@ -3,9 +3,9 @@
 
 
 #include "../maths/math3d.h"
-#include "../core/gameObject.h"
+#include "../core/EntityComponent.h"
 
-class EditorCameraMove : public GameObject
+class EditorCameraMove : public EntityComponent
 {
 public:
 

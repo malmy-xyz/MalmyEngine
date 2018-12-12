@@ -12,7 +12,7 @@ int main()
 {
 
 	///
-	std::cout << "SCENE TEST " << std::endl;
+	Debug::Log("scene");
 
 	std::string fileName = "default";
 

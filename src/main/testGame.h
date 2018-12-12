@@ -14,6 +14,8 @@
 #include "../core/coreEngine.h"
 #include "../core/game.h"
 
+#include "../core/debug.h"
+
 //SDL makrosu burasi
 #undef main
 

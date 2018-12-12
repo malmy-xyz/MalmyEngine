@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "../maths/math3d.h"
-#include "../core/gameObject.h"
+#include "../core/EntityComponent.h"
 
 //trasnform pers/ortho 
 class Camera
@@ -28,7 +28,7 @@ private:
 };
 
 //camera componet bunu ayir ve componts altina koy
-class CameraComponent : public GameObject
+class CameraComponent : public EntityComponent
 {
 public:
 //trasnform null

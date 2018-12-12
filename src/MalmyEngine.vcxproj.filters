@@ -81,6 +81,12 @@
     <ClCompile Include="editor\editorCameraMove.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="editor\EditorInput.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\meshRenderer.h">
@@ -164,7 +170,13 @@
     <ClInclude Include="editor\editorCameraMove.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\gameObject.h">
+    <ClInclude Include="editor\EditorInput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\entityComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
