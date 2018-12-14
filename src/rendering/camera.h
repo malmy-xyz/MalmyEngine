@@ -2,7 +2,7 @@
 #define CAMERA_H
 
 #include "../maths/math3d.h"
-#include "../core/EntityComponent.h"
+#include "../components/entityComponent.h"
 
 //trasnform pers/ortho 
 class Camera

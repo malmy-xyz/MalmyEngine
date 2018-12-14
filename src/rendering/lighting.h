@@ -4,7 +4,7 @@
 #include "shader.h"
 
 #include "../maths/math3d.h"
-#include "../core/EntityComponent.h"
+#include "../components/entityComponent.h"
 
 class CoreEngine;
 

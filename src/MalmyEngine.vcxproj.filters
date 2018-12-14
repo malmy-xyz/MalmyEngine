@@ -176,7 +176,13 @@
     <ClInclude Include="core\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\entityComponent.h">
+    <ClInclude Include="components\entityComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\malmyScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="res\scripts\script.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

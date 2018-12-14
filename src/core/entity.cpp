@@ -1,5 +1,5 @@
 #include "entity.h"
-#include "EntityComponent.h"
+#include "../components/entityComponent.h"
 #include "coreEngine.h"
 
 //entity //UNity de object iste

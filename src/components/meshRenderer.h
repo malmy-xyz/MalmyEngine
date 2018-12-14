@@ -1,7 +1,7 @@
 #ifndef MESHRENDERER_H_INCLUDED
 #define MESHRENDERER_H_INCLUDED
 
-#include "../core/EntityComponent.h"
+#include "../components/entityComponent.h"
 #include "../rendering/mesh.h"
 
 class MeshRenderer : public EntityComponent
@@ -27,5 +27,5 @@ private:
 
 /*
 
-render funksiyonlari Update ile degiscek
+render funksiyonlari Update ile degisebilir
 */

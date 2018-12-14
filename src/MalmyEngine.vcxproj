@@ -103,10 +103,11 @@
     <ClCompile Include="main\testGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="components\malmyScript.h" />
     <ClInclude Include="components\meshRenderer.h" />
     <ClInclude Include="core\coreEngine.h" />
     <ClInclude Include="core\entity.h" />
-    <ClInclude Include="core\entityComponent.h" />
+    <ClInclude Include="components\entityComponent.h" />
     <ClInclude Include="core\game.h" />
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="rendering\shader.h" />
     <ClInclude Include="rendering\texture.h" />
     <ClInclude Include="rendering\window.h" />
+    <ClInclude Include="res\scripts\script.h" />
     <ClInclude Include="staticLibs\simdaccel.h" />
     <ClInclude Include="staticLibs\simddefines.h" />
     <ClInclude Include="staticLibs\simdemulator.h" />
