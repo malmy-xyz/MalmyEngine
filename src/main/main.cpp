@@ -30,7 +30,7 @@ int main()
 			getline(file, line);
 
 			//burda parse islemi baslicak
-			//shane dosyasini yarladiktan sonra burasyi yaz
+			//shane dosyasini ayarladiktan sonra burasyi yaz
 			//
 			std::cout << line << std::endl;
 		}
@@ -47,10 +47,12 @@ int main()
 
 	TestGame game;
 
+	//window kisminin detaylarinida ayarrladan cekcez sonra
+	//default  1280x720
 	Window window(1280, 720, "Malmy Engine !");
 	RenderingEngine renderer(window);
 	
-	CoreEngine engine(60, &window, &renderer, &game);
+	CoreEngine engine(&window, &renderer, &game);
 	engine.Start();
 	
 	return 0;

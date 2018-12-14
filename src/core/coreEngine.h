@@ -11,7 +11,7 @@ class Game;
 class CoreEngine
 {
 public:
-	CoreEngine(double frameRate, Window* window, RenderingEngine* renderingEngine, Game* game);
+	CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* game);
 	
 	void Start(); //Update icinde //motoru baslatnakcicn
 	void Stop();  //oyunu ve diger altsistemleri durdur

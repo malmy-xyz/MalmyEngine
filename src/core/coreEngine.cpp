@@ -7,9 +7,10 @@
 
 #include <stdio.h>
 
-CoreEngine::CoreEngine(double frameRate, Window* window, RenderingEngine* renderingEngine, Game* game) :
+CoreEngine::CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* game) :
 	m_isRunning(false),
-	m_frameTime(1.0/frameRate),
+	//frame rate default 50 bunlari yarlardan cekcen sonra onu yazinca
+	m_frameTime(1.0 / 50),
 	m_window(window),
 	m_renderingEngine(renderingEngine),
 	m_game(game)
@@ -76,8 +77,6 @@ void CoreEngine::Start()
 		}
 
 		//her update 1 / framecount
-
-
 		while(unprocessedTime > m_frameTime)
 		{
 			windowUpdateTimer.StartInvocation();

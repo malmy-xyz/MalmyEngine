@@ -1,8 +1,6 @@
 #ifndef __TESTGAME_H_INCLUDED
 #define __TESTGAME_H_INCLUDED
 
-//This header is just a convinient way to include all necessary files to use the engine.
-
 #include "../rendering/mesh.h"
 #include "../rendering/shader.h"
 #include "../core/transform.h"
