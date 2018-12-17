@@ -182,7 +182,7 @@
     <ClInclude Include="components\malmyScript.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="res\scripts\script.h">
+    <ClInclude Include="res\scripts\demorot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

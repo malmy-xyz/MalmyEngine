@@ -6,6 +6,8 @@
 #include "../core/entity.h"
 #include "../core/input.h"
 
+#include <iostream>
+
 class RenderingEngine;
 class Shader;
 
@@ -20,7 +22,10 @@ public:
 
 
 	virtual void ProcessInput(const Input& input, float delta) {}
-	virtual void Update(float delta) {}
+	virtual void Update(float delta) {
+	
+		//std::cout << "ec " << std::endl;
+	}
 	virtual void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const {}
 
 	virtual void AddToEngine(CoreEngine* engine) const { }

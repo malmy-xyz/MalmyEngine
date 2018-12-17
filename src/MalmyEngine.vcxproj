@@ -128,7 +128,7 @@
     <ClInclude Include="rendering\shader.h" />
     <ClInclude Include="rendering\texture.h" />
     <ClInclude Include="rendering\window.h" />
-    <ClInclude Include="res\scripts\script.h" />
+    <ClInclude Include="res\scripts\demorot.h" />
     <ClInclude Include="staticLibs\simdaccel.h" />
     <ClInclude Include="staticLibs\simddefines.h" />
     <ClInclude Include="staticLibs\simdemulator.h" />

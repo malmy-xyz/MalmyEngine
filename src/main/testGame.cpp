@@ -1,5 +1,7 @@
 #include "testGame.h"
 
+#include "../res/scripts/demorot.h"
+
 void TestGame::Init(const Window& window)
 {
 
@@ -35,11 +37,10 @@ void TestGame::Init(const Window& window)
 	/*sahneye harici eklenecek seyler*/
 
 	//materyalleri once olustur
-	Material bricks("plane", Texture("test.png"), 0.0f, 0, Texture("test.png"), Texture("test.png"), 0.03f, -0.5f);
+	Material bricks("plane", Texture("plane_diff.png"), 0.0f, 0, Texture("plane_spec.png"), Texture("plane_norm.png"), 0.03f, -0.5f);
 
-	Material sphere0("sphere0", Texture("test.png"), 0.0f, 0, Texture("test.png"), Texture("test.png"), 0.03f, -0.5f);
-	Material sphere1("sphere1", Texture("test.png"), 0.0f, 0, Texture("test.png"), Texture("test.png"), 0.03f, -0.5f);
-	Material sphere2("sphere2", Texture("test.png"), 0.0f, 0, Texture("test.png"), Texture("test.png"), 0.03f, -0.5f);
+	Material sphere0("logo_pau", Texture("logo_pau_diff.png"), 0.0f, 0, Texture("logo_pau_spec.png"), Texture("logo_pau_norm.png"), 0.03f, -0.5f);
+	Material sphere1("logo_malmy", Texture("logo_malmy_diff.png"), 0.0f, 0, Texture("logo_malmy_spec.png"), Texture("logo_malmy_norm.png"), 0.03f, -0.5f);
 
 
 	//plane
@@ -48,14 +49,18 @@ void TestGame::Init(const Window& window)
 
 	//3 tane obje olustur bunla modellencek
 	//ve dondurme kodu eklencek harici scriptlerde
-	AddToScene((new Entity(Vector3f(-5, 1, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f))))
-		->AddComponent(new MeshRenderer(Mesh("sphere.obj"), Material("sphere0"))));
+	AddToScene((new Entity(Vector3f(-5, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
+		->AddComponent(new MeshRenderer(Mesh("logo_pau.obj"), Material("logo_pau")))
+		->AddComponent(new DemoRot(-50))
+	);
 
-	AddToScene((new Entity(Vector3f(0, 1, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f))))
-		->AddComponent(new MeshRenderer(Mesh("sphere.obj"), Material("sphere1"))));
+	AddToScene((new Entity(Vector3f(0, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
+		->AddComponent(new MeshRenderer(Mesh("logo_malmy.obj"), Material("logo_malmy"))));
 
-	AddToScene((new Entity(Vector3f(5, 1, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f))))
-		->AddComponent(new MeshRenderer(Mesh("sphere.obj"), Material("sphere2"))));
+	AddToScene((new Entity(Vector3f(5, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
+		->AddComponent(new MeshRenderer(Mesh("logo_pau.obj"), Material("logo_pau")))
+		->AddComponent(new DemoRot(50))
+	);
 
 
 	//Global Light

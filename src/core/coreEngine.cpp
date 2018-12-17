@@ -20,7 +20,6 @@ CoreEngine::CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* g
 	m_game->SetEngine(this);
 	
 	//oyunun baslatildigi yer
-
 	m_game->Init(*m_window);
 }
 
@@ -70,8 +69,8 @@ void CoreEngine::Start()
 			totalMeasuredTime += swapBufferTimer.DisplayAndReset("Buffer Swap Time: ", (double)frames);
 			totalMeasuredTime += m_renderingEngine->DisplayWindowSyncTime((double)frames);
 			
-			printf("Other Time:                             %f ms\n", (totalTime - totalMeasuredTime));
-			printf("Total Time:                             %f ms\n\n", totalTime);
+			//printf("Other Time:                             %f ms\n", (totalTime - totalMeasuredTime));
+			//printf("Total Time:                             %f ms\n\n", totalTime);
 			frames = 0;
 			frameCounter = 0;
 		}

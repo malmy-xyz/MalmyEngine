@@ -2,6 +2,7 @@
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
   testGame.cpp
 c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(895): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\ynsbalci\documents\github\malmyengine\src\res\scripts\demorot.h(9): warning C4244: 'initializing': conversion from 'int' to 'float', possible loss of data
 c:\users\ynsbalci\documents\github\malmyengine\src\maths\math3d.h(67): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
           with
           [
