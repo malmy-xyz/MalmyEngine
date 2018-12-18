@@ -1,6 +1,4 @@
-#ifndef GAMEWINDOW_H
-#define GAMEWINDOW_H
-
+#pragma once
 #include <SDL2/SDL.h>
 #include <string>
 #include "../core/input.h"
@@ -39,4 +37,3 @@ private:
 	void operator=(const Window& other) {}
 };
 
-#endif

@@ -1,57 +1,26 @@
 #pragma once
-
-
-
 #include <iostream>
-
 #include <string>
 
-
-
 class Debug
-
 {
-
-	//functions
-
+//functions
 public:
-
-
-
 	static void Log(std::string log);
-
 	static void LogInfo(std::string log);
-
 	static void LogError(std::string log);
 
-
-
-
-
-	//functions
-
+//functions
 private:
 
 
 
 
 
-	//variables
-
+//variables
 public:
 
-
-
-
-
-	//variables
-
+//variables
 private:
-
-
-
-
-
-
 
 };

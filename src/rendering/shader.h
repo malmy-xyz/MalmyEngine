@@ -1,6 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
-
+#pragma once
 #include <map>
 #include <vector>
 #include <string>
@@ -102,5 +100,3 @@ private:
 	
 	void operator=(const Shader& other) {}
 };
-
-#endif

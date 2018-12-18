@@ -1,6 +1,4 @@
-#ifndef COREENGINE_H
-#define COREENGINE_H
-
+#pragma once
 #include "../rendering/renderingEngine.h"
 #include <string>
 class Game;
@@ -25,5 +23,3 @@ private:
 	RenderingEngine* m_renderingEngine; //render motoru
 	Game*            m_game;            //ekran cizile oyun iste
 };
-
-#endif // COREENGINE_H

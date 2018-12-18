@@ -1,6 +1,4 @@
-#ifndef REFERENCECOUNTER_H
-#define REFERENCECOUNTER_H
-
+#pragma once
 //sahne vs saymak icin
 //bauna vertex count tris polygon vs sayma ozeloig eknelcek
 //prifllling de de yazicak
@@ -20,4 +18,3 @@ private:
 	int m_refCount;
 };
 
-#endif // REFERENCECOUNTER_H

@@ -1,6 +1,4 @@
-#ifndef PROFILING_H_INCLUDED
-#define PROFILING_H_INCLUDED
-
+#pragma once
 #include <string>
 
 #define PROFILING_DISABLE_MESH_DRAWING 0
@@ -33,5 +31,3 @@ private:
 	double m_totalTime;
 	double m_startTime;
 };
-
-#endif // PROFILING_H_INCLUDED

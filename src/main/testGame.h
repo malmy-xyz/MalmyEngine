@@ -1,6 +1,4 @@
-#ifndef __TESTGAME_H_INCLUDED
-#define __TESTGAME_H_INCLUDED
-
+#pragma once
 #include "../rendering/mesh.h"
 #include "../rendering/shader.h"
 #include "../core/transform.h"
@@ -16,8 +14,6 @@
 
 //SDL makrosu burasi
 #undef main
-
-#endif // TESTGAME_H_INCLUDED
 
 #include "../editor/editorCameraMove.h"
 

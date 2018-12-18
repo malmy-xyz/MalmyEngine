@@ -1,7 +1,4 @@
-#ifndef ENTITYCOMPONENT_H_INCLUDED
-#define ENTITYCOMPONENT_H_INCLUDED
-
-
+#pragma once
 #include "../core/transform.h"
 #include "../core/entity.h"
 #include "../core/input.h"
@@ -41,7 +38,3 @@ private:
 	EntityComponent(const EntityComponent& other) {}
 	void operator=(const EntityComponent& other) {}
 };
-
-
-
-#endif // GAMECOMPONENT_H_INCLUDED

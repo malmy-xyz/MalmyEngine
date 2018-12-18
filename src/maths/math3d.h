@@ -1,6 +1,4 @@
-#ifndef MATH3D_H_INCLUDED
-#define MATH3D_H_INCLUDED
-
+#pragma once
 #include <math.h>
 #define MATH_PI 3.1415926535897932384626433832795
 #define ToRadians(x) (float)(((x) * MATH_PI / 180.0f))
@@ -13,18 +11,6 @@ inline T Clamp(const T &a, const T &min, const T &max)
 	else if (a > max) return max; 
 	else return a;
 }
-
-//template<typename T>
-//inline T ToRadians(const T &value)
-//{
-//	return (T)((value) * MATH_PI / (T)(180));
-//}
-//
-//template<typename T>
-//inline T ToDegrees(const T &value)
-//{
-//	return (T)((value) * (T)(180) / MATH_PI);
-//}
 
 template<typename T, unsigned int D>
 class Vector
@@ -266,13 +252,6 @@ public:
 		(*this)[3] = r[3];
 	}
 	
-//	Vector4(const Vector<T, 3>& r)
-//	{
-//		(*this)[0] = r[0];
-//		(*this)[1] = r[1];
-//		(*this)[2] = r[2];
-//		(*this)[3] = T(1);
-//	}
 	
 	Vector4(T x, T y, T z, T w)
 	{
@@ -678,23 +657,6 @@ public:
 			(*this * cos) +                     //Rotation on local Z
 		    axis * this->Dot(axis * (1 - cos)); //Rotation on local Y
 
-//		const float sinHalfAngle = sinf(angle/2);
-//		const float cosHalfAngle = cosf(angle/2);
-//
-//		const float Rx = axis.x * sinHalfAngle;
-//		const float Ry = axis.y * sinHalfAngle;
-//		const float Rz = axis.z * sinHalfAngle;
-//		const float Rw = cosHalfAngle;
-//
-//		Quaternion rotationQ(Rx, Ry, Rz, Rw);
-//
-//		Quaternion conjugateQ = rotationQ.Conjugate();
-//	  //  ConjugateQ.Normalize();
-//		Quaternion w = rotationQ * (*this) * conjugateQ;
-//
-//		Vector3f ret(w.GetX(), w.GetY(), w.GetZ());
-//
-//		return ret;
 	}
 
 	Vector3f Rotate(const Quaternion& rotation) const;
@@ -963,4 +925,3 @@ public:
 	}
 };
 
-#endif // MATH3D_H_INCLUDED

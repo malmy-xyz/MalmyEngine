@@ -1,7 +1,4 @@
-#ifndef EDITORCAMERA_H
-#define EDITORCAMERA_H
-
-
+#pragma once
 #include "../maths/math3d.h"
 #include "../components/entityComponent.h"
 
@@ -40,7 +37,5 @@ private:
 	int m_rightKey;
 
 };
-
-#endif //EDITORCAMERA_H
 
 

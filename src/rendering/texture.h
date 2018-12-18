@@ -1,6 +1,4 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
-
+#pragma once
 #include "../core/referenceCounter.h"
 #include <GL/glew.h>
 #include <string>
@@ -59,5 +57,3 @@ private:
 	TextureData* m_textureData;
 	std::string m_fileName;
 };
-
-#endif

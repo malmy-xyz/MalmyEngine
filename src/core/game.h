@@ -1,6 +1,4 @@
-#ifndef MYGAME_H
-#define MYGAME_H
-
+#pragma once
 #include "entity.h"
 #include "coreEngine.h"
 #include "profiling.h"
@@ -30,5 +28,3 @@ private:
 	ProfileTimer m_inputTimer;
 	Entity       m_root;
 };
-
-#endif

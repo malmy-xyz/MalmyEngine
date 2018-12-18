@@ -1,9 +1,8 @@
-#ifndef EntityComponent_H
-#define EntityComponent_H
-
+#pragma once
 #include <vector>
 #include "transform.h"
 #include "input.h"
+
 class Camera;
 class CoreEngine;
 class EntityComponent;
@@ -44,5 +43,3 @@ private:
 	Entity(const Entity& other) {}
 	void operator=(const Entity& other) {}
 };
-
-#endif // EntityComponent_H

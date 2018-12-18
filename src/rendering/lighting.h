@@ -1,6 +1,4 @@
-#ifndef LIGHTING_H
-#define LIGHTING_H
-
+#pragma once
 #include "shader.h"
 
 #include "../maths/math3d.h"
@@ -127,5 +125,3 @@ public:
 private:
 	float m_cutoff;
 };
-
-#endif

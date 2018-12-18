@@ -1,6 +1,4 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
-
+#pragma once
 #include "texture.h"
 #include "../maths/math3d.h"
 #include "../core/mappedValues.h"
@@ -41,5 +39,3 @@ private:
 	
 	void operator=(const Material& other) {}
 };
-
-#endif

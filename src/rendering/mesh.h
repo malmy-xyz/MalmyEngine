@@ -1,6 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
-
+#pragma once
 #include "../maths/math3d.h"
 #include "../core/referenceCounter.h"
 
@@ -101,5 +99,3 @@ private:
 	
 	void operator=(Mesh& mesh) {}
 };
-
-#endif

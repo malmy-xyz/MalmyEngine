@@ -1,5 +1,4 @@
-#ifndef UTIL_H
-#define UTIL_H
+#pragma once
 #define SNPRINTF _snprintf_s
 
 #define ARRAY_SIZE_IN_ELEMENTS(a) (sizeof(a)/sizeof(a[0]))
@@ -17,5 +16,3 @@ namespace Util
 	void Sleep(int milliseconds);
 	std::vector<std::string> Split(const std::string &s, char delim);
 };
-
-#endif

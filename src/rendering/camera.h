@@ -1,6 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
-
+#pragma once
 #include "../maths/math3d.h"
 #include "../components/entityComponent.h"
 
@@ -45,5 +43,3 @@ protected:
 private:
 	Camera m_camera; //kullailan camera
 };
-
-#endif

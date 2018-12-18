@@ -1,6 +1,4 @@
-#ifndef SIMDACCELDEFINES_H_INCLUDED
-#define SIMDACCELDEFINES_H_INCLUDED
-
+#pragma once
 //Defines for SIMD-enabled CPU architectures, and supported
 //feature levels
 #define SIMD_CPU_ARCH_OTHER  0
@@ -123,5 +121,3 @@
 //     /* GCC-compatible compiler, targeting PowerPC with SPE */
 //     #include <spe.h>
 //#endif
-
-#endif // SIMDACCELDEFINES_H_INCLUDED

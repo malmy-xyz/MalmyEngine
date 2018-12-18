@@ -1,6 +1,4 @@
-#ifndef X86SIMDACCEL_H_INCLUDED
-#define X86SIMDACCEL_H_INCLUDED
-
+#pragma once
 #include "simddefines.h"
 
 class SIMD4i
@@ -371,5 +369,3 @@ protected:
 private:
 	__m128 m_data;
 };
-
-#endif // X86SIMDACCEL_H_INCLUDED

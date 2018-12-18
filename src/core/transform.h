@@ -1,6 +1,4 @@
-#ifndef TRANSFORM_H
-#define TRANSFORM_H
-
+#pragma once
 #include "../maths/math3d.h"
 
 //aslinda bu bir componet ama cok falza ozelligi var 
@@ -58,5 +56,3 @@ private:
 	mutable float m_oldScale;
 	mutable bool m_initializedOldStuff;
 };
-
-#endif

@@ -1,6 +1,4 @@
-#ifndef RENDERINGENGINE_H
-#define RENDERINGENGINE_H
-
+#pragma once
 #include "camera.h"
 #include "lighting.h"
 #include "material.h"
@@ -76,4 +74,3 @@ private:
 	void operator=(const RenderingEngine& other) {}
 };
 
-#endif // RENDERINGENGINE_H

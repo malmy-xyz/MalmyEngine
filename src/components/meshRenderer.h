@@ -1,6 +1,4 @@
-#ifndef MESHRENDERER_H_INCLUDED
-#define MESHRENDERER_H_INCLUDED
-
+#pragma once
 #include "../components/entityComponent.h"
 #include "../rendering/mesh.h"
 
@@ -22,8 +20,6 @@ private:
 	Mesh m_mesh;
 	Material m_material;
 };
-
-#endif // MESHRENDERER_H_INCLUDED
 
 /*
 

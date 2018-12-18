@@ -1,6 +1,4 @@
-#ifndef MAPPEDVALUES_H_INCLUDED
-#define MAPPEDVALUES_H_INCLUDED
-
+#pragma once
 #include <map>
 
 #include "../rendering/texture.h"
@@ -29,5 +27,3 @@ private:
 	Texture m_defaultTexture;
 	Vector3f m_defaultVector3f;
 };
-
-#endif // MAPPEDVALUES_H_INCLUDED

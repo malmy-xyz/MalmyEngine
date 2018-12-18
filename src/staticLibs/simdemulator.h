@@ -1,6 +1,4 @@
-#ifndef SIMDEMULATOR_H_INCLUDED
-#define SIMDEMULATOR_H_INCLUDED
-
+#pragma once
 #include <math.h>
 #include <stdint.h>
 
@@ -660,5 +658,3 @@ protected:
 private:
 	float m_data[4];
 };
-
-#endif // SIMDEMULATOR_H_INCLUDED
