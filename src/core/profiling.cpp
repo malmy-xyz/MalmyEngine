@@ -40,6 +40,6 @@ double ProfileTimer::DisplayAndReset(const std::string& message, double divisor,
 	}
 	
 	double time = GetTimeAndReset(divisor);
-	std::cout << message << whiteSpace << time << " ms" << std::endl;
+	//std::cout << message << whiteSpace << time << " ms" << std::endl;
 	return time;
 }

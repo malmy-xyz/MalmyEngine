@@ -18,10 +18,8 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v141</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -77,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="editor\editorInput.cpp" />
     <ClCompile Include="rendering\color.cpp" />
     <ClCompile Include="core\coreEngine.cpp" />
     <ClCompile Include="core\entity.cpp" />
@@ -84,7 +83,6 @@
     <ClCompile Include="core\input.cpp" />
     <ClCompile Include="core\mappedValues.cpp" />
     <ClCompile Include="core\debug.cpp" />
-    <ClCompile Include="editor\EditorInput.cpp" />
     <ClCompile Include="editor\editorCameraMove.cpp" />
     <ClCompile Include="maths\math3d.cpp" />
     <ClCompile Include="core\profiling.cpp" />
@@ -104,6 +102,7 @@
     <ClCompile Include="main\testGame.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="editor\editorInput.h" />
     <ClInclude Include="rendering\color.h" />
     <ClInclude Include="components\malmyScript.h" />
     <ClInclude Include="components\meshRenderer.h" />
@@ -114,7 +113,6 @@
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
     <ClInclude Include="core\debug.h" />
-    <ClInclude Include="editor\EditorInput.h" />
     <ClInclude Include="editor\editorCameraMove.h" />
     <ClInclude Include="maths\math3d.h" />
     <ClInclude Include="core\profiling.h" />

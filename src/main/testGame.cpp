@@ -26,9 +26,7 @@ void TestGame::Init(const Window& window)
 			)
 		)		
 		->AddComponent(
-			new EditorCameraMove(
-				window.GetCenter()
-			)
+			new EditorCameraMove()
 		)
 
 	);

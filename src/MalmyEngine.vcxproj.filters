@@ -81,13 +81,13 @@
     <ClCompile Include="editor\editorCameraMove.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="editor\EditorInput.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="rendering\color.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\editorInput.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,9 +173,6 @@
     <ClInclude Include="editor\editorCameraMove.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="editor\EditorInput.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -189,6 +186,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\color.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\editorInput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
