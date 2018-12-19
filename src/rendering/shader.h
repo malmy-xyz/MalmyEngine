@@ -9,7 +9,7 @@
 #include "material.h"
 #include "camera.h"
 
-class RenderingEngine;
+class renderEngine;
 class DirectionalLight;
 class PointLight;
 class SpotLight;
@@ -81,7 +81,7 @@ public:
 	virtual ~Shader();
 
 	void Bind() const;
-	virtual void UpdateUniforms(const Transform& transform, const Material& material, const RenderingEngine& renderingEngine, const Camera& camera) const;
+	virtual void UpdateUniforms(const Transform& transform, const Material& material, const renderEngine& renderEngine, const Camera& camera) const;
 
 	void SetUniformi(const std::string& uniformName, int value) const;
 	void SetUniformf(const std::string& uniformName, float value) const;

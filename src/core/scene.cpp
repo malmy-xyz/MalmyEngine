@@ -1,24 +1,24 @@
-#include "game.h"
+#include "scene.h"
 
-#include "../rendering/renderingEngine.h"
+#include "../rendering/renderEngine.h"
 
 #include <iostream>
 
-void Game::ProcessInput(const Input& input, float delta)
+void Scene::ProcessInput(const Input& input, float delta)
 {
 	m_inputTimer.StartInvocation();
 	m_root.ProcessInputAll(input, delta);
 	m_inputTimer.StopInvocation();
 }
 
-void Game::Update(float delta)
+void Scene::Update(float delta)
 {
 	m_updateTimer.StartInvocation();
 	m_root.UpdateAll(delta);
 	m_updateTimer.StopInvocation();
 }
 
-void Game::Render(RenderingEngine* renderingEngine)
+void Scene::Render(renderEngine* renderEngine)
 {
-	renderingEngine->Render(m_root);
+	renderEngine->Render(m_root);
 }

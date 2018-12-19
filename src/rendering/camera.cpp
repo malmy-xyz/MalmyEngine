@@ -1,5 +1,5 @@
 #include "camera.h"
-#include "renderingEngine.h"
+#include "renderEngine.h"
 
 #include "../core/Engine.h"
 
@@ -19,7 +19,7 @@ Matrix4f Camera::GetViewProjection() const
 void CameraComponent::AddToEngine(Engine* engine) const
 {
 	//multi kamera destegi yok
-	engine->GetRenderingEngine()->SetMainCamera(m_camera);
+	engine->GetrenderEngine()->SetMainCamera(m_camera);
 }
 
 void CameraComponent::SetParent(GameObject* parent)

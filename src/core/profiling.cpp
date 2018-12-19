@@ -1,5 +1,5 @@
 #include "profiling.h"
-#include "timing.h"
+#include "time.h"
 #include <cassert>
 #include <iostream>
 

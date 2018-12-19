@@ -7,7 +7,7 @@ class Camera;
 class Engine;
 class Component;
 class Shader;
-class RenderingEngine;
+class renderEngine;
 
 class GameObject
 {
@@ -23,7 +23,7 @@ public:
 	
 	void ProcessInputAll(const Input& input, float delta);
 	void UpdateAll(float delta);
-	void RenderAll(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const;
+	void RenderAll(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const;
 	
 	std::vector<GameObject*> GetAllAttached();
 	
@@ -38,7 +38,7 @@ private:
 
 	void ProcessInput(const Input& input, float delta);
 	void Update(float delta);
-	void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const;
+	void Render(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const;
 	
 	GameObject(const GameObject& other) {}
 	void operator=(const GameObject& other) {}

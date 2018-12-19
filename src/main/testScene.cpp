@@ -1,8 +1,8 @@
-#include "testGame.h"
+#include "testScene.h"
 
 #include "../res/scripts/demorot.h"
 
-void TestGame::Init(const Window& window)
+void TestScene::Init(const Window& window)
 {
 
 	/*Ssahnedeki Global seyler 

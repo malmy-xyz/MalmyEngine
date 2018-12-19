@@ -17,7 +17,7 @@ public:
 
 		GetTransform()->Rotate(Vector3f(0, 1, 0), ToRadians(m_Carpan * delta));
 	}
-	virtual void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const {}
+	virtual void Render(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const {}
 
 protected:
 private:

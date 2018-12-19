@@ -1,6 +1,6 @@
 #include "shader.h"
 #include "lighting.h"
-#include "renderingEngine.h"
+#include "renderEngine.h"
 
 #include "../core/profiling.h"
 #include "../core/util.h"
@@ -160,7 +160,7 @@ void Shader::Bind() const
 	glUseProgram(m_shaderData->GetProgram());
 }
 
-void Shader::UpdateUniforms(const Transform& transform, const Material& material, const RenderingEngine& renderingEngine, const Camera& camera) const
+void Shader::UpdateUniforms(const Transform& transform, const Material& material, const renderEngine& renderEngine, const Camera& camera) const
 {
 	Matrix4f worldMatrix = transform.GetTransformation();
 	Matrix4f projectedMatrix = camera.GetViewProjection() * worldMatrix;
@@ -175,29 +175,29 @@ void Shader::UpdateUniforms(const Transform& transform, const Material& material
 			std::string unprefixedName = uniformName.substr(2, uniformName.length());
 			
 			if(unprefixedName == "lightMatrix")
-				SetUniformMatrix4f(uniformName, renderingEngine.GetLightMatrix() * worldMatrix);
+				SetUniformMatrix4f(uniformName, renderEngine.GetLightMatrix() * worldMatrix);
 			else if(uniformType == "sampler2D")
 			{
-				int samplerSlot = renderingEngine.GetSamplerSlot(unprefixedName);
-				renderingEngine.GetTexture(unprefixedName).Bind(samplerSlot);
+				int samplerSlot = renderEngine.GetSamplerSlot(unprefixedName);
+				renderEngine.GetTexture(unprefixedName).Bind(samplerSlot);
 				SetUniformi(uniformName, samplerSlot);
 			}
 			else if(uniformType == "vec3")
-				SetUniformVector3f(uniformName, renderingEngine.GetVector3f(unprefixedName));
+				SetUniformVector3f(uniformName, renderEngine.GetVector3f(unprefixedName));
 			else if(uniformType == "float")
-				SetUniformf(uniformName, renderingEngine.GetFloat(unprefixedName));
+				SetUniformf(uniformName, renderEngine.GetFloat(unprefixedName));
 			else if(uniformType == "DirectionalLight")
-				SetUniformDirectionalLight(uniformName, *(const DirectionalLight*)&renderingEngine.GetActiveLight());
+				SetUniformDirectionalLight(uniformName, *(const DirectionalLight*)&renderEngine.GetActiveLight());
 			else if(uniformType == "PointLight")
-				SetUniformPointLight(uniformName, *(const PointLight*)&renderingEngine.GetActiveLight());
+				SetUniformPointLight(uniformName, *(const PointLight*)&renderEngine.GetActiveLight());
 			else if(uniformType == "SpotLight")
-				SetUniformSpotLight(uniformName, *(const SpotLight*)&renderingEngine.GetActiveLight());
+				SetUniformSpotLight(uniformName, *(const SpotLight*)&renderEngine.GetActiveLight());
 			else
-				renderingEngine.UpdateUniformStruct(transform, material, *this, uniformName, uniformType);
+				renderEngine.UpdateUniformStruct(transform, material, *this, uniformName, uniformType);
 		}
 		else if(uniformType == "sampler2D")
 		{
-			int samplerSlot = renderingEngine.GetSamplerSlot(uniformName);
+			int samplerSlot = renderEngine.GetSamplerSlot(uniformName);
 			material.GetTexture(uniformName).Bind(samplerSlot);
 			SetUniformi(uniformName, samplerSlot);
 		}

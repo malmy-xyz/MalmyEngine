@@ -1,26 +1,26 @@
 #include "Engine.h"
-#include "timing.h"
+#include "time.h"
 #include "../rendering/window.h"
 #include "input.h"
 #include "util.h"
-#include "game.h"
+#include "scene.h"
 
 #include <stdio.h>
 
-Engine::Engine(Window* window, RenderingEngine* renderingEngine, Game* game) :
+Engine::Engine(Window* window, renderEngine* renderEngine, Scene* scene) :
 	m_isRunning(false),
 	//frame rate default 50 bunlari yarlardan cekcen sonra onu yazinca
 	m_frameTime(1.0 / 50),
 	m_window(window),
-	m_renderingEngine(renderingEngine),
-	m_game(game)
+	m_renderEngine(renderEngine),
+	m_scene(scene)
 {
 	//motoru yarlama
 
-	m_game->SetEngine(this);
+	m_scene->SetEngine(this);
 	
 	//oyunun baslatildigi yer
-	m_game->Init(*m_window);
+	m_scene->Init(*m_window);
 }
 
 void Engine::Start()
@@ -62,13 +62,13 @@ void Engine::Start()
 			//toplam olculen zamn
 			double totalMeasuredTime = 0.0;
 			
-			totalMeasuredTime += m_game->DisplayInputTime((double)frames);
-			totalMeasuredTime += m_game->DisplayUpdateTime((double)frames);
-			totalMeasuredTime += m_renderingEngine->DisplayRenderTime((double)frames);
+			totalMeasuredTime += m_scene->DisplayInputTime((double)frames);
+			totalMeasuredTime += m_scene->DisplayUpdateTime((double)frames);
+			totalMeasuredTime += m_renderEngine->DisplayRenderTime((double)frames);
 			totalMeasuredTime += sleepTimer.DisplayAndReset("Sleep Time: ", (double)frames);
 			totalMeasuredTime += windowUpdateTimer.DisplayAndReset("Window Update Time: ", (double)frames);
 			totalMeasuredTime += swapBufferTimer.DisplayAndReset("Buffer Swap Time: ", (double)frames);
-			totalMeasuredTime += m_renderingEngine->DisplayWindowSyncTime((double)frames);
+			totalMeasuredTime += m_renderEngine->DisplayWindowSyncTime((double)frames);
 			
 			//printf("Other Time:                             %f ms\n", (totalTime - totalMeasuredTime));
 			//printf("Total Time:                             %f ms\n\n", totalTime);
@@ -90,8 +90,8 @@ void Engine::Start()
 		
 			//inputlari burda aliyoz
 			//yeni eylemlker vs iste
-			m_game->ProcessInput(m_window->GetInput(), (float)m_frameTime);
-			m_game->Update((float)m_frameTime);
+			m_scene->ProcessInput(m_window->GetInput(), (float)m_frameTime);
+			m_scene->Update((float)m_frameTime);
 			
 			//tekrar enderi ac
 			render = true;
@@ -101,7 +101,7 @@ void Engine::Start()
 
 		if(render)
 		{
-			m_game->Render(m_renderingEngine);
+			m_scene->Render(m_renderEngine);
 			
 			//yeni olusan gorsel bufferda
 			//bufferlari degistir 

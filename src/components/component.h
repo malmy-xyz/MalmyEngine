@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-class RenderingEngine;
+class renderEngine;
 class Shader;
 
 class Component
@@ -24,7 +24,7 @@ public:
 		//std::cout << "ec " << std::endl;
 	}
 
-	virtual void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const {}
+	virtual void Render(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const {}
 
 	virtual void AddToEngine(Engine* engine) const { }
 

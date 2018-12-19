@@ -1,4 +1,4 @@
-#include "renderingEngine.h"
+#include "renderEngine.h"
 #include "window.h"
 #include "mesh.h"
 #include "shader.h"
@@ -8,7 +8,7 @@
 #include <GL/glew.h>
 #include <cassert>
 
-const Matrix4f RenderingEngine::BIAS_MATRIX = Matrix4f().InitScale(Vector3f(0.5, 0.5, 0.5)) * Matrix4f().InitTranslation(Vector3f(1.0, 1.0, 1.0));
+const Matrix4f renderEngine::BIAS_MATRIX = Matrix4f().InitScale(Vector3f(0.5, 0.5, 0.5)) * Matrix4f().InitTranslation(Vector3f(1.0, 1.0, 1.0));
 //Should construct a Matrix like this:
 //     x   y   z   w
 //x [ 0.5 0.0 0.0 0.5 ]
@@ -21,11 +21,11 @@ const Matrix4f RenderingEngine::BIAS_MATRIX = Matrix4f().InitScale(Vector3f(0.5,
 //
 //This matrix will convert 3D coordinates from the range (-1, 1) to the range (0, 1).
 
-RenderingEngine::RenderingEngine(const Window& window) :
+renderEngine::renderEngine(const Window& window) :
 	m_plane(Mesh("plane.obj")),
 	m_window(&window),
 	m_tempTarget(window.GetWidth(), window.GetHeight(), 0, GL_TEXTURE_2D, GL_NEAREST, GL_RGBA, GL_RGBA, false, GL_COLOR_ATTACHMENT0),
-	m_planeMaterial("renderingEngine_filterPlane", m_tempTarget, 1, 8),
+	m_planeMaterial("renderEngine_filterPlane", m_tempTarget, 1, 8),
 	m_defaultShader("forward-ambient"),
 	m_shadowMapShader("shadowMapGenerator"),
 	m_nullFilter("filter-null"),
@@ -60,7 +60,7 @@ RenderingEngine::RenderingEngine(const Window& window) :
 	//glEnable(GL_MULTISAMPLE);
 	//glEnable(GL_FRAMEBUFFER_SRGB);
 	                  
-	//m_planeMaterial("renderingEngine_filterPlane", m_tempTarget, 1, 8);
+	//m_planeMaterial("renderEngine_filterPlane", m_tempTarget, 1, 8);
 	m_planeTransform.SetScale(1.0f);
 	m_planeTransform.Rotate(Quaternion(Vector3f(1,0,0), ToRadians(90.0f)));
 	m_planeTransform.Rotate(Quaternion(Vector3f(0,0,1), ToRadians(180.0f)));
@@ -75,7 +75,7 @@ RenderingEngine::RenderingEngine(const Window& window) :
 	m_lightMatrix = Matrix4f().InitScale(Vector3f(0,0,0));	
 }
 
-void RenderingEngine::BlurShadowMap(int shadowMapIndex, float blurAmount)
+void renderEngine::BlurShadowMap(int shadowMapIndex, float blurAmount)
 {
 	SetVector3f("blurScale", Vector3f(blurAmount/(m_shadowMaps[shadowMapIndex].GetWidth()), 0.0f, 0.0f));
 	ApplyFilter(m_gausBlurFilter, m_shadowMaps[shadowMapIndex], &m_shadowMapTempTargets[shadowMapIndex]);
@@ -89,7 +89,7 @@ void RenderingEngine::BlurShadowMap(int shadowMapIndex, float blurAmount)
 //	ApplyFilter(m_nullFilter, m_shadowMapTempTargets[shadowMapIndex], &m_shadowMaps[shadowMapIndex]);
 }
 
-void RenderingEngine::ApplyFilter(const Shader& filter, const Texture& source, const Texture* dest)
+void renderEngine::ApplyFilter(const Shader& filter, const Texture& source, const Texture* dest)
 {
 	assert(&source != dest);
 	if(dest == 0)
@@ -119,7 +119,7 @@ void RenderingEngine::ApplyFilter(const Shader& filter, const Texture& source, c
 	SetTexture("filterTexture", 0);
 }
 
-void RenderingEngine::Render(const GameObject& object)
+void renderEngine::Render(const GameObject& object)
 {
 	m_renderProfileTimer.StartInvocation();
 	GetTexture("displayTexture").BindAsRenderTarget();

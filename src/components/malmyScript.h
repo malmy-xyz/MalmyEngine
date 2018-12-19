@@ -9,7 +9,7 @@ public:
 	
 		//std::cout << " ms " << delta << std::endl;
 	}
-	virtual void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const {}
+	virtual void Render(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const {}
 
 protected:
 private:

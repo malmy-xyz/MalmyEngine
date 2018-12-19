@@ -12,11 +12,11 @@
 #include <map>
 class GameObject;
 
-class RenderingEngine : public MappedValues
+class renderEngine : public MappedValues
 {
 public:
-	RenderingEngine(const Window& window);
-	virtual ~RenderingEngine() {}
+	renderEngine(const Window& window);
+	virtual ~renderEngine() {}
 	
 	void Render(const GameObject& object);
 	
@@ -69,8 +69,8 @@ private:
 	void BlurShadowMap(int shadowMapIndex, float blurAmount);
 	void ApplyFilter(const Shader& filter, const Texture& source, const Texture* dest);
 	
-	RenderingEngine(const RenderingEngine& other) :
+	renderEngine(const renderEngine& other) :
 		m_altCamera(Matrix4f(),0){}
-	void operator=(const RenderingEngine& other) {}
+	void operator=(const renderEngine& other) {}
 };
 

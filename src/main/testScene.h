@@ -8,7 +8,7 @@
 #include "../components/meshRenderer.h"
 #include "../rendering/window.h"
 #include "../core/Engine.h"
-#include "../core/game.h"
+#include "../core/scene.h"
 
 #include "../core/debug.h"
 
@@ -18,15 +18,15 @@
 #include "../editor/editorCameraMove.h"
 
 
-class TestGame : public Game
+class TestScene : public Scene
 {
 public:
-	TestGame() {}
+	TestScene() {}
 
 	virtual void Init(const Window& window);
 protected:
 private:
-	TestGame(const TestGame& other) {}
-	void operator=(const TestGame& other) {}
+	TestScene(const TestScene& other) {}
+	void operator=(const TestScene& other) {}
 };
 

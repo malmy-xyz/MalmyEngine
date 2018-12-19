@@ -67,13 +67,13 @@ void GameObject::UpdateAll(float delta)
 
 //cocuklari ile birlikte Render
 //corengien cagiriyo bunu
-void GameObject::RenderAll(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
+void GameObject::RenderAll(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const
 {
-	Render(shader, renderingEngine, camera);
+	Render(shader, renderEngine, camera);
 
 	for(unsigned int i = 0; i < m_children.size(); i++)
 	{
-		m_children[i]->RenderAll(shader, renderingEngine, camera);
+		m_children[i]->RenderAll(shader, renderEngine, camera);
 	}
 }
 
@@ -98,11 +98,11 @@ void GameObject::Update(float delta)
 }
 
 //butun componentleri render ey
-void GameObject::Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
+void GameObject::Render(const Shader& shader, const renderEngine& renderEngine, const Camera& camera) const
 {
 	for(unsigned int i = 0; i < m_components.size(); i++)
 	{
-		m_components[i]->Render(shader, renderingEngine, camera);
+		m_components[i]->Render(shader, renderEngine, camera);
 	}
 }
 

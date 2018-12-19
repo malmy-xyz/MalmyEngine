@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "testGame.h"
+#include "testScene.h"
 
 ///test
 #include <fstream>
@@ -45,14 +45,14 @@ int main()
 	///
 
 
-	TestGame game;
+	TestScene scene;
 
 	//window kisminin detaylarinida ayarrladan cekcez sonra
 	//default  1280x720
 	Window window(1280, 720, "Malmy Engine !");
-	RenderingEngine renderer(window);
+	renderEngine renderer(window);
 	
-	Engine engine(&window, &renderer, &game);
+	Engine engine(&window, &renderer, &scene);
 	engine.Start();
 	
 	return 0;

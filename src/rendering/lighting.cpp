@@ -1,12 +1,12 @@
 #include "lighting.h"
-#include "renderingEngine.h"
+#include "renderEngine.h"
 #include "../core/Engine.h"
 
 #define COLOR_DEPTH 256
 
 void BaseLight::AddToEngine(Engine* engine) const
 {
-	engine->GetRenderingEngine()->AddLight(*this);
+	engine->GetrenderEngine()->AddLight(*this);
 }
 
 ShadowCameraTransform BaseLight::CalcShadowCameraTransform(const Vector3f& mainCameraPos, const Quaternion& mainCameraRot) const

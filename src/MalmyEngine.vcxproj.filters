@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="core\game.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="core\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -25,9 +22,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="core\profiling.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="core\timing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="core\transform.cpp">
@@ -51,9 +45,6 @@
     <ClCompile Include="rendering\mesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rendering\renderingEngine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="rendering\shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -64,9 +55,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="staticLibs\stb_image.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="main\testGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="maths\math3d.cpp">
@@ -93,12 +81,21 @@
     <ClCompile Include="core\gameObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="core\scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main\testScene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rendering\renderEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="core\time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\meshRenderer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\game.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\input.h">
@@ -111,9 +108,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\referenceCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="core\timing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\transform.h">
@@ -132,9 +126,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="rendering\renderingEngine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rendering\shader.h">
@@ -159,9 +150,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="staticLibs\x86simdaccel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="main\testGame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="maths\math3d.h">
@@ -195,6 +183,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="core\gameObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="main\testScene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="components\light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rendering\renderEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="core\time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -79,14 +79,14 @@
     <ClCompile Include="rendering\color.cpp" />
     <ClCompile Include="core\engine.cpp" />
     <ClCompile Include="core\gameObject.cpp" />
-    <ClCompile Include="core\game.cpp" />
+    <ClCompile Include="core\scene.cpp" />
     <ClCompile Include="core\input.cpp" />
     <ClCompile Include="core\mappedValues.cpp" />
     <ClCompile Include="core\debug.cpp" />
     <ClCompile Include="editor\editorCameraMove.cpp" />
     <ClCompile Include="maths\math3d.cpp" />
     <ClCompile Include="core\profiling.cpp" />
-    <ClCompile Include="core\timing.cpp" />
+    <ClCompile Include="core\time.cpp" />
     <ClCompile Include="core\transform.cpp" />
     <ClCompile Include="core\util.cpp" />
     <ClCompile Include="main\main.cpp" />
@@ -94,15 +94,16 @@
     <ClCompile Include="rendering\lighting.cpp" />
     <ClCompile Include="rendering\material.cpp" />
     <ClCompile Include="rendering\mesh.cpp" />
-    <ClCompile Include="rendering\renderingEngine.cpp" />
+    <ClCompile Include="rendering\renderEngine.cpp" />
     <ClCompile Include="rendering\shader.cpp" />
     <ClCompile Include="rendering\texture.cpp" />
     <ClCompile Include="rendering\window.cpp" />
     <ClCompile Include="core\settings.cpp" />
     <ClCompile Include="staticLibs\stb_image.c" />
-    <ClCompile Include="main\testGame.cpp" />
+    <ClCompile Include="main\testScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="components\light.h" />
     <ClInclude Include="editor\editorInput.h" />
     <ClInclude Include="rendering\color.h" />
     <ClInclude Include="components\malmyScript.h" />
@@ -110,7 +111,7 @@
     <ClInclude Include="core\engine.h" />
     <ClInclude Include="core\gameObject.h" />
     <ClInclude Include="components\component.h" />
-    <ClInclude Include="core\game.h" />
+    <ClInclude Include="core\scene.h" />
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
     <ClInclude Include="core\debug.h" />
@@ -118,14 +119,14 @@
     <ClInclude Include="maths\math3d.h" />
     <ClInclude Include="core\profiling.h" />
     <ClInclude Include="core\referenceCounter.h" />
-    <ClInclude Include="core\timing.h" />
+    <ClInclude Include="core\time.h" />
     <ClInclude Include="core\transform.h" />
     <ClInclude Include="core\util.h" />
     <ClInclude Include="rendering\camera.h" />
     <ClInclude Include="rendering\lighting.h" />
     <ClInclude Include="rendering\material.h" />
     <ClInclude Include="rendering\mesh.h" />
-    <ClInclude Include="rendering\renderingEngine.h" />
+    <ClInclude Include="rendering\renderEngine.h" />
     <ClInclude Include="rendering\shader.h" />
     <ClInclude Include="rendering\texture.h" />
     <ClInclude Include="rendering\window.h" />
@@ -136,7 +137,7 @@
     <ClInclude Include="staticLibs\simdemulator.h" />
     <ClInclude Include="staticLibs\stb_image.h" />
     <ClInclude Include="staticLibs\x86simdaccel.h" />
-    <ClInclude Include="main\testGame.h" />
+    <ClInclude Include="main\testScene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
