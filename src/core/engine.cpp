@@ -1,4 +1,4 @@
-#include "coreEngine.h"
+#include "Engine.h"
 #include "timing.h"
 #include "../rendering/window.h"
 #include "input.h"
@@ -7,7 +7,7 @@
 
 #include <stdio.h>
 
-CoreEngine::CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* game) :
+Engine::Engine(Window* window, RenderingEngine* renderingEngine, Game* game) :
 	m_isRunning(false),
 	//frame rate default 50 bunlari yarlardan cekcen sonra onu yazinca
 	m_frameTime(1.0 / 50),
@@ -23,7 +23,7 @@ CoreEngine::CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* g
 	m_game->Init(*m_window);
 }
 
-void CoreEngine::Start()
+void Engine::Start()
 {
 	if(m_isRunning)
 	{
@@ -40,6 +40,7 @@ void CoreEngine::Start()
 	ProfileTimer sleepTimer;
 	ProfileTimer swapBufferTimer;
 	ProfileTimer windowUpdateTimer;
+
 	while(m_isRunning)
 	{
 		bool render = false;           //yeniden rendera gerk varmi
@@ -121,7 +122,7 @@ void CoreEngine::Start()
 	}
 }
 
-void CoreEngine::Stop()
+void Engine::Stop()
 {
 	m_isRunning = false;
 }

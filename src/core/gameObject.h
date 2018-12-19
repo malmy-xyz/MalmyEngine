@@ -4,42 +4,42 @@
 #include "input.h"
 
 class Camera;
-class CoreEngine;
-class EntityComponent;
+class Engine;
+class Component;
 class Shader;
 class RenderingEngine;
 
-class Entity
+class GameObject
 {
 public:
-	Entity(const Vector3f& pos = Vector3f(0,0,0), const Quaternion& rot = Quaternion(0,0,0,1), float scale = 1.0f) : 
+	GameObject(const Vector3f& pos = Vector3f(0,0,0), const Quaternion& rot = Quaternion(0,0,0,1), float scale = 1.0f) : 
 		m_transform(pos, rot, scale),
-		m_coreEngine(0) {}
+		m_Engine(0) {}
 		
-	virtual ~Entity();
+	virtual ~GameObject();
 	
-	Entity* AddChild(Entity* child);
-	Entity* AddComponent(EntityComponent* component);
+	GameObject* AddChild(GameObject* child);
+	GameObject* AddComponent(Component* component);
 	
 	void ProcessInputAll(const Input& input, float delta);
 	void UpdateAll(float delta);
 	void RenderAll(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const;
 	
-	std::vector<Entity*> GetAllAttached();
+	std::vector<GameObject*> GetAllAttached();
 	
 	inline Transform* GetTransform() { return &m_transform; }
-	void SetEngine(CoreEngine* engine);
+	void SetEngine(Engine* engine);
 protected:
 private:
-	std::vector<Entity*>          m_children;
-	std::vector<EntityComponent*> m_components;
+	std::vector<GameObject*>          m_children;
+	std::vector<Component*> m_components;
 	Transform                     m_transform;
-	CoreEngine*                   m_coreEngine;
+	Engine*                   m_Engine;
 
 	void ProcessInput(const Input& input, float delta);
 	void Update(float delta);
 	void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const;
 	
-	Entity(const Entity& other) {}
-	void operator=(const Entity& other) {}
+	GameObject(const GameObject& other) {}
+	void operator=(const GameObject& other) {}
 };

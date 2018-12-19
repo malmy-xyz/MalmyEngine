@@ -52,7 +52,7 @@ int main()
 	Window window(1280, 720, "Malmy Engine !");
 	RenderingEngine renderer(window);
 	
-	CoreEngine engine(&window, &renderer, &game);
+	Engine engine(&window, &renderer, &game);
 	engine.Start();
 	
 	return 0;

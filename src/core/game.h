@@ -1,6 +1,6 @@
 #pragma once
-#include "entity.h"
-#include "coreEngine.h"
+#include "GameObject.h"
+#include "Engine.h"
 #include "profiling.h"
 
 class Game
@@ -17,14 +17,14 @@ public:
 	inline double DisplayInputTime(double dividend) { return m_inputTimer.DisplayAndReset("Input Time: ", dividend); }
 	inline double DisplayUpdateTime(double dividend) { return m_updateTimer.DisplayAndReset("Update Time: ", dividend); }
 	
-	inline void SetEngine(CoreEngine* engine) { m_root.SetEngine(engine); }
+	inline void SetEngine(Engine* engine) { m_root.SetEngine(engine); }
 protected:
-	void AddToScene(Entity* child) { m_root.AddChild(child); }
+	void AddToScene(GameObject* child) { m_root.AddChild(child); }
 private:
 	Game(Game& game) {}
 	void operator=(Game& game) {}
 	
 	ProfileTimer m_updateTimer;
 	ProfileTimer m_inputTimer;
-	Entity       m_root;
+	GameObject       m_root;
 };

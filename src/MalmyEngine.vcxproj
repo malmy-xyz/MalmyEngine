@@ -77,8 +77,8 @@
   <ItemGroup>
     <ClCompile Include="editor\editorInput.cpp" />
     <ClCompile Include="rendering\color.cpp" />
-    <ClCompile Include="core\coreEngine.cpp" />
-    <ClCompile Include="core\entity.cpp" />
+    <ClCompile Include="core\engine.cpp" />
+    <ClCompile Include="core\gameObject.cpp" />
     <ClCompile Include="core\game.cpp" />
     <ClCompile Include="core\input.cpp" />
     <ClCompile Include="core\mappedValues.cpp" />
@@ -98,6 +98,7 @@
     <ClCompile Include="rendering\shader.cpp" />
     <ClCompile Include="rendering\texture.cpp" />
     <ClCompile Include="rendering\window.cpp" />
+    <ClCompile Include="core\settings.cpp" />
     <ClCompile Include="staticLibs\stb_image.c" />
     <ClCompile Include="main\testGame.cpp" />
   </ItemGroup>
@@ -106,9 +107,9 @@
     <ClInclude Include="rendering\color.h" />
     <ClInclude Include="components\malmyScript.h" />
     <ClInclude Include="components\meshRenderer.h" />
-    <ClInclude Include="core\coreEngine.h" />
-    <ClInclude Include="core\entity.h" />
-    <ClInclude Include="components\entityComponent.h" />
+    <ClInclude Include="core\engine.h" />
+    <ClInclude Include="core\gameObject.h" />
+    <ClInclude Include="components\component.h" />
     <ClInclude Include="core\game.h" />
     <ClInclude Include="core\input.h" />
     <ClInclude Include="core\mappedValues.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="rendering\texture.h" />
     <ClInclude Include="rendering\window.h" />
     <ClInclude Include="res\scripts\demorot.h" />
+    <ClInclude Include="core\settings.h" />
     <ClInclude Include="staticLibs\simdaccel.h" />
     <ClInclude Include="staticLibs\simddefines.h" />
     <ClInclude Include="staticLibs\simdemulator.h" />

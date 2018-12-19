@@ -13,7 +13,7 @@ public:
 		m_rot(rot),
 		m_scale(scale),
 		m_parent(0),
-		m_parentMatrix(Matrix4f().InitIdentity()),
+		m_parentMatrix(Matrix4f().InitIdGameObject()),
 		m_initializedOldStuff(false) {}
 
 	Matrix4f GetTransformation() const;

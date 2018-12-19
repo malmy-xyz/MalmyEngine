@@ -1,8 +1,8 @@
 #pragma once
-#include "../components/entityComponent.h"
+#include "../components/component.h"
 #include "../rendering/mesh.h"
 
-class MeshRenderer : public EntityComponent
+class MeshRenderer : public Component
 {
 public:
 	MeshRenderer(const Mesh& mesh, const Material& material) :

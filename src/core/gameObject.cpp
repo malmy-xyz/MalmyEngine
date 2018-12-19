@@ -1,10 +1,10 @@
-#include "entity.h"
-#include "../components/entityComponent.h"
-#include "coreEngine.h"
+#include "GameObject.h"
+#include "../components/component.h"
+#include "Engine.h"
 
-//entity //UNity de object iste
+//GameObject //UNity de object iste
 
-Entity::~Entity()
+GameObject::~GameObject()
 {
 	for(unsigned int i = 0; i < m_components.size(); i++)
 	{
@@ -24,16 +24,16 @@ Entity::~Entity()
 }
 
 //child ekleme
-Entity* Entity::AddChild(Entity* child)
+GameObject* GameObject::AddChild(GameObject* child)
 {
 	m_children.push_back(child); 
 	child->GetTransform()->SetParent(&m_transform);
-	child->SetEngine(m_coreEngine);
+	child->SetEngine(m_Engine);
 	return this;
 }
 
 //componet ekelem
-Entity* Entity::AddComponent(EntityComponent* component)
+GameObject* GameObject::AddComponent(Component* component)
 {
 	m_components.push_back(component);
 	component->SetParent(this);
@@ -41,7 +41,7 @@ Entity* Entity::AddComponent(EntityComponent* component)
 }
 
 //input vs algilama
-void Entity::ProcessInputAll(const Input& input, float delta)
+void GameObject::ProcessInputAll(const Input& input, float delta)
 {
 	ProcessInput(input, delta);
 
@@ -54,7 +54,7 @@ void Entity::ProcessInputAll(const Input& input, float delta)
 //cocuklari ile birlikte Update et
 //corengien cagiriyo bunu
 //alt cocuklarina gore
-void Entity::UpdateAll(float delta)
+void GameObject::UpdateAll(float delta)
 {
 	Update(delta);
 
@@ -67,7 +67,7 @@ void Entity::UpdateAll(float delta)
 
 //cocuklari ile birlikte Render
 //corengien cagiriyo bunu
-void Entity::RenderAll(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
+void GameObject::RenderAll(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
 {
 	Render(shader, renderingEngine, camera);
 
@@ -78,7 +78,7 @@ void Entity::RenderAll(const Shader& shader, const RenderingEngine& renderingEng
 }
 
 //input al
-void Entity::ProcessInput(const Input& input, float delta)
+void GameObject::ProcessInput(const Input& input, float delta)
 {
 	m_transform.Update();
 
@@ -89,7 +89,7 @@ void Entity::ProcessInput(const Input& input, float delta)
 }
 
 //update butun componeteleri
-void Entity::Update(float delta)
+void GameObject::Update(float delta)
 {
 	for(unsigned int i = 0; i < m_components.size(); i++)
 	{
@@ -98,7 +98,7 @@ void Entity::Update(float delta)
 }
 
 //butun componentleri render ey
-void Entity::Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
+void GameObject::Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const
 {
 	for(unsigned int i = 0; i < m_components.size(); i++)
 	{
@@ -107,11 +107,11 @@ void Entity::Render(const Shader& shader, const RenderingEngine& renderingEngine
 }
 
 //engien yi ayarala
-void Entity::SetEngine(CoreEngine* engine)
+void GameObject::SetEngine(Engine* engine)
 {
-	if(m_coreEngine != engine)
+	if(m_Engine != engine)
 	{
-		m_coreEngine = engine;
+		m_Engine = engine;
 		
 		for(unsigned int i = 0; i < m_components.size(); i++)
 		{
@@ -126,13 +126,13 @@ void Entity::SetEngine(CoreEngine* engine)
 }
 
 //coculara erisme kismi burasi
-std::vector<Entity*> Entity::GetAllAttached()
+std::vector<GameObject*> GameObject::GetAllAttached()
 {
-	std::vector<Entity*> result;
+	std::vector<GameObject*> result;
 	
 	for(unsigned int i = 0; i < m_children.size(); i++)
 	{
-		std::vector<Entity*> childObjects = m_children[i]->GetAllAttached();
+		std::vector<GameObject*> childObjects = m_children[i]->GetAllAttached();
 		result.insert(result.end(), childObjects.begin(), childObjects.end());
 	}
 	

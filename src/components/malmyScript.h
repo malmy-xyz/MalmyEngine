@@ -1,7 +1,7 @@
 #pragma once
-#include "../components/entityComponent.h"
+#include "../components/component.h"
 
-class MalmyScript : public EntityComponent
+class MalmyScript : public Component
 {
 public:
 	virtual void ProcessInput(const Input& input, float delta) {}

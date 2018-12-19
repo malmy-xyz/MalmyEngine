@@ -1,8 +1,8 @@
 #pragma once
 #include "../maths/math3d.h"
-#include "../components/entityComponent.h"
+#include "../components/component.h"
 
-class EditorCameraMove : public EntityComponent
+class EditorCameraMove : public Component
 {
 public:
 

@@ -1,6 +1,6 @@
 #pragma once
 #include "../core/transform.h"
-#include "../core/entity.h"
+#include "../core/GameObject.h"
 #include "../core/input.h"
 
 #include <iostream>
@@ -8,14 +8,14 @@
 class RenderingEngine;
 class Shader;
 
-class EntityComponent
+class Component
 {
 public:
 
-	EntityComponent() :
+	Component() :
 		m_parent(0) {}
 
-	virtual ~EntityComponent() {}
+	virtual ~Component() {}
 
 
 	virtual void ProcessInput(const Input& input, float delta) {}
@@ -23,18 +23,19 @@ public:
 	
 		//std::cout << "ec " << std::endl;
 	}
+
 	virtual void Render(const Shader& shader, const RenderingEngine& renderingEngine, const Camera& camera) const {}
 
-	virtual void AddToEngine(CoreEngine* engine) const { }
+	virtual void AddToEngine(Engine* engine) const { }
 
 	inline Transform* GetTransform() { return m_parent->GetTransform(); }
 	inline const Transform& GetTransform() const { return *m_parent->GetTransform(); }
 
-	virtual void SetParent(Entity* parent) { m_parent = parent; }
+	virtual void SetParent(GameObject* parent) { m_parent = parent; }
 
 private:
 
-	Entity* m_parent;
-	EntityComponent(const EntityComponent& other) {}
-	void operator=(const EntityComponent& other) {}
+	GameObject* m_parent;
+	Component(const Component& other) {}
+	void operator=(const Component& other) {}
 };

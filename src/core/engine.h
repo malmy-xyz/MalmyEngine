@@ -6,10 +6,10 @@ class Game;
 //ana motor kismi etkilesimleri vs yonetmek icin
 //render + physic den olusuyo ilerde baska seylerde eklencek
 //inputu da ayirabilirz
-class CoreEngine
+class Engine
 {
 public:
-	CoreEngine(Window* window, RenderingEngine* renderingEngine, Game* game);
+	Engine(Window* window, RenderingEngine* renderingEngine, Game* game);
 	
 	void Start(); //Update icinde //motoru baslatnakcicn
 	void Stop();  //oyunu ve diger altsistemleri durdur

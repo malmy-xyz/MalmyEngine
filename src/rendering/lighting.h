@@ -2,9 +2,9 @@
 #include "shader.h"
 
 #include "../maths/math3d.h"
-#include "../components/entityComponent.h"
+#include "../components/component.h"
 
-class CoreEngine;
+class Engine;
 
 class ShadowCameraTransform
 {
@@ -23,7 +23,7 @@ private:
 class ShadowInfo
 {
 public:
-	ShadowInfo(const Matrix4f& projection = Matrix4f().InitIdentity(), bool flipFaces = false, int shadowMapSizeAsPowerOf2 = 0, float shadowSoftness = 1.0f, float lightBleedReductionAmount = 0.2f, float minVariance = 0.00002f) :
+	ShadowInfo(const Matrix4f& projection = Matrix4f().InitIdGameObject(), bool flipFaces = false, int shadowMapSizeAsPowerOf2 = 0, float shadowSoftness = 1.0f, float lightBleedReductionAmount = 0.2f, float minVariance = 0.00002f) :
 		m_projection(projection),
 		m_flipFaces(flipFaces),
 		m_shadowMapSizeAsPowerOf2(shadowMapSizeAsPowerOf2),
@@ -47,7 +47,7 @@ private:
 	float m_minVariance;
 };
 
-class BaseLight : public EntityComponent
+class BaseLight : public Component
 {
 public:
 	BaseLight(const Vector3f& color, float intensity, const Shader& shader) :
@@ -57,7 +57,7 @@ public:
 		m_shadowInfo(ShadowInfo()) {}
 	
 	virtual ShadowCameraTransform CalcShadowCameraTransform(const Vector3f& mainCameraPos, const Quaternion& mainCameraRot) const;
-	virtual void AddToEngine(CoreEngine* engine) const;	
+	virtual void AddToEngine(Engine* engine) const;	
 	
 	inline const Vector3f& GetColor()        const { return m_color; }
 	inline const float GetIntensity()        const { return m_intensity; }

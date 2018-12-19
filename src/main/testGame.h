@@ -4,10 +4,10 @@
 #include "../core/transform.h"
 #include "../rendering/camera.h"
 #include "../rendering/lighting.h"
-#include "../core/entity.h"
+#include "../core/GameObject.h"
 #include "../components/meshRenderer.h"
 #include "../rendering/window.h"
-#include "../core/coreEngine.h"
+#include "../core/Engine.h"
 #include "../core/game.h"
 
 #include "../core/debug.h"

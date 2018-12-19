@@ -280,7 +280,7 @@ template<typename T, unsigned int D>
 class Matrix
 {
 public:
-	inline Matrix<T, D> InitIdentity()
+	inline Matrix<T, D> InitIdGameObject()
 	{
 		for(unsigned int i = 0; i < D; i++)
 		{
@@ -500,7 +500,7 @@ public:
 	{
 		if(D < 4)
 		{
-			this->InitIdentity();
+			this->InitIdGameObject();
 		
 			for(unsigned int i = 0; i < D; i++)
 				for(unsigned int j = 0; j < D; j++)
@@ -602,7 +602,7 @@ public:
 	{
 		if(D < 3)
 		{
-			this->InitIdentity();
+			this->InitIdGameObject();
 		
 			for(unsigned int i = 0; i < D; i++)
 				for(unsigned int j = 0; j < D; j++)

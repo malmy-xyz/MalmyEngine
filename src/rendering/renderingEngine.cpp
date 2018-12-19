@@ -3,7 +3,7 @@
 #include "mesh.h"
 #include "shader.h"
 
-#include "../core/entity.h"
+#include "../core/GameObject.h"
 
 #include <GL/glew.h>
 #include <cassert>
@@ -32,7 +32,7 @@ RenderingEngine::RenderingEngine(const Window& window) :
 	m_gausBlurFilter("filter-gausBlur7x1"),
 	m_fxaaFilter("filter-fxaa"),
 	m_altCameraTransform(Vector3f(0,0,0), Quaternion(Vector3f(0,1,0),ToRadians(180.0f))),
-	m_altCamera(Matrix4f().InitIdentity(), &m_altCameraTransform)
+	m_altCamera(Matrix4f().InitIdGameObject(), &m_altCameraTransform)
 {
 	SetSamplerSlot("diffuse",   0);
 	SetSamplerSlot("normalMap", 1);
@@ -103,7 +103,7 @@ void RenderingEngine::ApplyFilter(const Shader& filter, const Texture& source, c
 	
 	SetTexture("filterTexture", source);
 	
-	m_altCamera.SetProjection(Matrix4f().InitIdentity());
+	m_altCamera.SetProjection(Matrix4f().InitIdGameObject());
 	m_altCamera.GetTransform()->SetPos(Vector3f(0,0,0));
 	m_altCamera.GetTransform()->SetRot(Quaternion(Vector3f(0,1,0),ToRadians(180.0f)));
 	
@@ -119,7 +119,7 @@ void RenderingEngine::ApplyFilter(const Shader& filter, const Texture& source, c
 	SetTexture("filterTexture", 0);
 }
 
-void RenderingEngine::Render(const Entity& object)
+void RenderingEngine::Render(const GameObject& object)
 {
 	m_renderProfileTimer.StartInvocation();
 	GetTexture("displayTexture").BindAsRenderTarget();

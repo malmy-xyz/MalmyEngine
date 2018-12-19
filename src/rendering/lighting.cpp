@@ -1,10 +1,10 @@
 #include "lighting.h"
 #include "renderingEngine.h"
-#include "../core/coreEngine.h"
+#include "../core/Engine.h"
 
 #define COLOR_DEPTH 256
 
-void BaseLight::AddToEngine(CoreEngine* engine) const
+void BaseLight::AddToEngine(Engine* engine) const
 {
 	engine->GetRenderingEngine()->AddLight(*this);
 }

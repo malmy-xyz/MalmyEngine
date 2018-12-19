@@ -10,7 +10,7 @@
 
 #include <vector>
 #include <map>
-class Entity;
+class GameObject;
 
 class RenderingEngine : public MappedValues
 {
@@ -18,7 +18,7 @@ public:
 	RenderingEngine(const Window& window);
 	virtual ~RenderingEngine() {}
 	
-	void Render(const Entity& object);
+	void Render(const GameObject& object);
 	
 	inline void AddLight(const BaseLight& light) { m_lights.push_back(&light); }
 	inline void SetMainCamera(const Camera& camera) { m_mainCamera = &camera; }
