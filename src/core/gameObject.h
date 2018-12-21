@@ -31,10 +31,10 @@ public:
 	void SetEngine(Engine* engine);
 protected:
 private:
-	std::vector<GameObject*>          m_children;
-	std::vector<Component*> m_components;
-	Transform                     m_transform;
-	Engine*                   m_Engine;
+	std::vector<GameObject*>        m_children;
+	std::vector<Component*>			m_components;
+	Transform						m_transform;
+	Engine*							m_Engine;
 
 	void ProcessInput(const Input& input, float delta);
 	void Update(float delta);
@@ -43,3 +43,37 @@ private:
 	GameObject(const GameObject& other) {}
 	void operator=(const GameObject& other) {}
 };
+
+
+/* : Object
+
+public GameObject();
+public GameObject(string name);
+public GameObject(string name, params Type[] components);
+
+public int layer { get; set; }
+public GameObject gameObject { get; }
+public Transform transform { get; }
+
+public T AddComponent<T>() where T : Component;
+public Component AddComponent(Type componentType);
+public Component AddComponent(string className);
+
+public T GetComponent<T>();
+public Component GetComponent(Type type);
+public Component GetComponent(string type);
+
+public T[] GetComponents<T>();
+public void GetComponents(Type type, List<Component> results);
+public void GetComponents<T>(List<T> results);
+
+void Input(float delta);		//input
+void FixedUpdate(float delta);	//physic
+void Update(float delta);		//render
+
+public GameObject parent { get; set; }
+public GameObject AddChild(GameObject* child);
+public GameObject GetChild(GameObject* child);
+std::vector<GameObject*>        m_children;
+
+*/

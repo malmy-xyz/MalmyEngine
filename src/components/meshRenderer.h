@@ -19,9 +19,14 @@ protected:
 private:
 	Mesh m_mesh;
 	Material m_material;
+
 };
 
-/*
+/* : Component
 
-render funksiyonlari Update ile degisebilir
+public Mesh mesh { get; set; }
+public Material material { get; set; }
+
+void Update(float delta);		//render
+
 */

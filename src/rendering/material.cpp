@@ -12,7 +12,7 @@ Material::Material(const std::string& materialName) :
 		std::map<std::string, MaterialData*>::const_iterator it = s_resourceMap.find(materialName);
 		if(it == s_resourceMap.end())
 		{
-			std::cerr << "Error: Material " << materialName << " has not been initialized!" << std::endl;
+			std::cerr << "Hata: Material " << materialName << " yuklememendi" << std::endl;
 			assert(0 != 0);
 		}
 	

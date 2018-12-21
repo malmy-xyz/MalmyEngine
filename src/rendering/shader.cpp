@@ -487,7 +487,7 @@ static std::string LoadShader(const std::string& fileName)
 	}
 	else
 	{
-		std::cerr << "Unable to load shader: " << fileName << std::endl;
+		std::cerr << "Shader yuklenemedi: " << fileName << std::endl;
 	}
 
 	return output;

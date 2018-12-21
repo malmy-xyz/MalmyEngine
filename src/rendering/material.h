@@ -39,3 +39,19 @@ private:
 	
 	void operator=(const Material& other) {}
 };
+
+
+/* : Object
+
+public Material();
+public Material(Shader shader);
+public Material(Material material);
+
+public String name { get; set; }
+public Shader shader { get; set; }
+
+//
+
+void Update(float delta);		//render
+
+*/

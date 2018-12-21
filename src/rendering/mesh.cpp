@@ -152,8 +152,7 @@ MeshData::MeshData(const IndexedModel& model) :
 {
 	if(!model.IsValid())
 	{
-		std::cout << "Error: Invalid mesh! Must have same number of positions, texCoords, normals, and tangents! "
-			<< "(Maybe you forgot to Finalize() your IndexedModel?)" << std::endl;
+		std::cout << "Hata: Gecersiz mesh (normal vertex texture ) "  << std::endl;
 		assert(0 != 0);
 	}
 	glGenVertexArrays(1, &m_vertexArrayObject);
@@ -210,7 +209,9 @@ Mesh::Mesh(const std::string& meshName, const IndexedModel& model) :
 	std::map<std::string, MeshData*>::const_iterator it = s_resourceMap.find(meshName);
 	if(it != s_resourceMap.end())
 	{
-		std::cout << "Error adding mesh " << meshName << ": Mesh already exists by the same name!" << std::endl;
+		//suanlik isime gore de bunlara id de atamak lazim
+		//o zamn ayni isimde farketmez
+		std::cout << "Hata mesh " << meshName << "ayni isimde var" << std::endl;
 		assert(0 != 0);
 	}
 	else
@@ -242,7 +243,7 @@ Mesh::Mesh(const std::string& fileName) :
 		
 		if(!scene)
 		{
-			std::cout << "Mesh load failed!: " << fileName << std::endl;
+			std::cout << "Mesh yukleme hatasi: " << fileName << std::endl;
 			assert(0 == 0);
 		}
 		

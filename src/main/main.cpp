@@ -37,7 +37,7 @@ int main()
 	}
 	else
 	{
-		std::cerr << "Unable to load scene: " << fileName << std::endl;
+		std::cerr << "Hata sahne yuklenemiyo: " << fileName << std::endl;
 	}
 
 

@@ -12,7 +12,7 @@ void ProfileTimer::StopInvocation()
 {
 	if(m_startTime == 0)
 	{
-		std::cout << "Error: StopInvocation called without matching start invocation" << std::endl;
+		std::cout << "Hata baslmadan durduruyo" << std::endl;
 		assert(m_startTime != 0);
 	}
 	

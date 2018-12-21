@@ -56,3 +56,23 @@ private:
 	mutable float m_oldScale;
 	mutable bool m_initializedOldStuff;
 };
+
+/* : Component
+
+public Vector3 position { get; set; }
+public Quaternion rotation { get; set; }
+public Vector3 scale { get; set; }
+
+public bool hasChanged { get; set; }
+
+public void LookAt(Transform target);
+public void LookAt(Vector3 worldPosition);
+
+public void Rotate(Vector3 axis, float angle);
+public void Translate(Vector3 translation);
+public void Scale(Vector3 scale);
+
+
+void Update(float delta);		//render
+
+*/

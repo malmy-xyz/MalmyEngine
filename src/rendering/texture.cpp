@@ -124,7 +124,7 @@ void TextureData::InitRenderTargets(GLenum* attachments)
 	
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 	{
-		std::cerr << "Framebuffer creation failed!" << std::endl;
+		std::cerr << "Buffer olusutrma hatasi" << std::endl;
 		assert(false);
 	}
 	
@@ -165,7 +165,7 @@ Texture::Texture(const std::string& fileName, GLenum textureTarget, GLfloat filt
 
 		if(data == NULL)
 		{
-			std::cerr << "Unable to load texture: " << fileName << std::endl;
+			std::cerr << "Texture yuklenemiyo: " << fileName << std::endl;
 		}
 
 		m_textureData = new TextureData(textureTarget, x, y, 1, &data, &filter, &internalFormat, &format, clamp, &attachment);
