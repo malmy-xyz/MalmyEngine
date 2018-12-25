@@ -152,9 +152,7 @@ Shader::~Shader()
 	}
 }
 
-//--------------------------------------------------------------------------------
-// Member Function Implementation
-//--------------------------------------------------------------------------------
+//shader birelsþtirme
 void Shader::Bind() const
 {
 	glUseProgram(m_shaderData->GetProgram());
@@ -301,7 +299,7 @@ void ShaderData::AddProgram(const std::string& text, int type)
 
 	if(shader == 0)
 	{
-		fprintf(stderr, "Error creating shader type %d\n", type);
+		fprintf(stderr, "Shader oluþturma hatasý %d\n", type);
 		exit(1);
 	}
 
@@ -320,7 +318,7 @@ void ShaderData::AddProgram(const std::string& text, int type)
         GLchar InfoLog[1024];
 
         glGetShaderInfoLog(shader, 1024, NULL, InfoLog);
-        fprintf(stderr, "Error compiling shader type %d: '%s'\n", shader, InfoLog);
+        fprintf(stderr, "Chader compile hatasý %d: '%s'\n", shader, InfoLog);
 
         exit(1);
     }
@@ -342,7 +340,7 @@ void ShaderData::AddAllAttributes(const std::string& vertexShaderText, const std
 		{
 			std::string potentialCommentSection = vertexShaderText.substr(lastLineEnd,attributeLocation - lastLineEnd);
 			
-			//Potential false positives are both in comments, and in macros.
+			//
 			isCommented = potentialCommentSection.find("//") != std::string::npos || potentialCommentSection.find("#") != std::string::npos;
 		}
 		
@@ -429,15 +427,13 @@ void ShaderData::AddUniform(const std::string& uniformName, const std::string& u
 void ShaderData::CompileShader() const
 {
     glLinkProgram(m_program);
-	CheckShaderError(m_program, GL_LINK_STATUS, true, "Error linking shader program");
+	CheckShaderError(m_program, GL_LINK_STATUS, true, "Shader baðlama hatasý");
 
     glValidateProgram(m_program);
 	CheckShaderError(m_program, GL_VALIDATE_STATUS, true, "Invalid shader program");
 }
 
-//--------------------------------------------------------------------------------
-// Static Function Implementations
-//--------------------------------------------------------------------------------
+//
 static void CheckShaderError(int shader, int flag, bool isProgram, const std::string& errorMessage)
 {
 	GLint success = 0;
@@ -556,7 +552,7 @@ static std::vector<UniformStruct> FindUniformStructs(const std::string& shaderTe
 	size_t structLocation = shaderText.find(STRUCT_KEY);
 	while(structLocation != std::string::npos)
 	{
-		structLocation += STRUCT_KEY.length() + 1; //Ignore the struct keyword and space
+		structLocation += STRUCT_KEY.length() + 1; //
 
 		size_t braceOpening = shaderText.find("{", structLocation);
 		size_t braceClosing = shaderText.find("}", braceOpening);

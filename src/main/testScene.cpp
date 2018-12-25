@@ -37,8 +37,8 @@ void TestScene::Init(const Window& window)
 	//materyalleri once olustur
 	Material bricks("plane", Texture("plane_diff.png"), 0.0f, 0, Texture("plane_spec.png"), Texture("plane_norm.png"), 0.03f, -0.5f);
 
-	Material sphere0("logo_pau", Texture("logo_pau_diff.png"), 0.0f, 0, Texture("logo_pau_spec.png"), Texture("logo_pau_norm.png"), 0.03f, -0.5f);
-	Material sphere1("logo_malmy", Texture("logo_malmy_diff.png"), 0.0f, 0, Texture("logo_malmy_spec.png"), Texture("logo_malmy_norm.png"), 0.03f, -0.5f);
+	Material logo_pau("logo_pau", Texture("logo_pau_diff.png"), 0.0f, 0, Texture("logo_pau_spec.png"), Texture("logo_pau_norm.png"), 0.03f, -0.5f);
+	Material logo_malmy("logo_malmy", Texture("logo_malmy_diff.png"), 0.0f, 0, Texture("logo_malmy_spec.png"), Texture("logo_malmy_norm.png"), 0.03f, -0.5f);
 
 
 	//plane
@@ -49,7 +49,7 @@ void TestScene::Init(const Window& window)
 	//ve dondurme kodu eklencek harici scriptlerde
 	AddToScene((new GameObject(Vector3f(-5, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
 		->AddComponent(new MeshRenderer(Mesh("logo_pau.obj"), Material("logo_pau")))
-		->AddComponent(new DemoRot(-50))
+		->AddComponent(new DemoRot(-25))
 	);
 
 	AddToScene((new GameObject(Vector3f(0, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
@@ -57,23 +57,24 @@ void TestScene::Init(const Window& window)
 
 	AddToScene((new GameObject(Vector3f(5, 2, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(0.0f))))
 		->AddComponent(new MeshRenderer(Mesh("logo_pau.obj"), Material("logo_pau")))
-		->AddComponent(new DemoRot(50))
+		->AddComponent(new DemoRot(25))
 	);
 
 
 	//Global Light
-	AddToScene((new GameObject(Vector3f(0.0f, 0.0f, 0.0f), Quaternion(Vector3f(0.0f, 0.0f, 0.0f), ToRadians(0))))
-		->AddComponent(new DirectionalLight(Vector3f(1, 1, 1), 0.4f, 10, 80.0f, 1.0f)));
+	AddToScene((new GameObject(Vector3f(0.0f, 0.0f, 0.0f), Quaternion(Vector3f(1.0f, 0.0f, 0.0f), ToRadians(-135))))
+		->AddComponent(new DirectionalLight(Vector3f(1, 1, 1), 0.75f, 10, 80.0f, 1.0f)));
+
 
 	// 3 tane spot isik olustur
-	AddToScene((new GameObject(Vector3f(-5, 3, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f)) ))
-		->AddComponent(new SpotLight(Vector3f(0, 0, 1), 0.4f, Attenuation(0, 0, 0.02f), ToRadians(91.1f), 7, 1.0f, 0.5f)));
+	AddToScene((new GameObject(Vector3f(-5, 5, -5), Quaternion(Vector3f(1, 0, 0), ToRadians(45)) ))
+		->AddComponent(new SpotLight(Vector3f(0, 1, 1), 0.5f, Attenuation(0, 0, 0.02f), ToRadians(90), 7, 1.0f, 0.5f)));
 
-	AddToScene((new GameObject(Vector3f(0, 3, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f))))
-		->AddComponent(new SpotLight(Vector3f(0, 0, 1), 0.4f, Attenuation(0, 0, 0.02f), ToRadians(91.1f), 7, 1.0f, 0.5f)));
+	AddToScene((new GameObject(Vector3f(0, 5, -5), Quaternion(Vector3f(1, 0, 0), ToRadians(45)) ))
+		->AddComponent(new SpotLight(Vector3f(0, 0, 0), 0.75f, Attenuation(0, 0, 0.02f), ToRadians(90), 7, 1.0f, 0.5f)));
 
-	AddToScene((new GameObject(Vector3f(5, 3, 0), Quaternion(Vector3f(1, 0, 0), ToRadians(90.0f))))
-		->AddComponent(new SpotLight(Vector3f(0, 0, 1), 0.4f, Attenuation(0, 0, 0.02f), ToRadians(91.1f), 7, 1.0f, 0.5f)));
+	AddToScene((new GameObject(Vector3f(5, 5, -5), Quaternion(Vector3f(1, 0, 0), ToRadians(45)) ))
+		->AddComponent(new SpotLight(Vector3f(0, 1, 1), 0.5f, Attenuation(0, 0, 0.02f), ToRadians(90), 7, 1.0f, 0.5f)));
 
 
 	/*

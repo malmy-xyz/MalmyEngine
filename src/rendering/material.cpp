@@ -43,7 +43,7 @@ Material::~Material()
 
 Material::Material(const std::string& materialName, const Texture& diffuse, float specularIntensity, float specularPower,
 		const Texture& normalMap,
-		const Texture& dispMap, float dispMapScale, float dispMapOffset) :
+		const Texture& specMap, float specMapScale, float specMapOffset) :
 		m_materialName(materialName)
 {
 	m_materialData = new MaterialData();
@@ -53,9 +53,9 @@ Material::Material(const std::string& materialName, const Texture& diffuse, floa
 	m_materialData->SetFloat("specularIntensity", specularIntensity);
 	m_materialData->SetFloat("specularPower", specularPower);
 	m_materialData->SetTexture("normalMap", normalMap);
-	m_materialData->SetTexture("dispMap", dispMap);
+	m_materialData->SetTexture("dispMap", specMap);
 	
-	float baseBias = dispMapScale/2.0f;
-	m_materialData->SetFloat("dispMapScale", dispMapScale);
-	m_materialData->SetFloat("dispMapBias", -baseBias + baseBias * dispMapOffset);
+	float baseBias = specMapScale/2.0f;
+	m_materialData->SetFloat("dispMapScale", specMapScale);
+	m_materialData->SetFloat("dispMapBias", -baseBias + baseBias * specMapOffset);
 }

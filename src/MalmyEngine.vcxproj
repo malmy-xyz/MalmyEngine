@@ -119,7 +119,6 @@
     <ClInclude Include="editor\editorCameraMove.h" />
     <ClInclude Include="maths\math3d.h" />
     <ClInclude Include="core\profiling.h" />
-    <ClInclude Include="core\referenceCounter.h" />
     <ClInclude Include="core\time.h" />
     <ClInclude Include="core\transform.h" />
     <ClInclude Include="core\util.h" />

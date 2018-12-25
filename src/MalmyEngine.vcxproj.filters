@@ -107,9 +107,6 @@
     <ClInclude Include="core\profiling.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="core\referenceCounter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="core\transform.h">
       <Filter>Header Files</Filter>
     </ClInclude>

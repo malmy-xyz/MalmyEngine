@@ -126,7 +126,9 @@ void renderEngine::Render(const GameObject& object)
 	//m_window->BindAsRenderTarget();
 	//m_tempTarget->BindAsRenderTarget();
 
-	glClearColor(0.0f,0.0f,0.0f,0.0f);
+	//skybox
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	object.RenderAll(m_defaultShader, *this, *m_mainCamera);
 	
