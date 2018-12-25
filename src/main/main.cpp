@@ -12,7 +12,8 @@ int main()
 {
 
 	///
-	Debug::Log("scene");
+	Debug::Log("Malmy Engine v0.0");
+	Debug::Log("Yunus BALCI");
 
 	std::string fileName = "default";
 
@@ -41,7 +42,7 @@ int main()
 	}
 
 
-	system("PAUSE");
+	//system("PAUSE");
 	///
 
 

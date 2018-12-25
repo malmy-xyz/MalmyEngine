@@ -8,7 +8,7 @@ class MappedValues
 {
 public:
 	MappedValues() :
-		m_defaultTexture(Texture("defaultTexture.png")),
+		m_defaultTexture(Texture("default_diff.png")),
 		m_defaultVector3f(Vector3f(0,0,0)) {}
 
 	inline void SetVector3f(const std::string& name, const Vector3f& value) { m_vector3fMap[name] = value; }
