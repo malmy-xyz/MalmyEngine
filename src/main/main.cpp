@@ -21,6 +21,7 @@ int main()
 	file.open(("./res/scenes/" + fileName + ".mscene").c_str());
 
 
+
 	std::string output;
 	std::string line;
 

@@ -197,5 +197,8 @@
     <ClInclude Include="core\time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="core\referenceCounter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

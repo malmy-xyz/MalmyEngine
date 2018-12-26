@@ -65,9 +65,11 @@ void Engine::Start()
 			totalMeasuredTime += m_scene->DisplayInputTime((double)frames);
 			totalMeasuredTime += m_scene->DisplayUpdateTime((double)frames);
 			totalMeasuredTime += m_renderEngine->DisplayRenderTime((double)frames);
+
 			totalMeasuredTime += sleepTimer.DisplayAndReset("Sleep Time: ", (double)frames);
 			totalMeasuredTime += windowUpdateTimer.DisplayAndReset("Window Update Time: ", (double)frames);
 			totalMeasuredTime += swapBufferTimer.DisplayAndReset("Buffer Swap Time: ", (double)frames);
+
 			totalMeasuredTime += m_renderEngine->DisplayWindowSyncTime((double)frames);
 			
 			//printf("Other Time:                             %f ms\n", (totalTime - totalMeasuredTime));

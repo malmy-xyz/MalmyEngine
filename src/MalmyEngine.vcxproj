@@ -105,6 +105,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="components\light.h" />
+    <ClInclude Include="core\referenceCounter.h" />
     <ClInclude Include="editor\editorInput.h" />
     <ClInclude Include="rendering\color.h" />
     <ClInclude Include="components\malmyScript.h" />
