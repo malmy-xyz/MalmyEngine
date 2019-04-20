@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3D3F951C-29E1-BFF2-129C-D346FEDC4643}</ProjectGuid>
+    <RootNamespace>studio</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectName>main</ProjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\data\bin\</OutDir>
+    <IntDir>..\obj\main\</IntDir>
+    <TargetName>malmy</TargetName>
+    <TargetExt>.exe</TargetExt>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>malmy</TargetName>
+    <TargetExt>.exe</TargetExt>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;..\external;..\external\SDL\include;..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\src;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)studio.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>SDL.lib;winmm.lib;imm32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)malmy.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win64_vs2017\debug;..\external\SDL\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXCommon_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXCooking_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXFoundation_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysX_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbghelp.dll" "$(SolutionDir)data\bin\"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbgcore.dll" "$(SolutionDir)data\bin\"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;..\external;..\external\SDL\include;..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\src;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)studio.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>SDL.lib;winmm.lib;imm32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)malmy.exe</OutputFile>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win64_vs2017\debug;..\external\SDL\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXCommon_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXCooking_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysXFoundation_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external/physx/dll/vs2017/win64\Debug\PhysX_64.dll" "$(SolutionDir)data/bin/"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbghelp.dll" "$(SolutionDir)data\bin\"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbgcore.dll" "$(SolutionDir)data\bin\"</Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main\main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="editor.vcxproj">
+      <Project>{ac2ec5fa-98d0-efd0-818b-03256dcc7621}</Project>
+    </ProjectReference>
+    <ProjectReference Include="engine.vcxproj">
+      <Project>{fbdb78fb-e77d-a3d1-d038-b725bc792a22}</Project>
+    </ProjectReference>
+    <ProjectReference Include="lua_script.vcxproj">
+      <Project>{7bfe5150-67b6-939d-d0bd-6cf9bc942e8e}</Project>
+    </ProjectReference>
+    <ProjectReference Include="physics.vcxproj">
+      <Project>{a823a1ac-1403-2048-1d1b-ab1e897986a9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="renderer.vcxproj">
+      <Project>{9c6aa017-8837-fb22-b150-e9ca9d7c30b1}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

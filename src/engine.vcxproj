@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FBDB78FB-E77D-A3D1-D038-B725BC792A22}</ProjectGuid>
+    <RootNamespace>engine</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\data\bin\</OutDir>
+    <TargetName>engine</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+    <IntDir>..\obj\engine\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>engine</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src\;..\external\;..\external\SDL\include\;..\external\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_ENGINE;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_ENGINE;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)engine.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)engine.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\external\lua\lib\win64_vs2017\debug;..\external\lua\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\data\bin\engine.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalOptions>/DEF:"../src/engine/engine.def" %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src\;..\external\;..\external\SDL\include\;..\external\lua\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_ENGINE;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_ENGINE;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)engine.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)engine.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\external\lua\lib\win64_vs2017\debug;..\external\lua\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\data\bin\engine.lib</ImportLibrary>
+      <AdditionalOptions>/DEF:"../src/engine/engine.def" %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\imgui\imconfig.h" />
+    <ClInclude Include="..\external\imgui\imgui.h" />
+    <ClInclude Include="..\external\imgui\imgui_dock.h" />
+    <ClInclude Include="..\external\imgui\imgui_internal.h" />
+    <ClInclude Include="..\external\imgui\imgui_user.h" />
+    <ClInclude Include="..\external\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\external\imgui\stb_textedit.h" />
+    <ClInclude Include="..\external\imgui\stb_truetype.h" />
+    <ClInclude Include="engine\array.h" />
+    <ClInclude Include="engine\associative_array.h" />
+    <ClInclude Include="engine\base_proxy_allocator.h" />
+    <ClInclude Include="engine\binary_array.h" />
+    <ClInclude Include="engine\blob.h" />
+    <ClInclude Include="engine\command_line_parser.h" />
+    <ClInclude Include="engine\controller_device.h" />
+    <ClInclude Include="engine\crc32.h" />
+    <ClInclude Include="engine\debug\debug.h" />
+    <ClInclude Include="engine\debug\floating_points.h" />
+    <ClInclude Include="engine\default_allocator.h" />
+    <ClInclude Include="engine\delegate.h" />
+    <ClInclude Include="engine\delegate_list.h" />
+    <ClInclude Include="engine\engine.h" />
+    <ClInclude Include="engine\fibers.h" />
+    <ClInclude Include="engine\flag_set.h" />
+    <ClInclude Include="engine\free_list.h" />
+    <ClInclude Include="engine\fs\disk_file_device.h" />
+    <ClInclude Include="engine\fs\file_events_device.h" />
+    <ClInclude Include="engine\fs\file_system.h" />
+    <ClInclude Include="engine\fs\ifile_device.h" />
+    <ClInclude Include="engine\fs\memory_file_device.h" />
+    <ClInclude Include="engine\fs\os_file.h" />
+    <ClInclude Include="engine\fs\pack_file_device.h" />
+    <ClInclude Include="engine\fs\resource_file_device.h" />
+    <ClInclude Include="engine\geometry.h" />
+    <ClInclude Include="engine\hash_map.h" />
+    <ClInclude Include="engine\iallocator.h" />
+    <ClInclude Include="engine\input_system.h" />
+    <ClInclude Include="engine\iplugin.h" />
+    <ClInclude Include="engine\job_system.h" />
+    <ClInclude Include="engine\json_serializer.h" />
+    <ClInclude Include="engine\lifo_allocator.h" />
+    <ClInclude Include="engine\log.h" />
+    <ClInclude Include="engine\lua_wrapper.h" />
+    <ClInclude Include="engine\malmy.h" />
+    <ClInclude Include="engine\math_utils.h" />
+    <ClInclude Include="engine\matrix.h" />
+    <ClInclude Include="engine\metaprogramming.h" />
+    <ClInclude Include="engine\mt\atomic.h" />
+    <ClInclude Include="engine\mt\lock_free_fixed_queue.h" />
+    <ClInclude Include="engine\mt\sync.h" />
+    <ClInclude Include="engine\mt\task.h" />
+    <ClInclude Include="engine\mt\thread.h" />
+    <ClInclude Include="engine\mt\transaction.h" />
+    <ClInclude Include="engine\path.h" />
+    <ClInclude Include="engine\path_utils.h" />
+    <ClInclude Include="engine\plugin_manager.h" />
+    <ClInclude Include="engine\prefab.h" />
+    <ClInclude Include="engine\profiler.h" />
+    <ClInclude Include="engine\project\component.h" />
+    <ClInclude Include="engine\project\project.h" />
+    <ClInclude Include="engine\quat.h" />
+    <ClInclude Include="engine\queue.h" />
+    <ClInclude Include="engine\reflection.h" />
+    <ClInclude Include="engine\resource.h" />
+    <ClInclude Include="engine\resource_manager.h" />
+    <ClInclude Include="engine\resource_manager_base.h" />
+    <ClInclude Include="engine\serializer.h" />
+    <ClInclude Include="engine\simd.h" />
+    <ClInclude Include="engine\simple_win.h" />
+    <ClInclude Include="engine\string.h" />
+    <ClInclude Include="engine\system.h" />
+    <ClInclude Include="engine\timer.h" />
+    <ClInclude Include="engine\vec.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\external\imgui\imgui.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\external\imgui\imgui_draw.cpp" />
+    <ClCompile Include="engine\binary_array.cpp" />
+    <ClCompile Include="engine\blob.cpp" />
+    <ClCompile Include="engine\controller_device.cpp" />
+    <ClCompile Include="engine\crc32.cpp" />
+    <ClCompile Include="engine\debug\debug.cpp" />
+    <ClCompile Include="engine\debug\floating_points.cpp" />
+    <ClCompile Include="engine\default_allocator.cpp" />
+    <ClCompile Include="engine\engine.cpp" />
+    <ClCompile Include="engine\fibers.cpp" />
+    <ClCompile Include="engine\fs\disk_file_device.cpp" />
+    <ClCompile Include="engine\fs\file_events_device.cpp" />
+    <ClCompile Include="engine\fs\file_system.cpp" />
+    <ClCompile Include="engine\fs\memory_file_device.cpp" />
+    <ClCompile Include="engine\fs\os_file.cpp" />
+    <ClCompile Include="engine\fs\pack_file_device.cpp" />
+    <ClCompile Include="engine\fs\resource_file_device.cpp" />
+    <ClCompile Include="engine\geometry.cpp" />
+    <ClCompile Include="engine\input_system.cpp" />
+    <ClCompile Include="engine\iplugin.cpp" />
+    <ClCompile Include="engine\job_system.cpp" />
+    <ClCompile Include="engine\json_serializer.cpp" />
+    <ClCompile Include="engine\log.cpp" />
+    <ClCompile Include="engine\math_utils.cpp" />
+    <ClCompile Include="engine\matrix.cpp" />
+    <ClCompile Include="engine\mt\atomic.cpp" />
+    <ClCompile Include="engine\mt\sync.cpp" />
+    <ClCompile Include="engine\mt\task.cpp" />
+    <ClCompile Include="engine\mt\thread.cpp" />
+    <ClCompile Include="engine\no_resources.cpp" />
+    <ClCompile Include="engine\path.cpp" />
+    <ClCompile Include="engine\path_utils.cpp" />
+    <ClCompile Include="engine\plugin_manager.cpp" />
+    <ClCompile Include="engine\prefab.cpp" />
+    <ClCompile Include="engine\profiler.cpp" />
+    <ClCompile Include="engine\project\component.cpp" />
+    <ClCompile Include="engine\project\project.cpp" />
+    <ClCompile Include="engine\quat.cpp" />
+    <ClCompile Include="engine\reflection.cpp" />
+    <ClCompile Include="engine\resource.cpp" />
+    <ClCompile Include="engine\resource_manager.cpp" />
+    <ClCompile Include="engine\resource_manager_base.cpp" />
+    <ClCompile Include="engine\serializer.cpp" />
+    <ClCompile Include="engine\string.cpp" />
+    <ClCompile Include="engine\system.cpp" />
+    <ClCompile Include="engine\timer.cpp" />
+    <ClCompile Include="engine\vec.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\external\imgui\imgui_dock.inl" />
+    <None Include="..\external\imgui\imgui_user.inl" />
+    <None Include="..\external\imgui\LICENSE" />
+    <None Include="engine\engine.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

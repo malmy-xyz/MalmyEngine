@@ -1,0 +1,7 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (editor.vcxproj, engine.vcxproj, gui.vcxproj, lua_script.vcxproj, main.vcxproj, physics.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  ofbx.cpp
+c:\users\ynsbalci\desktop\malmyengine\src\renderer\editor\ofbx.cpp(1154): error C2220: warning treated as error - no 'object' file generated
+c:\users\ynsbalci\desktop\malmyengine\src\renderer\editor\ofbx.cpp(1154): warning C4018: '<': signed/unsigned mismatch
+c:\users\ynsbalci\desktop\malmyengine\src\renderer\editor\ofbx.cpp(1409): warning C4018: '<': signed/unsigned mismatch
+c:\users\ynsbalci\desktop\malmyengine\src\renderer\editor\ofbx.cpp(1417): warning C4018: '<': signed/unsigned mismatch
+c:\users\ynsbalci\desktop\malmyengine\src\renderer\editor\ofbx.cpp(1538): warning C4018: '>=': signed/unsigned mismatch

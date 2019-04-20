@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine">
+      <UniqueIdentifier>{1F63D4E0-0B1B-162E-7422-EF8960F9B01E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\debug">
+      <UniqueIdentifier>{423D8525-2E36-A477-5768-89FC43C08383}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\fs">
+      <UniqueIdentifier>{B417B056-20D8-2B8D-E912-750A55927069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\mt">
+      <UniqueIdentifier>{9C18B056-08D9-2B8D-D113-750A3D937069}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external">
+      <UniqueIdentifier>{2839F3DC-1406-4EE8-3D1F-3C90294B8376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\imgui">
+      <UniqueIdentifier>{DFA81724-CB76-0B2A-B40A-7C50A077E78E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\project">
+      <UniqueIdentifier>{93e4f735-c93e-4ec0-a51a-3b193bd4580e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\external\imgui\imconfig.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\imgui.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\imgui_dock.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\imgui_internal.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\imgui_user.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\stb_rect_pack.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\stb_textedit.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\external\imgui\stb_truetype.h">
+      <Filter>external\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\debug\debug.h">
+      <Filter>src\engine\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\debug\floating_points.h">
+      <Filter>src\engine\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\disk_file_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\file_events_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\file_system.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\ifile_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\memory_file_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\os_file.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\pack_file_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fs\resource_file_device.h">
+      <Filter>src\engine\fs</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\atomic.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\lock_free_fixed_queue.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\sync.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\task.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\thread.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\mt\transaction.h">
+      <Filter>src\engine\mt</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\array.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\associative_array.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\base_proxy_allocator.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\binary_array.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\blob.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\command_line_parser.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\controller_device.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\crc32.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\default_allocator.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\delegate.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\delegate_list.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\engine.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\fibers.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\flag_set.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\free_list.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\geometry.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\hash_map.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\iallocator.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\input_system.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\iplugin.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\job_system.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\json_serializer.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\lifo_allocator.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\log.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\lua_wrapper.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\math_utils.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\matrix.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\metaprogramming.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\path.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\path_utils.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\plugin_manager.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\prefab.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\profiler.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\quat.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\queue.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\reflection.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\resource.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\resource_manager.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\resource_manager_base.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\serializer.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\simd.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\simple_win.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\string.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\system.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\timer.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\vec.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\malmy.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\project\component.h">
+      <Filter>src\engine\project</Filter>
+    </ClInclude>
+    <ClInclude Include="engine\project\project.h">
+      <Filter>src\engine\project</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\external\imgui\imgui.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\imgui_demo.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\external\imgui\imgui_draw.cpp">
+      <Filter>external\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\debug\debug.cpp">
+      <Filter>src\engine\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\debug\floating_points.cpp">
+      <Filter>src\engine\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\disk_file_device.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\file_events_device.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\file_system.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\memory_file_device.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\os_file.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\pack_file_device.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fs\resource_file_device.cpp">
+      <Filter>src\engine\fs</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\mt\atomic.cpp">
+      <Filter>src\engine\mt</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\mt\sync.cpp">
+      <Filter>src\engine\mt</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\mt\task.cpp">
+      <Filter>src\engine\mt</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\mt\thread.cpp">
+      <Filter>src\engine\mt</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\binary_array.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\blob.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\controller_device.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\crc32.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\default_allocator.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\engine.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\fibers.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\geometry.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\input_system.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\iplugin.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\job_system.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\json_serializer.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\log.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\math_utils.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\matrix.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\no_resources.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\path.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\path_utils.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\plugin_manager.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\prefab.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\profiler.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\quat.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\reflection.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\resource.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\resource_manager.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\resource_manager_base.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\serializer.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\string.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\system.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\timer.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\vec.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\project\component.cpp">
+      <Filter>src\engine\project</Filter>
+    </ClCompile>
+    <ClCompile Include="engine\project\project.cpp">
+      <Filter>src\engine\project</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\external\imgui\imgui_dock.inl">
+      <Filter>external\imgui</Filter>
+    </None>
+    <None Include="..\external\imgui\imgui_user.inl">
+      <Filter>external\imgui</Filter>
+    </None>
+    <None Include="..\external\imgui\LICENSE">
+      <Filter>external\imgui</Filter>
+    </None>
+    <None Include="engine\engine.def">
+      <Filter>src\engine</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+</Project>

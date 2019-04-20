@@ -1,0 +1,11 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (editor.vcxproj, engine.vcxproj, gui.vcxproj, lua_script.vcxproj, physics.vcxproj, renderer.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+main.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static class Malmy::StudioApp * __cdecl Malmy::StudioApp::create(void)" (__imp_?create@StudioApp@Malmy@@SAPAV12@XZ) referenced in function _WinMain@16
+main.obj : error LNK2019: unresolved external symbol "__declspec(dllimport) public: static void __cdecl Malmy::StudioApp::destroy(class Malmy::StudioApp &)" (__imp_?destroy@StudioApp@Malmy@@SAXAAV12@@Z) referenced in function _WinMain@16
+..\external\SDL\lib\win64_vs2017\debug\SDL.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\gui.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\lua_script.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\physics.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\renderer.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\editor.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\data\bin\engine.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+C:\Users\ynsbalci\Desktop\MalmyEngine\Debug\malmy.exe : fatal error LNK1120: 2 unresolved externals

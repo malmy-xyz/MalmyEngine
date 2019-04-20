@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AC2EC5FA-98D0-EFD0-818B-03256DCC7621}</ProjectGuid>
+    <RootNamespace>editor</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>..\data\bin\</OutDir>
+    <IntDir>..\obj\editor\</IntDir>
+    <TargetName>editor</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>editor</TargetName>
+    <TargetExt>.dll</TargetExt>
+    <IgnoreImportLibrary>false</IgnoreImportLibrary>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;..\external;..\external\SDL\include;..\src\editor;..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_EDITOR;MALMYENGINE_PLUGINS="renderer","lua_script","physics";LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_EDITOR;MALMYENGINE_PLUGINS="physics","renderer","lua_script","gui","navigation";LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\src;..\..\..\src\editor;..\..\..\external;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)editor.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>SDL.lib;winmm.lib;imm32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)editor.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win64_vs2017\debug;..\external\SDL\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\data\bin\editor.lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalOptions>/wd4503  %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;..\external;..\external\SDL\include;..\src\editor;..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_EDITOR;MALMYENGINE_PLUGINS="physics","renderer","lua_script","gui";LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <ExceptionHandling>false</ExceptionHandling>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_HAS_EXCEPTIONS=0;BUILDING_EDITOR;MALMYENGINE_PLUGINS="physics","renderer","lua_script","gui","navigation";LUA_BUILD_AS_DLL;DEBUG;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\..\src;..\..\..\external;..\..\..\external\SDL\include;..\..\..\src;..\..\..\src\editor;..\..\..\external;..\..\..\external\lua\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDataBaseFileName>$(OutDir)editor.pdb</ProgramDataBaseFileName>
+      <AdditionalDependencies>SDL.lib;winmm.lib;imm32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)editor.dll</OutputFile>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win64_vs2017\debug;..\external\SDL\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <ImportLibrary>..\data\bin\editor.lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="editor\asset_browser.cpp" />
+    <ClCompile Include="editor\editor_icon.cpp" />
+    <ClCompile Include="editor\file_system_watcher.cpp" />
+    <ClCompile Include="editor\gizmo.cpp" />
+    <ClCompile Include="editor\log_ui.cpp" />
+    <ClCompile Include="editor\measure_tool.cpp" />
+    <ClCompile Include="editor\metadata.cpp" />
+    <ClCompile Include="editor\platform_interface.cpp" />
+    <ClCompile Include="editor\prefab_system.cpp" />
+    <ClCompile Include="editor\profiler_ui.cpp" />
+    <ClCompile Include="editor\property_grid.cpp" />
+    <ClCompile Include="editor\settings.cpp" />
+    <ClCompile Include="editor\studio_app.cpp" />
+    <ClCompile Include="editor\utils.cpp" />
+    <ClCompile Include="editor\world_editor.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor\asset_browser.h" />
+    <ClInclude Include="editor\editor_icon.h" />
+    <ClInclude Include="editor\file_system_watcher.h" />
+    <ClInclude Include="editor\gizmo.h" />
+    <ClInclude Include="editor\ieditor_command.h" />
+    <ClInclude Include="editor\log_ui.h" />
+    <ClInclude Include="editor\measure_tool.h" />
+    <ClInclude Include="editor\metadata.h" />
+    <ClInclude Include="editor\platform_interface.h" />
+    <ClInclude Include="editor\prefab_system.h" />
+    <ClInclude Include="editor\profiler_ui.h" />
+    <ClInclude Include="editor\property_grid.h" />
+    <ClInclude Include="editor\render_interface.h" />
+    <ClInclude Include="editor\settings.h" />
+    <ClInclude Include="editor\studio_app.h" />
+    <ClInclude Include="editor\utils.h" />
+    <ClInclude Include="editor\world_editor.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="engine.vcxproj">
+      <Project>{fbdb78fb-e77d-a3d1-d038-b725bc792a22}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

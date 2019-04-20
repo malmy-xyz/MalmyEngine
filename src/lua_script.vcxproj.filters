@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lua_script">
+      <UniqueIdentifier>{9F77A4F8-8B45-98FE-74D9-082560467463}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lua_script\editor">
+      <UniqueIdentifier>{02CECF4B-6E3A-8B46-372E-23A4A359ADAE}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="lua_script\lua_script_manager.cpp">
+      <Filter>src\lua_script</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_script\lua_script_system.cpp">
+      <Filter>src\lua_script</Filter>
+    </ClCompile>
+    <ClCompile Include="lua_script\editor\plugins.cpp">
+      <Filter>src\lua_script\editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="lua_script\lua_script_manager.h">
+      <Filter>src\lua_script</Filter>
+    </ClInclude>
+    <ClInclude Include="lua_script\lua_script_system.h">
+      <Filter>src\lua_script</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+</Project>

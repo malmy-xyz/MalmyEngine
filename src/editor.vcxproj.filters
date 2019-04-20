@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\editor">
+      <UniqueIdentifier>{D0B520E0-BC6D-622D-2575-3B89114CFD1D}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="editor\asset_browser.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\editor_icon.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\file_system_watcher.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\gizmo.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\log_ui.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\measure_tool.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\metadata.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\platform_interface.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\prefab_system.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\profiler_ui.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\property_grid.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\settings.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\studio_app.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\utils.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor\world_editor.cpp">
+      <Filter>src\editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor\asset_browser.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\editor_icon.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\file_system_watcher.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\gizmo.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\ieditor_command.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\log_ui.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\measure_tool.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\metadata.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\platform_interface.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\prefab_system.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\profiler_ui.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\property_grid.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\render_interface.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\settings.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\studio_app.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\utils.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor\world_editor.h">
+      <Filter>src\editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+</Project>

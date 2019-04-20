@@ -1,3 +1,0 @@
-src nin altindaki res klasoru  exe ile ayni yerde olmasi lazim
-ayrica dll lerde 
-kurulabilir hale getirrken bunlari topla

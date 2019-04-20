@@ -1,61 +1,45 @@
-#include <iostream>
+#include <Windows.h>
+#include <Winuser.h>
+#include <ShellScalingAPI.h>
+#include "editor/studio_app.h"
+#define MF_RESOURCE_DONT_INCLUDE_WINDOWS_H
+#include "stb/mf_resource.h"
 
-#include "testScene.h"
-
-///test
-#include <fstream>
-
-
-
-
-int main()
+INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 {
-
-	///
-	Debug::Log("Malmy Engine v0.0");
-	Debug::Log("Yunus BALCI");
-
-	std::string fileName = "default";
-
-	std::ifstream file;
-	file.open(("./res/scenes/" + fileName + ".mscene").c_str());
-
-
-
-	std::string output;
-	std::string line;
-
-	if (file.is_open())
+	/*SetProcessDPIAware();
+	HMODULE shcore = LoadLibrary("shcore.dll");
+	if (shcore)
 	{
-		while (file.good())
-		{
-			getline(file, line);
+		auto setter = (decltype(&SetProcessDpiAwareness))GetProcAddress(shcore, "SetProcessDpiAwareness");
+		if (setter) setter(PROCESS_PER_MONITOR_DPI_AWARE);
+	}*/
 
-			//burda parse islemi baslicak
-			//shane dosyasini ayarladiktan sonra burasyi yaz
-			//
-			std::cout << line << std::endl;
-		}
-	}
-	else
-	{
-		std::cerr << "Hata sahne yuklenemiyo: " << fileName << std::endl;
-	}
-
-
-	//system("PAUSE");
-	///
-
-
-	TestScene scene;
-
-	//window kisminin detaylarinida ayarrladan cekcez sonra
-	//default  1280x720
-	Window window(1280, 720, "Malmy Engine !");
-	renderEngine renderer(window);
-	
-	Engine engine(&window, &renderer, &scene);
-	engine.Start();
-	
-	return 0;
+	auto* app = Malmy::StudioApp::create();
+	app->run();
+	int exit_code = app->getExitCode();
+	Malmy::StudioApp::destroy(*app);
+	//if(shcore) FreeLibrary(shcore);
+	return exit_code;
 }
+
+
+
+/*
+
+#include "engine/malmy.h"
+#include "engine/debug/floating_points.h"
+#include "unit_tests/suite/unit_test_app.h"
+
+
+int main(int argc, const char * argv[])
+{
+	Malmy::enableFloatingPointTraps(true);
+	Malmy::UnitTest::App app;
+	app.init();
+	app.run(argc, argv);
+	app.exit();
+}
+
+
+*/

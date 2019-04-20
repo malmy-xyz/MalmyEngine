@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2DAB880B-99B4-887C-2230-9F7C8E38947C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\renderer">
+      <UniqueIdentifier>{C04AFAC1-ACAD-8966-5533-C21C417555E9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\renderer\editor">
+      <UniqueIdentifier>{03B2765A-6F13-5468-F880-9A1A64E18A27}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="renderer\culling_system.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\draw2d.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\font_manager.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\frame_buffer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\material_manager.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\model.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\model_manager.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\occlusion_buffer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\particle_system.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pipeline.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\pose.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\render_scene.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\renderer.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\shader.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\shader_manager.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\terrain.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\texture.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\texture_manager.cpp">
+      <Filter>src\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\game_view.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\import_asset_dialog.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\miniz.c">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\ofbx.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\plugins.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\scene_view.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\shader_compiler.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\shader_editor.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer\editor\terrain_editor.cpp">
+      <Filter>src\renderer\editor</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="renderer\culling_system.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\draw2d.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\font_manager.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\frame_buffer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\material_manager.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\model.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\model_manager.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\occlusion_buffer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\particle_system.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\pipeline.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\pose.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\render_scene.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\renderer.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shader.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\shader_manager.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\terrain.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\texture.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\texture_manager.h">
+      <Filter>src\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\game_view.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\import_asset_dialog.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\miniz.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\ofbx.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\scene_view.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\shader_compiler.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\shader_editor.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer\editor\terrain_editor.h">
+      <Filter>src\renderer\editor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="..\malmy.natvis" />
+  </ItemGroup>
+</Project>

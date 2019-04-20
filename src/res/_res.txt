@@ -1,3 +1,0 @@
-res kinia eklencekler vs
-default texturelar ve mesh ler duzenlencek
-!!! uv acamdan model cikarma patliyo !!!

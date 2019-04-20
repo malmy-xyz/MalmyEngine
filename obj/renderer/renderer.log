@@ -1,0 +1,5 @@
+﻿  game_view.cpp
+  miniz.c
+     Creating library ..\data\bin\renderer.lib and object ..\data\bin\renderer.exp
+  renderer.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\renderer.dll
+  renderer.vcxproj -> ..\data\bin\renderer.pdb (Partial PDB)
