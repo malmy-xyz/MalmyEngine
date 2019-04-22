@@ -1,4 +1,6 @@
-﻿  lua_script_system.cpp
+﻿  plugins.cpp
+  lua_script_manager.cpp
+  lua_script_system.cpp
      Creating library ..\data\bin\lua_script.lib and object ..\data\bin\lua_script.exp
-  lua_script.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\lua_script.dll
+  lua_script.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\data\bin\lua_script.dll
   lua_script.vcxproj -> ..\data\bin\lua_script.pdb (Partial PDB)

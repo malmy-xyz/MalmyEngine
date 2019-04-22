@@ -1,5 +1,31 @@
-﻿  game_view.cpp
+﻿  culling_system.cpp
+  draw2d.cpp
+  game_view.cpp
+  import_asset_dialog.cpp
+  ofbx.cpp
+  plugins.cpp
+  scene_view.cpp
+  shader_compiler.cpp
+  shader_editor.cpp
+  terrain_editor.cpp
+  font_manager.cpp
+  frame_buffer.cpp
+  material.cpp
+  material_manager.cpp
+  model.cpp
+  model_manager.cpp
+  occlusion_buffer.cpp
+  particle_system.cpp
+  pipeline.cpp
+  pose.cpp
+  renderer.cpp
+  render_scene.cpp
+  shader.cpp
+  shader_manager.cpp
+  terrain.cpp
+  texture.cpp
+  texture_manager.cpp
   miniz.c
      Creating library ..\data\bin\renderer.lib and object ..\data\bin\renderer.exp
-  renderer.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\renderer.dll
+  renderer.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\data\bin\renderer.dll
   renderer.vcxproj -> ..\data\bin\renderer.pdb (Partial PDB)

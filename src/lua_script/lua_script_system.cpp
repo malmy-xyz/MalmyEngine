@@ -16,7 +16,7 @@
 #include "engine/serializer.h"
 #include "engine/string.h"
 #include "engine/project/project.h"
-#include "gui/gui_scene.h"
+//#include "gui/gui_scene.h"
 #include "lua_script/lua_script_manager.h"
 
 
@@ -1130,25 +1130,25 @@ namespace Malmy
 		{
 			//m_animation_scene = (AnimationScene*)m_project.getScene(crc32("animation"));
 			m_is_game_running = true;
-			m_gui_scene = (GUIScene*)m_project.getScene(crc32("gui"));
+			/*m_gui_scene = (GUIScene*)m_project.getScene(crc32("gui"));
 			if (m_gui_scene)
 			{
 				m_gui_scene->buttonClicked().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onButtonClicked>(this);
 				m_gui_scene->rectHovered().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHovered>(this);
 				m_gui_scene->rectHoveredOut().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHoveredOut>(this);
-			}
+			}*/
 		}
 
 
 		void stopGame() override
 		{
-			if (m_gui_scene)
+			/*if (m_gui_scene)
 			{
 				m_gui_scene->buttonClicked().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onButtonClicked>(this);
 				m_gui_scene->rectHovered().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHovered>(this);
 				m_gui_scene->rectHoveredOut().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHoveredOut>(this);
 			}
-			m_gui_scene = nullptr;
+			m_gui_scene = nullptr;*/
 			m_scripts_init_called = false;
 			m_is_game_running = false;
 			m_updates.clear();
@@ -1862,7 +1862,7 @@ namespace Malmy
 		bool m_scripts_init_called = false;
 		bool m_is_api_registered = false;
 		bool m_is_game_running = false;
-		GUIScene* m_gui_scene = nullptr;
+		//GUIScene* m_gui_scene = nullptr;
 		//AnimationScene* m_animation_scene;
 	};
 

@@ -48,5 +48,5 @@
   timer.cpp
   vec.cpp
      Creating library ..\data\bin\engine.lib and object ..\data\bin\engine.exp
-  engine.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\engine.dll
+  engine.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\data\bin\engine.dll
   engine.vcxproj -> ..\data\bin\engine.pdb (Partial PDB)

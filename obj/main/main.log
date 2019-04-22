@@ -1,27 +1,28 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: The intermediate directory (..\obj\main\) contains files shared from another project (sutido.vcxproj).  This can lead to incorrect clean and rebuild behavior.
-  main.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\malmy.exe
+  main.cpp
+  main.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\data\bin\malmy.exe
   main.vcxproj -> ..\data\bin\malmy.pdb (Partial PDB)
-  Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
   (F = file, D = directory)? ⌐
-  Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
-  (F = file, D = directory)? Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
-  or directory name on the target
-  (F = file, D = directory)? ⌐
-  Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
-  or directory name on the target
-  (F = file, D = directory)? Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  (F = file, D = directory)? Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
   (F = file, D = directory)? ⌐
-  Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
-  (F = file, D = directory)? Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  (F = file, D = directory)? Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
   (F = file, D = directory)? ⌐
-  Does C:\Users\ynsbalci\Desktop\MalmyEngine\data/bin/ specify a file name
+  Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
   or directory name on the target
-  (F = file, D = directory)? C:\Users\ynsbalci\Desktop\MalmyEngine\external\dbghelp\dbghelp.dll
+  (F = file, D = directory)? Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
+  or directory name on the target
+  (F = file, D = directory)? ⌐
+  Does C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\data/bin/ specify a file name
+  or directory name on the target
+  (F = file, D = directory)? C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\external\dbghelp\dbghelp.dll
   1 File(s) copied
-  C:\Users\ynsbalci\Desktop\MalmyEngine\external\dbghelp\dbgcore.dll
+  C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\external\dbghelp\dbgcore.dll
   1 File(s) copied

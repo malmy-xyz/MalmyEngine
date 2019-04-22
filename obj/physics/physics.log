@@ -1,3 +1,7 @@
-﻿     Creating library ..\data\bin\physics.lib and object ..\data\bin\physics.exp
-  physics.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\physics.dll
+﻿  plugins.cpp
+  physics_geometry_manager.cpp
+  physics_scene.cpp
+  physics_system.cpp
+     Creating library ..\data\bin\physics.lib and object ..\data\bin\physics.exp
+  physics.vcxproj -> C:\Users\ynsbalci\Documents\GitHub\MalmyEngine\src\..\data\bin\physics.dll
   physics.vcxproj -> ..\data\bin\physics.pdb (Partial PDB)
