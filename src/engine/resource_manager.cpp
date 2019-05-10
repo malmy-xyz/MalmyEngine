@@ -5,15 +5,15 @@
 
 namespace Malmy
 {
-	ResourceManager::ResourceManager(IAllocator& allocator) 
+	ResourceManager::ResourceManager(IAllocator& allocator)
 		: m_resource_managers(allocator)
 		, m_allocator(allocator)
 		, m_file_system(nullptr)
 	{
+		//
 	}
 
 	ResourceManager::~ResourceManager() = default;
-
 
 	void ResourceManager::create(FS::FileSystem& fs)
 	{
@@ -23,19 +23,19 @@ namespace Malmy
 	void ResourceManager::destroy()
 	{
 	}
-	
+
 	ResourceManagerBase* ResourceManager::get(ResourceType type)
 	{
-		return m_resource_managers[type.type]; 
+		return m_resource_managers[type.type];
 	}
 
 	void ResourceManager::add(ResourceType type, ResourceManagerBase* rm)
-	{ 
+	{
 		m_resource_managers.insert(type.type, rm);
 	}
 
 	void ResourceManager::remove(ResourceType type)
-	{ 
+	{
 		m_resource_managers.erase(type.type);
 	}
 

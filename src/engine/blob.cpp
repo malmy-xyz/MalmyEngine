@@ -10,8 +10,9 @@ namespace Malmy
 		, m_data(nullptr)
 		, m_size(0)
 		, m_pos(0)
-	{}
-
+	{
+		//
+	}
 
 	OutputBlob::OutputBlob(void* data, int size)
 		: m_data(data)
@@ -19,8 +20,8 @@ namespace Malmy
 		, m_allocator(nullptr)
 		, m_pos(0)
 	{
+		//
 	}
-
 
 	OutputBlob::OutputBlob(const OutputBlob& blob, IAllocator& allocator)
 		: m_allocator(&allocator)
@@ -39,7 +40,6 @@ namespace Malmy
 		}
 	}
 
-
 	OutputBlob::OutputBlob(const InputBlob& blob, IAllocator& allocator)
 		: m_allocator(&allocator)
 		, m_pos(blob.getSize())
@@ -57,19 +57,16 @@ namespace Malmy
 		}
 	}
 
-
 	OutputBlob::~OutputBlob()
 	{
 		if (m_allocator) m_allocator->deallocate(m_data);
 	}
-
 
 	OutputBlob& OutputBlob::operator << (const char* str)
 	{
 		write(str, stringLength(str));
 		return *this;
 	}
-
 
 	OutputBlob& OutputBlob::operator << (i32 value)
 	{
@@ -79,7 +76,6 @@ namespace Malmy
 		return *this;
 	}
 
-
 	OutputBlob& OutputBlob::operator << (u64 value)
 	{
 		char tmp[40];
@@ -87,7 +83,6 @@ namespace Malmy
 		write(tmp, stringLength(tmp));
 		return *this;
 	}
-
 
 	OutputBlob& OutputBlob::operator << (i64 value)
 	{
@@ -97,7 +92,6 @@ namespace Malmy
 		return *this;
 	}
 
-
 	OutputBlob& OutputBlob::operator << (u32 value)
 	{
 		char tmp[20];
@@ -106,7 +100,6 @@ namespace Malmy
 		return *this;
 	}
 
-
 	OutputBlob& OutputBlob::operator << (float value)
 	{
 		char tmp[30];
@@ -114,7 +107,6 @@ namespace Malmy
 		write(tmp, stringLength(tmp));
 		return *this;
 	}
-
 
 	OutputBlob::OutputBlob(const OutputBlob& rhs)
 	{
@@ -133,12 +125,11 @@ namespace Malmy
 		}
 	}
 
-
 	void OutputBlob::operator =(const OutputBlob& rhs)
 	{
 		ASSERT(rhs.m_allocator);
 		if (m_allocator) m_allocator->deallocate(m_data);
-		
+
 		m_allocator = rhs.m_allocator;
 		m_pos = rhs.m_pos;
 		if (rhs.m_size > 0)
@@ -153,13 +144,11 @@ namespace Malmy
 			m_size = 0;
 		}
 	}
-	
 
 	void OutputBlob::write(const string& string)
 	{
 		writeString(string.c_str());
 	}
-
 
 	void OutputBlob::write(const void* data, int size)
 	{
@@ -172,7 +161,6 @@ namespace Malmy
 		copyMemory((u8*)m_data + m_pos, data, size);
 		m_pos += size;
 	}
-
 
 	void OutputBlob::writeString(const char* string)
 	{
@@ -188,12 +176,10 @@ namespace Malmy
 		}
 	}
 
-
 	void OutputBlob::clear()
 	{
 		m_pos = 0;
 	}
-
 
 	void OutputBlob::reserve(int size)
 	{
@@ -206,7 +192,6 @@ namespace Malmy
 		m_data = tmp;
 		m_size = size;
 	}
-
 
 	void OutputBlob::resize(int size)
 	{
@@ -221,21 +206,21 @@ namespace Malmy
 		m_size = size;
 	}
 
-
-
 	InputBlob::InputBlob(const void* data, int size)
 		: m_data((const u8*)data)
 		, m_size(size)
 		, m_pos(0)
-	{}
-
+	{
+		//
+	}
 
 	InputBlob::InputBlob(const OutputBlob& blob)
 		: m_data((const u8*)blob.getData())
 		, m_size(blob.getPos())
 		, m_pos(0)
-	{}
-
+	{
+		//
+	}
 
 	const void* InputBlob::skip(int size)
 	{
@@ -248,7 +233,6 @@ namespace Malmy
 
 		return (const void*)pos;
 	}
-
 
 	bool InputBlob::read(void* data, int size)
 	{
@@ -266,7 +250,6 @@ namespace Malmy
 		return true;
 	}
 
-
 	bool InputBlob::read(string& string)
 	{
 		i32 size;
@@ -275,7 +258,6 @@ namespace Malmy
 		bool res = read(string.getData(), size);
 		return res;
 	}
-
 
 	bool InputBlob::readString(char* data, int max_size)
 	{
@@ -289,6 +271,5 @@ namespace Malmy
 		}
 		return res && size <= max_size;
 	}
-
 
 } // namespace Malmy

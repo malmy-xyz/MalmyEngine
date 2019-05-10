@@ -1,8 +1,7 @@
 ﻿  plugins.cpp
   gui_scene.cpp
   gui_system.cpp
-c1xx : fatal error C1083: Cannot open source file: 'gui\editor\plugins.cpp': No such file or directory
   sprite_manager.cpp
-c1xx : fatal error C1083: Cannot open source file: 'gui\gui_system.cpp': No such file or directory
-c1xx : fatal error C1083: Cannot open source file: 'gui\gui_scene.cpp': No such file or directory
-c1xx : fatal error C1083: Cannot open source file: 'gui\sprite_manager.cpp': No such file or directory
+     Creating library ..\data\bin\gui.lib and object ..\data\bin\gui.exp
+  gui.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\gui.dll
+  gui.vcxproj -> ..\data\bin\gui.pdb (Partial PDB)

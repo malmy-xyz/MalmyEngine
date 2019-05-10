@@ -12,7 +12,7 @@
 #include "engine/profiler.h"
 #include "engine/resource_manager.h"
 #include "engine/project/project.h"
-//#include "gui/gui_system.h"
+#include "gui/gui_system.h"
 #include "imgui/imgui.h"
 #include "renderer/frame_buffer.h"
 #include "renderer/pipeline.h"
@@ -26,25 +26,25 @@ namespace Malmy
 {
 
 
-//struct GUIInterface : GUISystem::Interface
-//{
-//	explicit GUIInterface(GameView& game_view)
-//		: m_game_view(game_view)
-//	{
-//	}
-//
-//	Pipeline* getPipeline() override { return m_game_view.m_pipeline; }
-//	Vec2 getPos() const override { return m_game_view.m_pos; }
-//
-//	
-//	void enableCursor(bool enable) override
-//	{ 
-//		m_game_view.enableIngameCursor(enable);
-//	}
-//
-//
-//	GameView& m_game_view;
-//};
+struct GUIInterface : GUISystem::Interface
+{
+	explicit GUIInterface(GameView& game_view)
+		: m_game_view(game_view)
+	{
+	}
+
+	Pipeline* getPipeline() override { return m_game_view.m_pipeline; }
+	Vec2 getPos() const override { return m_game_view.m_pos; }
+
+	
+	void enableCursor(bool enable) override
+	{ 
+		m_game_view.enableIngameCursor(enable);
+	}
+
+
+	GameView& m_game_view;
+};
 
 
 GameView::GameView(StudioApp& app)
@@ -86,12 +86,12 @@ GameView::GameView(StudioApp& app)
 	editor.projectDestroyed().bind<GameView, &GameView::onProjectDestroyed>(this);
 	if (editor.getProject()) onProjectCreated();
 
-	//auto* gui = static_cast<GUISystem*>(engine.getPluginManager().getPlugin("gui"));
-	//if (gui)
-	//{
-	//	m_gui_interface = MALMY_NEW(engine.getAllocator(), GUIInterface)(*this);
-	//	gui->setInterface(m_gui_interface);
-	//}
+	auto* gui = static_cast<GUISystem*>(engine.getPluginManager().getPlugin("gui"));
+	if (gui)
+	{
+		m_gui_interface = MALMY_NEW(engine.getAllocator(), GUIInterface)(*this);
+		gui->setInterface(m_gui_interface);
+	}
 
 	app.getAssetBrowser().resourceChanged().bind<GameView, &GameView::onResourceChanged>(this);
 }
@@ -108,12 +108,12 @@ GameView::~GameView()
 	m_studio_app.getAssetBrowser().resourceChanged().unbind<GameView, &GameView::onResourceChanged>(this);
 	m_editor.projectCreated().unbind<GameView, &GameView::onProjectCreated>(this);
 	m_editor.projectDestroyed().unbind<GameView, &GameView::onProjectDestroyed>(this);
-	//auto* gui = static_cast<GUISystem*>(m_editor.getEngine().getPluginManager().getPlugin("gui"));
-	//if (gui)
-	//{
-	//	gui->setInterface(nullptr);
-	//	MALMY_DELETE(m_editor.getEngine().getAllocator(), m_gui_interface);
-	//}
+	auto* gui = static_cast<GUISystem*>(m_editor.getEngine().getPluginManager().getPlugin("gui"));
+	if (gui)
+	{
+		gui->setInterface(nullptr);
+		MALMY_DELETE(m_editor.getEngine().getAllocator(), m_gui_interface);
+	}
 	Pipeline::destroy(m_pipeline);
 	m_pipeline = nullptr;
 

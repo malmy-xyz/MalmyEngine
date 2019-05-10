@@ -16,25 +16,20 @@
 #include "engine/serializer.h"
 #include "engine/string.h"
 #include "engine/project/project.h"
-//#include "gui/gui_scene.h"
+#include "gui/gui_scene.h"
 #include "lua_script/lua_script_manager.h"
 
 
 namespace Malmy
 {
-
-
 	static const ComponentType LUA_SCRIPT_TYPE = Reflection::getComponentType("lua_script");
-
 
 	enum class LuaSceneVersion : int
 	{
 		PROPERTY_TYPE,
 		FLAGS,
-
 		LATEST
 	};
-
 
 	class LuaScriptSystemImpl MALMY_FINAL : public IPlugin
 	{
@@ -52,7 +47,6 @@ namespace Malmy
 		LuaScriptManager m_script_manager;
 	};
 
-
 	struct LuaScriptSceneImpl MALMY_FINAL : public LuaScriptScene
 	{
 		struct TimerData
@@ -68,7 +62,6 @@ namespace Malmy
 			lua_State* state;
 			int environment;
 		};
-
 
 		struct ScriptInstance
 		{
@@ -95,7 +88,6 @@ namespace Malmy
 			FlagSet<Flags, u32> m_flags;
 		};
 
-
 		struct ScriptComponent
 		{
 			ScriptComponent(LuaScriptSceneImpl& scene, IAllocator& allocator)
@@ -105,7 +97,6 @@ namespace Malmy
 			{
 			}
 
-
 			static int getProperty(ScriptInstance& inst, u32 hash)
 			{
 				for(int i = 0, c = inst.m_properties.size(); i < c; ++i)
@@ -114,7 +105,6 @@ namespace Malmy
 				}
 				return -1;
 			}
-
 
 			void detectProperties(ScriptInstance& inst)
 			{
@@ -185,7 +175,7 @@ namespace Malmy
 				lua_pop(L, 1);
 			}
 
-
+			//script hazir
 			void onScriptLoaded(Resource::State, Resource::State, Resource& resource)
 			{
 				lua_State* L = m_scene.m_system.m_engine.getState();
@@ -260,13 +250,12 @@ namespace Malmy
 				}
 			}
 
-
 			Array<ScriptInstance> m_scripts;
 			LuaScriptSceneImpl& m_scene;
 			Entity m_entity;
 		};
 
-
+		//fonksiyon cagrisi
 		struct FunctionCall : IFunctionCall
 		{
 			void add(int parameter) override
@@ -275,13 +264,11 @@ namespace Malmy
 				++parameter_count;
 			}
 
-
 			void add(bool parameter) override
 			{
 				lua_pushboolean(state, parameter);
 				++parameter_count;
 			}
-
 
 			void add(float parameter) override
 			{
@@ -289,13 +276,11 @@ namespace Malmy
 				++parameter_count;
 			}
 
-
 			void add(void* parameter) override
 			{
 				lua_pushlightuserdata(state, parameter);
 				++parameter_count;
 			}
-
 
 			void addEnvironment(int env) override
 			{
@@ -304,14 +289,12 @@ namespace Malmy
 				++parameter_count;
 			}
 
-
 			int parameter_count;
 			lua_State* state;
 			bool is_in_progress;
 			ScriptComponent* cmp;
 			int scr_index;
 		};
-
 
 	public:
 		LuaScriptSceneImpl(LuaScriptSystemImpl& system, Project& ctx)
@@ -337,9 +320,7 @@ namespace Malmy
 				, &LuaScriptSceneImpl::deserializeLuaScript);
 		}
 
-
 		int getVersion() const override { return (int)LuaSceneVersion::LATEST; }
-
 
 		IFunctionCall* beginFunctionCall(Entity entity, int scr_index, const char* function) override
 		{
@@ -366,7 +347,6 @@ namespace Malmy
 			return &m_function_call;
 		}
 
-
 		void endFunctionCall() override
 		{
 			ASSERT(m_function_call.is_in_progress);
@@ -384,30 +364,25 @@ namespace Malmy
 			lua_pop(script.m_state, 1);
 		}
 
-
 		int getPropertyCount(Entity entity, int scr_index) override
 		{
 			return m_scripts[entity]->m_scripts[scr_index].m_properties.size();
 		}
-
 
 		const char* getPropertyName(Entity entity, int scr_index, int prop_index) override
 		{
 			return getPropertyName(m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].name_hash);
 		}
 
-
 		ResourceType getPropertyResourceType(Entity entity, int scr_index, int prop_index) override
 		{
 			return m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].resource_type;
 		}
 
-
 		Property::Type getPropertyType(Entity entity, int scr_index, int prop_index) override
 		{
 			return m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].type;
 		}
-
 
 		void getScriptData(Entity entity, OutputBlob& blob) override
 		{
@@ -431,7 +406,6 @@ namespace Malmy
 				}
 			}
 		}
-
 
 		void setScriptData(Entity entity, InputBlob& blob) override
 		{
@@ -470,7 +444,6 @@ namespace Malmy
 			}
 		}
 
-
 		void clear() override
 		{
 			Path invalid_path;
@@ -487,15 +460,12 @@ namespace Malmy
 			m_scripts.clear();
 		}
 
-
 		lua_State* getState(Entity entity, int scr_index) override
 		{
 			return m_scripts[entity]->m_scripts[scr_index].m_state;
 		}
 
-
 		Project& getProject() override { return m_project; }
-
 
 		static int setPropertyType(lua_State* L)
 		{
@@ -532,7 +502,6 @@ namespace Malmy
 			return 0;
 		}
 
-
 		void registerPropertyAPI()
 		{
 			lua_State* L = m_system.m_engine.getState();
@@ -543,7 +512,6 @@ namespace Malmy
 			LuaWrapper::createSystemVariable(L, "Editor", "ENTITY_PROPERTY", Property::ENTITY);
 			LuaWrapper::createSystemVariable(L, "Editor", "RESOURCE_PROPERTY", Property::RESOURCE);
 		}
-
 
 		static int getEnvironment(lua_State* L)
 		{
@@ -575,7 +543,6 @@ namespace Malmy
 			}
 			return 1;
 		}
-
 
 		struct GetPropertyVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 		{
@@ -622,7 +589,6 @@ namespace Malmy
 			lua_State* L;
 		};
 
-
 		template <typename T>
 		static int LUA_getProperty(lua_State* L)
 		{
@@ -635,7 +601,6 @@ namespace Malmy
 			visitor.visit(*prop);
 			return 1;
 		}
-
 
 		struct SetPropertyVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 		{
@@ -679,7 +644,6 @@ namespace Malmy
 			lua_State* L;
 		};
 
-
 		template <typename T>
 		static int LUA_setProperty(lua_State* L)
 		{
@@ -695,7 +659,6 @@ namespace Malmy
 			return 0;
 		}
 
-		
 		static void convertPropertyToLuaName(const char* src, char* out, int max_size)
 		{
 			ASSERT(max_size > 0);
@@ -722,7 +685,6 @@ namespace Malmy
 			}
 			*dest = 0;
 		}
-
 
 		struct LuaCreatePropertyVisitor : Reflection::IPropertyVisitor
 		{
@@ -793,8 +755,6 @@ namespace Malmy
 			}
 		}
 
-
-
 		void cancelTimer(int timer_func)
 		{
 			for (int i = 0, c = m_timers.size(); i < c; ++i)
@@ -806,7 +766,6 @@ namespace Malmy
 				}
 			}
 		}
-
 
 		static int setTimer(lua_State* L)
 		{
@@ -823,12 +782,10 @@ namespace Malmy
 			return 1;
 		}
 
-
 		void setScriptSource(Entity entity, int scr_index, const char* path)
 		{
 			setScriptPath(entity, scr_index, Path(path));
 		}
-
 
 		void registerAPI()
 		{
@@ -867,14 +824,12 @@ namespace Malmy
 			return m_scripts[entity]->m_scripts[scr_index].m_environment;
 		}
 
-
 		const char* getPropertyName(u32 name_hash) const
 		{
 			int idx = m_property_names.find(name_hash);
 			if(idx >= 0) return m_property_names.at(idx).c_str();
 			return nullptr;
 		}
-
 
 		void applyResourceProperty(ScriptInstance& script, const char* name, Property& prop, const char* value)
 		{
@@ -890,7 +845,6 @@ namespace Malmy
 			lua_setfield(script.m_state, -2, name);
 			lua_pop(script.m_state, 1);
 		}
-
 
 		void applyProperty(ScriptInstance& script, Property& prop, const char* value)
 		{
@@ -949,7 +903,6 @@ namespace Malmy
 			applyProperty(script_cmp->m_scripts[scr_index], prop, value);
 		}
 
-
 		const char* getPropertyName(Entity entity, int scr_index, int index) const
 		{
 			auto& script = m_scripts[entity]->m_scripts[scr_index];
@@ -957,14 +910,12 @@ namespace Malmy
 			return getPropertyName(script.m_properties[index].name_hash);
 		}
 
-
 		int getPropertyCount(Entity entity, int scr_index) const
 		{
 			auto& script = m_scripts[entity]->m_scripts[scr_index];
 
 			return script.m_properties.size();
 		}
-
 
 		static void* luaAllocator(void* ud, void* ptr, size_t osize, size_t nsize)
 		{
@@ -981,7 +932,6 @@ namespace Malmy
 			allocator.deallocate(ptr);
 			return new_mem;
 		}
-
 
 		void disableScript(ScriptInstance& inst)
 		{
@@ -1014,7 +964,6 @@ namespace Malmy
 			}
 		}
 
-
 		void destroyInstance(ScriptComponent& scr,  ScriptInstance& inst)
 		{
 			bool is_env_valid = lua_rawgeti(inst.m_state, LUA_REGISTRYINDEX, inst.m_environment) == LUA_TTABLE;
@@ -1040,7 +989,6 @@ namespace Malmy
 			inst.m_state = nullptr;
 		}
 
-
 		void setScriptPath(ScriptComponent& cmp, ScriptInstance& inst, const Path& path)
 		{
 			registerAPI();
@@ -1059,7 +1007,6 @@ namespace Malmy
 				inst.m_script->onLoaded<ScriptComponent, &ScriptComponent::onScriptLoaded>(&cmp);
 			}
 		}
-
 
 		void startScript(ScriptInstance& instance, bool is_restart)
 		{
@@ -1108,11 +1055,9 @@ namespace Malmy
 			lua_pop(instance.m_state, 1);
 		}
 
-
 		void onButtonClicked(Entity e) { onGUIEvent(e, "onButtonClicked"); }
 		void onRectHovered(Entity e) { onGUIEvent(e, "onRectHovered"); }
 		void onRectHoveredOut(Entity e) { onGUIEvent(e, "onRectHoveredOut"); }
-
 
 		MALMY_FORCE_INLINE void onGUIEvent(Entity e, const char* event)
 		{
@@ -1125,30 +1070,28 @@ namespace Malmy
 			}
 		}
 
-
 		void startGame() override
 		{
 			//m_animation_scene = (AnimationScene*)m_project.getScene(crc32("animation"));
 			m_is_game_running = true;
-			/*m_gui_scene = (GUIScene*)m_project.getScene(crc32("gui"));
+			m_gui_scene = (GUIScene*)m_project.getScene(crc32("gui"));
 			if (m_gui_scene)
 			{
 				m_gui_scene->buttonClicked().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onButtonClicked>(this);
 				m_gui_scene->rectHovered().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHovered>(this);
 				m_gui_scene->rectHoveredOut().bind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHoveredOut>(this);
-			}*/
+			}
 		}
-
 
 		void stopGame() override
 		{
-			/*if (m_gui_scene)
+			if (m_gui_scene)
 			{
 				m_gui_scene->buttonClicked().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onButtonClicked>(this);
 				m_gui_scene->rectHovered().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHovered>(this);
 				m_gui_scene->rectHoveredOut().unbind<LuaScriptSceneImpl, &LuaScriptSceneImpl::onRectHoveredOut>(this);
 			}
-			m_gui_scene = nullptr;*/
+			m_gui_scene = nullptr;
 			m_scripts_init_called = false;
 			m_is_game_running = false;
 			m_updates.clear();
@@ -1156,7 +1099,6 @@ namespace Malmy
 			m_timers.clear();
 			//m_animation_scene = nullptr;
 		}
-
 
 		void createLuaScriptComponent(Entity entity)
 		{
@@ -1166,7 +1108,6 @@ namespace Malmy
 			m_scripts.insert(entity, script);
 			m_project.onComponentCreated(entity, LUA_SCRIPT_TYPE, this);
 		}
-
 
 		void destroyLuaScriptComponent(Entity entity)
 		{
@@ -1185,7 +1126,6 @@ namespace Malmy
 			m_scripts.erase(entity);
 			m_project.onComponentDestroyed(entity, LUA_SCRIPT_TYPE, this);
 		}
-
 
 		void getPropertyValue(Entity entity,
 			int scr_index,
@@ -1210,7 +1150,6 @@ namespace Malmy
 			}
 			*out = '\0';
 		}
-
 
 		void getProperty(Property& prop, const char* prop_name, ScriptInstance& scr, char* out, int max_size)
 		{
@@ -1266,7 +1205,6 @@ namespace Malmy
 			lua_pop(scr.m_state, 2);
 		}
 
-
 		void serializeLuaScript(ISerializer& serializer, Entity entity)
 		{
 			ScriptComponent* script = m_scripts[entity];
@@ -1316,7 +1254,6 @@ namespace Malmy
 				}
 			}
 		}
-
 
 		void deserializeLuaScript(IDeserializer& serializer, Entity entity, int scene_version)
 		{
@@ -1379,7 +1316,6 @@ namespace Malmy
 			m_project.onComponentCreated(entity, LUA_SCRIPT_TYPE, this);
 		}
 
-
 		void serialize(OutputBlob& serializer) override
 		{
 			serializer.write(m_scripts.size());
@@ -1412,7 +1348,6 @@ namespace Malmy
 				}
 			}
 		}
-
 
 		void deserialize(InputBlob& serializer) override
 		{
@@ -1454,9 +1389,7 @@ namespace Malmy
 			}
 		}
 
-
 		IPlugin& getPlugin() const override { return m_system; }
-
 
 		void initScripts()
 		{
@@ -1480,7 +1413,6 @@ namespace Malmy
 			}
 			m_scripts_init_called = true;
 		}
-
 
 		void updateTimers(float time_delta)
 		{
@@ -1518,7 +1450,6 @@ namespace Malmy
 				m_timers.eraseFast(timers_to_remove[i]);
 			}
 		}
-
 
 		void processInputEvent(const CallbackData& callback, const InputSystem::Event& event)
 		{
@@ -1572,7 +1503,6 @@ namespace Malmy
 					break;
 			}
 
-
 			if (lua_rawgeti(L, LUA_REGISTRYINDEX, callback.environment) != LUA_TTABLE) // [lua_event, environment]
 			{
 				ASSERT(false);
@@ -1593,7 +1523,6 @@ namespace Malmy
 			lua_pop(L, 2); // []
 		}
 
-
 		void processInputEvents()
 		{
 			if (m_input_handlers.empty()) return;
@@ -1607,7 +1536,6 @@ namespace Malmy
 				}
 			}
 		}
-
 
 		void update(float time_delta, bool paused) override
 		{
@@ -1642,52 +1570,7 @@ namespace Malmy
 				}
 				lua_pop(update_item.state, 1);
 			}
-
-			processAnimationEvents();
 		}
-
-
-		void processAnimationEvents()
-		{
-			/*if (!m_animation_scene) return;
-
-			InputBlob blob(m_animation_scene->getEventStream());
-			u32 lua_call_type = crc32("lua_call");
-			while (blob.getPosition() < blob.getSize())
-			{
-				u32 type;
-				u8 size;
-				Entity entity;
-				blob.read(type);
-				blob.read(entity);
-				blob.read(size);
-				if (type == lua_call_type)
-				{
-					char tmp[64];
-					if (size + 1 > sizeof(tmp))
-					{
-						blob.skip(size);
-						g_log_error.log("Lua Script") << "Skipping lua_call animation event because it is too big.";
-					}
-					else
-					{
-						blob.read(tmp, size);
-						tmp[size] = 0;
-						ScriptComponent* scr = m_scripts[entity];
-						for (int i = 0, c = scr->m_scripts.size(); i < c; ++i)
-						{
-							if (beginFunctionCall(entity, i, tmp)) endFunctionCall();
-						}
-					}
-				}
-				else
-				{
-					blob.skip(size);
-				}
-			}
-			*/
-		}
-
 
 		Property& getScriptProperty(Entity entity, int scr_index, const char* name)
 		{
@@ -1707,13 +1590,11 @@ namespace Malmy
 			return prop;
 		}
 
-
 		Path getScriptPath(Entity entity, int scr_index) override
 		{
 			auto& tmp = m_scripts[entity]->m_scripts[scr_index];
 			return tmp.m_script ? tmp.m_script->getPath() : Path("");
 		}
-
 
 		void setScriptPath(Entity entity, int scr_index, const Path& path) override
 		{
@@ -1722,18 +1603,15 @@ namespace Malmy
 			setScriptPath(*script_cmp, script_cmp->m_scripts[scr_index], path);
 		}
 
-
 		int getScriptCount(Entity entity) override
 		{
 			return m_scripts[entity]->m_scripts.size();
 		}
 
-
 		void insertScript(Entity entity, int idx) override
 		{
 			m_scripts[entity]->m_scripts.emplaceAt(idx, m_system.m_allocator);
 		}
-
 
 		int addScript(Entity entity) override
 		{
@@ -1741,7 +1619,6 @@ namespace Malmy
 			script_cmp->m_scripts.emplace(m_system.m_allocator);
 			return script_cmp->m_scripts.size() - 1;
 		}
-
 
 		void moveScript(Entity entity, int scr_index, bool up) override
 		{
@@ -1753,7 +1630,6 @@ namespace Malmy
 			script_cmp->m_scripts[scr_index] = script_cmp->m_scripts[other];
 			script_cmp->m_scripts[other] = tmp;
 		}
-
 
 		void setEnableProperty(Entity entity, int scr_index, ScriptInstance& inst, bool enabled)
 		{
@@ -1768,7 +1644,6 @@ namespace Malmy
 			const char* fn = enabled ? "onEnable" : "onDisable";
 			if (beginFunctionCall(entity, scr_index, fn)) endFunctionCall();
 		}
-
 
 		void enableScript(Entity entity, int scr_index, bool enable) override
 		{
@@ -1789,19 +1664,16 @@ namespace Malmy
 			}
 		}
 
-
 		bool isScriptEnabled(Entity entity, int scr_index) const override
 		{
 			return m_scripts[entity]->m_scripts[scr_index].m_flags.isSet(ScriptInstance::ENABLED);
 		}
-
 
 		void removeScript(Entity entity, int scr_index) override
 		{
 			setScriptPath(entity, scr_index, Path());
 			m_scripts[entity]->m_scripts.eraseFast(scr_index);
 		}
-
 
 		void serializeScript(Entity entity, int scr_index, OutputBlob& blob) override
 		{
@@ -1826,7 +1698,6 @@ namespace Malmy
 			}
 		}
 
-
 		void deserializeScript(Entity entity, int scr_index, InputBlob& blob) override
 		{
 			auto& scr = m_scripts[entity]->m_scripts[scr_index];
@@ -1849,7 +1720,6 @@ namespace Malmy
 			setScriptPath(entity, scr_index, Path(path));
 		}
 
-
 		LuaScriptSystemImpl& m_system;
 		HashMap<Entity, ScriptComponent*> m_scripts;
 		AssociativeArray<u32, string> m_property_names;
@@ -1862,10 +1732,9 @@ namespace Malmy
 		bool m_scripts_init_called = false;
 		bool m_is_api_registered = false;
 		bool m_is_game_running = false;
-		//GUIScene* m_gui_scene = nullptr;
-		//AnimationScene* m_animation_scene;
-	};
+		GUIScene* m_gui_scene = nullptr;
 
+	};
 
 	LuaScriptSystemImpl::LuaScriptSystemImpl(Engine& engine)
 		: m_engine(engine)
@@ -1883,12 +1752,10 @@ namespace Malmy
 		registerScene(lua_scene);
 	}
 
-
 	LuaScriptSystemImpl::~LuaScriptSystemImpl()
 	{
 		m_script_manager.destroy();
 	}
-
 
 	void LuaScriptSystemImpl::createScenes(Project& ctx)
 	{
@@ -1896,12 +1763,10 @@ namespace Malmy
 		ctx.addScene(scene);
 	}
 
-
 	void LuaScriptSystemImpl::destroyScene(IScene* scene)
 	{
 		MALMY_DELETE(m_allocator, scene);
 	}
-
 
 	MALMY_PLUGIN_ENTRY(lua_script)
 	{

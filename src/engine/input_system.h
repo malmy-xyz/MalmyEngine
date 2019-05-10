@@ -1,18 +1,15 @@
 #pragma once
-
-
 #include "engine/malmy.h"
-
 
 namespace Malmy
 {
 
-class Engine;
-struct IAllocator;
-struct Vec2;
+	class Engine;
+	struct IAllocator;
+	struct Vec2;
 
-class MALMY_ENGINE_API InputSystem
-{
+	class MALMY_ENGINE_API InputSystem
+	{
 	public:
 		struct Device
 		{
@@ -109,8 +106,6 @@ class MALMY_ENGINE_API InputSystem
 
 		virtual Vec2 getCursorPosition() const = 0;
 		virtual void setCursorPosition(const Vec2& pos) = 0;
-};
-
-
+	};
 
 } // namespace Malmy

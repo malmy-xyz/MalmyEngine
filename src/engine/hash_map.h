@@ -1,12 +1,9 @@
 #pragma once
-
-
 #include "engine/iallocator.h"
 #include "engine/malmy.h"
 #include "engine/metaprogramming.h"
 #include "engine/math_utils.h"
 #include "engine/string.h"
-
 
 namespace Malmy
 {
@@ -40,13 +37,12 @@ namespace Malmy
 		my_node* m_next;
 	};
 
-	template<class Key> 
+	template<class Key>
 	struct HashFunc
 	{
 		static u32 get(const Key& key);
 	};
 
-	// https://gist.github.com/badboy/6267743
 	template<>
 	struct HashFunc<u64>
 	{
@@ -112,21 +108,16 @@ namespace Malmy
 	{
 		static u32 get(const void* key)
 		{
-			#ifdef PLATFORM64
-				u64 tmp = (u64)key;
-				tmp = (~tmp) + (tmp << 18);
-				tmp = tmp ^ (tmp >> 31);
-				tmp = tmp * 21;
-				tmp = tmp ^ (tmp >> 11);
-				tmp = tmp + (tmp << 6);
-				tmp = tmp ^ (tmp >> 22);
-				return (u32)tmp;
-			#else
-				size_t x = ((i32(key) >> 16) ^ i32(key)) * 0x45d9f3b;
-				x = ((x >> 16) ^ x) * 0x45d9f3b;
-				x = ((x >> 16) ^ x);
-				return x;
-			#endif
+
+			u64 tmp = (u64)key;
+			tmp = (~tmp) + (tmp << 18);
+			tmp = tmp ^ (tmp >> 31);
+			tmp = tmp * 21;
+			tmp = tmp ^ (tmp >> 11);
+			tmp = tmp + (tmp << 6);
+			tmp = tmp ^ (tmp >> 22);
+			return (u32)tmp;
+
 		}
 	};
 
@@ -137,8 +128,8 @@ namespace Malmy
 		{
 			u32 result = 0x55555555;
 
-			while (*key) 
-			{ 
+			while (*key)
+			{
 				result ^= *key++;
 				result = ((result << 5) | (result >> 27));
 			}
@@ -403,7 +394,7 @@ namespace Malmy
 
 		my_type& operator=(const my_type& src)
 		{
-			if(this != &src)
+			if (this != &src)
 			{
 				clear();
 				init(src.m_max_id);
@@ -449,9 +440,9 @@ namespace Malmy
 			node_type* prev = nullptr;
 			node_type* next_it = nullptr;
 
-			while(nullptr != n && m_sentinel != n->m_next)
+			while (nullptr != n && m_sentinel != n->m_next)
 			{
-				if(n == it.m_current_node)
+				if (n == it.m_current_node)
 				{
 					next_it = next(n);
 					deleteNode(n, prev);
@@ -474,9 +465,9 @@ namespace Malmy
 			node_type* n = &m_table[idx];
 			node_type* prev = nullptr;
 
-			while(nullptr != n && m_sentinel != n->m_next)
+			while (nullptr != n && m_sentinel != n->m_next)
 			{
-				if(key == n->m_key)
+				if (key == n->m_key)
 				{
 					deleteNode(n, prev);
 
@@ -495,12 +486,12 @@ namespace Malmy
 
 		void clear()
 		{
-			for(node_type* n = first(); m_sentinel != n; )
+			for (node_type* n = first(); m_sentinel != n; )
 			{
 				node_type* dest = n;
 				n = next(n);
 				destruct(dest);
-				if(dest < m_table || dest > &m_table[m_max_id - 1])
+				if (dest < m_table || dest > &m_table[m_max_id - 1])
 					m_allocator.deallocate(dest);
 			}
 
@@ -534,11 +525,11 @@ namespace Malmy
 			node_type* n = _find(key);
 			return n->m_value;
 		}
-		
+
 	private:
 		void checkSize()
 		{
-			if(loadFactor() > maxLoadFactor())
+			if (loadFactor() > maxLoadFactor())
 			{
 				grow(m_max_id);
 			}
@@ -555,7 +546,7 @@ namespace Malmy
 		{
 			ASSERT(Math::isPowOfTwo(ids_count));
 			m_table = (node_type*)m_allocator.allocate(sizeof(node_type) * ids_count);
-			for(node_type* i = m_table; i < &m_table[ids_count]; ++i) {
+			for (node_type* i = m_table; i < &m_table[ids_count]; ++i) {
 				i->m_next = m_sentinel;
 			}
 
@@ -652,11 +643,11 @@ namespace Malmy
 
 		node_type* first() const
 		{
-			if(0 == m_size)
+			if (0 == m_size)
 				return m_sentinel;
 
-			for(size_type i = 0; i < m_max_id; i++)
-				if(m_table[i].m_next != m_sentinel)
+			for (size_type i = 0; i < m_max_id; i++)
+				if (m_table[i].m_next != m_sentinel)
 					return &m_table[i];
 
 			return m_sentinel;
@@ -664,15 +655,15 @@ namespace Malmy
 
 		node_type* next(node_type* n) const
 		{
-			if(0 == m_size || m_sentinel == n)
+			if (0 == m_size || m_sentinel == n)
 				return m_sentinel;
 
 			node_type* next = n->m_next;
-			if((nullptr == next || m_sentinel == next))
+			if ((nullptr == next || m_sentinel == next))
 			{
 				size_type idx = getPosition(n->m_key) + 1;
-				for(size_type i = idx; i < m_max_id; i++)
-					if(m_table[i].m_next != m_sentinel)
+				for (size_type i = idx; i < m_max_id; i++)
+					if (m_table[i].m_next != m_sentinel)
 						return &m_table[i];
 
 				return m_sentinel;
@@ -683,9 +674,9 @@ namespace Malmy
 		node_type* _find(const key_type& key) const
 		{
 			size_type pos = getPosition(key);
-			for(node_type* n = &m_table[pos]; nullptr != n && m_sentinel != n->m_next; n = n->m_next)
+			for (node_type* n = &m_table[pos]; nullptr != n && m_sentinel != n->m_next; n = n->m_next)
 			{
-				if(n->m_key == key)
+				if (n->m_key == key)
 					return n;
 			}
 
@@ -694,11 +685,11 @@ namespace Malmy
 
 		void deleteNode(node_type*& n, node_type* prev)
 		{
-			if(nullptr == prev)
+			if (nullptr == prev)
 			{
 				node_type* next = n->m_next;
 				destruct(n);
-				
+
 				if (next) {
 					new (NewPlaceholder(), n) node_type(Move(*next));
 					destruct(next);
@@ -719,10 +710,10 @@ namespace Malmy
 
 		void copyTableUninitialized(node_type* src, const node_type* src_sentinel, size_type ids_count)
 		{
-			for(size_type i = 0; i < ids_count; i++)
+			for (size_type i = 0; i < ids_count; i++)
 			{
 				node_type* n = &src[i];
-				while(nullptr != n && src_sentinel != n->m_next)
+				while (nullptr != n && src_sentinel != n->m_next)
 				{
 					size_type pos = getPosition(n->m_key);
 					node_type* new_node = getEmptyNode(pos);
@@ -735,15 +726,15 @@ namespace Malmy
 
 		void destructTable(node_type* src, const node_type* src_sentinel, size_type ids_count)
 		{
-			for(size_type i = 0; i < ids_count; i++)
+			for (size_type i = 0; i < ids_count; i++)
 			{
 				node_type* n = &src[i];
-				while(nullptr != n && src_sentinel != n->m_next)
+				while (nullptr != n && src_sentinel != n->m_next)
 				{
 					node_type* destr = n;
 					n = n->m_next;
 					destruct(destr);
-					if(destr < src || destr > &src[ids_count - 1])
+					if (destr < src || destr > &src[ids_count - 1])
 						m_allocator.deallocate(destr);
 				}
 			}

@@ -1,9 +1,6 @@
 #pragma once
-
-
 #include "engine/iallocator.h"
 #include "engine/string.h"
-
 
 namespace Malmy
 {
@@ -19,14 +16,12 @@ namespace Malmy
 				, m_values(nullptr)
 			{}
 
-
 			~AssociativeArray()
 			{
 				callDestructors(m_keys, m_size);
 				callDestructors(m_values, m_size);
 				m_allocator.deallocate(m_keys);
 			}
-
 
 			Value& insert(const Key& key)
 			{
@@ -42,30 +37,25 @@ namespace Malmy
 				return m_values[i];
 			}
 
-
 			template <class _Ty> struct remove_reference
 			{
 				typedef _Ty type;
 			};
-
 
 			template <class _Ty> struct remove_reference<_Ty&>
 			{
 				typedef _Ty type;
 			};
 
-
 			template <class _Ty> struct remove_reference<_Ty&&>
 			{
 				typedef _Ty type;
 			};
 
-
 			template <class _Ty> _Ty&& myforward(typename remove_reference<_Ty>::type& _Arg)
 			{
 				return (static_cast<_Ty&&>(_Arg));
 			}
-
 
 			template <typename... Params> Value& emplace(const Key& key, Params&&... params)
 			{
@@ -82,7 +72,6 @@ namespace Malmy
 
 				return m_values[i];
 			}
-
 
 			int insert(const Key& key, const Value& value)
 			{
@@ -102,7 +91,6 @@ namespace Malmy
 				return -1;
 			}
 
-
 			bool find(const Key& key, Value& value) const
 			{
 				int i = find(key);
@@ -113,7 +101,6 @@ namespace Malmy
 				value = m_values[i];
 				return true;
 			}
-
 
 			int find(const Key& key) const
 			{
@@ -138,7 +125,6 @@ namespace Malmy
 				return -1;
 			}
 
-
 			const Value& operator [](const Key& key) const
 			{
 				int index = find(key);
@@ -153,7 +139,6 @@ namespace Malmy
 				}
 			}
 
-
 			Value& operator [](const Key& key)
 			{
 				int index = find(key);
@@ -167,12 +152,10 @@ namespace Malmy
 				}
 			}
 
-
 			int size() const
 			{
 				return m_size;
 			}
-
 
 			Value& get(const Key& key)
 			{
@@ -199,12 +182,10 @@ namespace Malmy
 				return m_values[index];
 			}
 
-
 			const Value& at(int index) const
 			{
 				return m_values[index];
 			}
-
 
 			void clear()
 			{
@@ -212,7 +193,6 @@ namespace Malmy
 				callDestructors(m_values, m_size);
 				m_size = 0;
 			}
-
 
 			void reserve(int new_capacity)
 			{
@@ -230,12 +210,10 @@ namespace Malmy
 				m_capacity = new_capacity;
 			}
 
-
 			const Key& getKey(int index) const
 			{
 				return m_keys[index];
 			}
-
 
 			void eraseAt(int index)
 			{
@@ -251,7 +229,6 @@ namespace Malmy
 					--m_size;
 				}
 			}
-
 
 			void erase(const Key& key)
 			{
@@ -302,6 +279,5 @@ namespace Malmy
 			int m_size;
 			int m_capacity;
 	};
-
 
 } // namespace Malmy

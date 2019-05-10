@@ -1,12 +1,8 @@
 #pragma once
-
-
 #include "engine/iallocator.h"
-
 
 namespace Malmy
 {
-
 
 	class LIFOAllocator MALMY_FINAL : public IAllocator
 	{
@@ -19,12 +15,10 @@ namespace Malmy
 				m_current = m_bucket;
 			}
 
-
 			~LIFOAllocator()
 			{
 				m_source.deallocate(m_bucket);
 			}
-
 
 			void* allocate(size_t size) override
 			{
@@ -35,7 +29,6 @@ namespace Malmy
 				return new_address;
 			}
 
-
 			void deallocate(void* ptr) override
 			{
 				if (!ptr) return;
@@ -44,7 +37,6 @@ namespace Malmy
 				ASSERT(last_mem == ptr);
 				m_current = ptr;
 			}
-
 
 			void* reallocate(void* ptr, size_t size) override
 			{
@@ -58,7 +50,6 @@ namespace Malmy
 				return ptr;
 			}
 
-
 			void* allocate_aligned(size_t size, size_t align) override
 			{
 				size_t padding = (align - ((uintptr)m_current % align)) % align;
@@ -70,13 +61,11 @@ namespace Malmy
 				return new_address;
 			}
 
-
 			void deallocate_aligned(void* ptr) override
 			{
 				if (!ptr) return;
 				m_current = ptr;
 			}
-
 
 			void* reallocate_aligned(void* ptr, size_t size, size_t align) override
 			{
@@ -94,13 +83,11 @@ namespace Malmy
 				return new_address;
 			}
 
-
 		private:
 			IAllocator& m_source;
 			size_t m_bucket_size;
 			void* m_bucket;
 			void* m_current;
 	};
-
 
 } // namespace Malmy

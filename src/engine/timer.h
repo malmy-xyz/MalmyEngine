@@ -1,24 +1,21 @@
 #pragma once
-
-
 #include "engine/engine.h"
-
 
 namespace Malmy
 {
 	class MALMY_ENGINE_API Timer
 	{
-		public:
-			virtual ~Timer() {}
+	public:
+		virtual ~Timer() {}
 
-			virtual float tick() = 0;
-			virtual float getTimeSinceStart() = 0;
-			virtual float getTimeSinceTick() = 0;
-			virtual u64 getRawTimeSinceStart() = 0;
-			virtual u64 getFrequency() = 0;
+		virtual float tick() = 0;
+		virtual float getTimeSinceStart() = 0;
+		virtual float getTimeSinceTick() = 0;
+		virtual u64 getRawTimeSinceStart() = 0;
+		virtual u64 getFrequency() = 0;
 
-			static Timer* create(IAllocator& allocator);
-			static void destroy(Timer* timer);
+		static Timer* create(IAllocator& allocator);
+		static void destroy(Timer* timer);
 	};
 
 	class ScopedTimer

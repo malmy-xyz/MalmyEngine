@@ -1,8 +1,5 @@
 #pragma once
-
-
 #include "engine/malmy.h"
-
 
 namespace Malmy
 {

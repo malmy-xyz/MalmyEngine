@@ -1,0 +1,24 @@
+#name
+	""
+#transform (4.808922, 1.506789, 3.350114)  (0.000000, 0.000000, 0.000000, 1.000000)
+	1083826864
+	1069604472
+	1079404614
+	0
+	0
+	0
+	1065353216
+#scale 1.000000
+	1065353216
+#parent
+	18446744073709551615
+#renderable
+	1512583253
+#source
+	"models/yo_frankie/trees/trees_0.msh"
+#flags
+	8
+#custom_materials
+	0
+#cmp_end
+	0

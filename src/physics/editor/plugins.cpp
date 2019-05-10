@@ -1062,6 +1062,8 @@ struct StudioAppPlugin : StudioApp::IPlugin
 	StudioAppPlugin(StudioApp& app)
 		: m_app(app)
 	{
+		//componentler bunlar
+		//burasi entry kisminda gozukuyor
 		app.registerComponent("distance_joint", "Physics/Joints/Distance");
 		app.registerComponent("hinge_joint", "Physics/Joints/Hinge");
 		app.registerComponent("spherical_joint", "Physics/Joints/Spherical");

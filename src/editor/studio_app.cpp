@@ -1119,6 +1119,7 @@ public:
 
 	void viewMenu()
 	{
+		//view burasi
 		if (!ImGui::BeginMenu("View")) return;
 
 		ImGui::MenuItem("Asset browser", nullptr, &m_asset_browser->m_is_open);

@@ -8,138 +8,123 @@
 #include "engine/vec.h"
 #include <SDL.h>
 
-
 namespace Malmy
 {
 
-
-struct MouseDevice : InputSystem::Device
-{
-	void update(float dt) override {}
-	const char* getName() const override { return "mouse"; }
-};
-
-
-
-struct KeyboardDevice : InputSystem::Device
-{
-	void update(float dt) override {}
-	const char* getName() const override { return "keyboard"; }
-};
-
-
-struct InputSystemImpl MALMY_FINAL : public InputSystem
-{
-	explicit InputSystemImpl(Engine& engine)
-		: m_engine(engine)
-		, m_allocator(engine.getAllocator())
-		, m_events(m_allocator)
-		, m_is_enabled(false)
-		, m_devices(m_allocator)
-		, m_to_remove(m_allocator)
+	struct MouseDevice : InputSystem::Device
 	{
-		m_mouse_device = MALMY_NEW(m_allocator, MouseDevice);
-		m_mouse_device->type = Device::MOUSE;
-		m_keyboard_device = MALMY_NEW(m_allocator, KeyboardDevice);
-		m_keyboard_device->type = Device::KEYBOARD;
-		m_devices.push(m_keyboard_device);
-		m_devices.push(m_mouse_device);
-		ControllerDevice::init(*this);
-		registerLuaAPI();
-	}
+		void update(float dt) override {}
+		const char* getName() const override { return "mouse"; }
+	};
 
-
-	~InputSystemImpl()
+	struct KeyboardDevice : InputSystem::Device
 	{
-		ControllerDevice::shutdown();
-		for (Device* device : m_devices)
+		void update(float dt) override {}
+		const char* getName() const override { return "keyboard"; }
+	};
+
+	struct InputSystemImpl MALMY_FINAL : public InputSystem
+	{
+		explicit InputSystemImpl(Engine& engine)
+			: m_engine(engine)
+			, m_allocator(engine.getAllocator())
+			, m_events(m_allocator)
+			, m_is_enabled(false)
+			, m_devices(m_allocator)
+			, m_to_remove(m_allocator)
 		{
-			MALMY_DELETE(m_allocator, device);
-		}
-	}
-
-
-	IAllocator& getAllocator() override { return m_allocator; }
-	void enable(bool enabled) override { m_is_enabled = enabled; }
-	
-	
-	void addDevice(Device* device) override
-	{
-		m_devices.push(device);
-		Event event;
-		event.type = Event::DEVICE_ADDED;
-		event.device = device;
-		injectEvent(event);
-	}
-
-
-	void removeDevice(Device* device) override 
-	{ 
-		ASSERT(device != m_keyboard_device);
-		ASSERT(device != m_mouse_device);
-		m_to_remove.push(device);
-
-		Event event;
-		event.type = Event::DEVICE_REMOVED;
-		event.device = device;
-		injectEvent(event);
-	}
-
-
-	void update(float dt) override
-	{
-		PROFILE_FUNCTION();
-
-		for (Device* device : m_to_remove)
-		{
-			m_devices.eraseItem(device);
-			MALMY_DELETE(m_allocator, device);
+			m_mouse_device = MALMY_NEW(m_allocator, MouseDevice);
+			m_mouse_device->type = Device::MOUSE;
+			m_keyboard_device = MALMY_NEW(m_allocator, KeyboardDevice);
+			m_keyboard_device->type = Device::KEYBOARD;
+			m_devices.push(m_keyboard_device);
+			m_devices.push(m_mouse_device);
+			ControllerDevice::init(*this);
+			registerLuaAPI();
 		}
 
-		m_events.clear();
+		~InputSystemImpl()
+		{
+			ControllerDevice::shutdown();
+			for (Device* device : m_devices)
+			{
+				MALMY_DELETE(m_allocator, device);
+			}
+		}
 
-		for (Device* device : m_devices) device->update(dt);
-		ControllerDevice::frame(dt);
-	}
+		IAllocator& getAllocator() override { return m_allocator; }
+		void enable(bool enabled) override { m_is_enabled = enabled; }
 
-	
-	void injectEvent(const Event& event) override
+		void addDevice(Device* device) override
+		{
+			m_devices.push(device);
+			Event event;
+			event.type = Event::DEVICE_ADDED;
+			event.device = device;
+			injectEvent(event);
+		}
+
+		void removeDevice(Device* device) override
+		{
+			ASSERT(device != m_keyboard_device);
+			ASSERT(device != m_mouse_device);
+			m_to_remove.push(device);
+
+			Event event;
+			event.type = Event::DEVICE_REMOVED;
+			event.device = device;
+			injectEvent(event);
+		}
+
+		void update(float dt) override
+		{
+			PROFILE_FUNCTION();
+
+			for (Device* device : m_to_remove)
+			{
+				m_devices.eraseItem(device);
+				MALMY_DELETE(m_allocator, device);
+			}
+
+			m_events.clear();
+
+			for (Device* device : m_devices) device->update(dt);
+			ControllerDevice::frame(dt);
+		}
+
+		void injectEvent(const Event& event) override
+		{
+			m_events.push(event);
+		}
+
+		int getEventsCount() const override { return m_events.size(); }
+		const Event* getEvents() const override { return m_events.empty() ? nullptr : &m_events[0]; }
+
+		Vec2 getCursorPosition() const override { return m_cursor_pos; }
+		void setCursorPosition(const Vec2& pos) override { m_cursor_pos = pos; }
+
+		int getDevicesCount() const override { return m_devices.size(); }
+		Device* getDevice(int index) override { return m_devices[index]; }
+		Device* getMouseDevice() override { return m_mouse_device; }
+		Device* getKeyboardDevice() override { return m_keyboard_device; }
+		void registerLuaAPI();
+
+		Engine& m_engine;
+		IAllocator& m_allocator;
+		MouseDevice* m_mouse_device;
+		KeyboardDevice* m_keyboard_device;
+		Array<Event> m_events;
+		bool m_is_enabled;
+		Vec2 m_cursor_pos;
+		Array<Device*> m_devices;
+		Array<Device*> m_to_remove;
+	};
+
+	void InputSystemImpl::registerLuaAPI()
 	{
-		m_events.push(event);
-	}
+		lua_State* L = m_engine.getState();
 
-
-	int getEventsCount() const override { return m_events.size(); }
-	const Event* getEvents() const override { return m_events.empty() ? nullptr : &m_events[0]; }
-
-	Vec2 getCursorPosition() const override { return m_cursor_pos; }
-	void setCursorPosition(const Vec2& pos) override { m_cursor_pos = pos; }
-
-
-	int getDevicesCount() const override { return m_devices.size(); }
-	Device* getDevice(int index) override { return m_devices[index]; }
-	Device* getMouseDevice() override { return m_mouse_device; }
-	Device* getKeyboardDevice() override { return m_keyboard_device; }
-	void registerLuaAPI();
-
-
-	Engine& m_engine;
-	IAllocator& m_allocator;
-	MouseDevice* m_mouse_device;
-	KeyboardDevice* m_keyboard_device;
-	Array<Event> m_events;
-	bool m_is_enabled;
-	Vec2 m_cursor_pos;
-	Array<Device*> m_devices;
-	Array<Device*> m_to_remove;
-};
-
-
-void InputSystemImpl::registerLuaAPI()
-{
-	lua_State* L = m_engine.getState();
-
-	#define REGISTER_SCANCODE(SCANCODE) \
+#define REGISTER_SCANCODE(SCANCODE) \
 		LuaWrapper::createSystemVariable(L, "Engine", "INPUT_SCANCODE_" #SCANCODE, (int)SDL_SCANCODE_##SCANCODE);
 
 		REGISTER_SCANCODE(A);
@@ -382,11 +367,10 @@ void InputSystemImpl::registerLuaAPI()
 		REGISTER_SCANCODE(SLEEP);
 		REGISTER_SCANCODE(APP1);
 		REGISTER_SCANCODE(APP2);
-	
-	#undef REGISTER_SCANCODE
 
+#undef REGISTER_SCANCODE
 
-	#define REGISTER_KEYCODE(KEYCODE) \
+#define REGISTER_KEYCODE(KEYCODE) \
 		LuaWrapper::createSystemVariable(L, "Engine", "INPUT_KEYCODE_" #KEYCODE, (int)SDLK_##KEYCODE);
 
 		REGISTER_KEYCODE(RETURN);
@@ -625,21 +609,18 @@ void InputSystemImpl::registerLuaAPI()
 		REGISTER_KEYCODE(EJECT);
 		REGISTER_KEYCODE(SLEEP);
 
-	#undef REGISTER_KEYCODE
-}
+#undef REGISTER_KEYCODE
+	}
 
+	InputSystem* InputSystem::create(Engine& engine)
+	{
+		return MALMY_NEW(engine.getAllocator(), InputSystemImpl)(engine);
+	}
 
-InputSystem* InputSystem::create(Engine& engine)
-{
-	return MALMY_NEW(engine.getAllocator(), InputSystemImpl)(engine);
-}
-
-
-void InputSystem::destroy(InputSystem& system)
-{
-	auto* impl = static_cast<InputSystemImpl*>(&system);
-	MALMY_DELETE(impl->m_allocator, impl);
-}
-
+	void InputSystem::destroy(InputSystem& system)
+	{
+		auto* impl = static_cast<InputSystemImpl*>(&system);
+		MALMY_DELETE(impl->m_allocator, impl);
+	}
 
 } // namespace Malmy

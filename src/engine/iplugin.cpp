@@ -1,14 +1,11 @@
 #include "engine/iplugin.h"
 #include "engine/string.h"
 
-
 namespace Malmy
 {
 	IPlugin::~IPlugin() = default;
 
-	
 	static StaticPluginRegister* s_first_plugin = nullptr;
-
 
 	StaticPluginRegister::StaticPluginRegister(const char* name, IPlugin* (*creator)(Engine& engine))
 	{
@@ -17,7 +14,6 @@ namespace Malmy
 		next = s_first_plugin;
 		s_first_plugin = this;
 	}
-
 
 	IPlugin* StaticPluginRegister::create(const char* name, Engine& engine)
 	{

@@ -1,21 +1,15 @@
 #pragma once
-
-
 #include "engine/input_system.h"
-
 
 namespace Malmy
 {
+	struct ControllerDevice : public InputSystem::Device
+	{
+		static void init(InputSystem& input_system);
+		static void frame(float dt);
+		static void shutdown();
 
-
-struct ControllerDevice : public InputSystem::Device
-{
-	static void init(InputSystem& input_system);
-	static void frame(float dt);
-	static void shutdown();
-
-	const char* getName() const override { return "controller"; }
-};
-
+		const char* getName() const override { return "controller"; }
+	};
 
 } // namespace Malmy

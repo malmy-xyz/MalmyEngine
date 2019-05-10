@@ -1,5 +1,4 @@
 #pragma once
-
 #include "engine/malmy.h"
 #include "engine/iallocator.h"
 
@@ -51,19 +50,16 @@ namespace Malmy
 			return ptr;
 		}
 
-
 		void deallocate_aligned(void* ptr) override
 		{
 			return deallocate(ptr);
 		}
-
 
 		void* reallocate_aligned(void* ptr, size_t size, size_t align) override
 		{
 			ASSERT(size <= ALIGN_OF(T));
 			return reallocate(ptr, size);
 		}
-
 
 	private:
 		IAllocator&	m_allocator;
@@ -93,7 +89,7 @@ namespace Malmy
 
 		void release(i32 id)
 		{
-			ASSERT (id >= 0 && id < chunk_size);
+			ASSERT(id >= 0 && id < chunk_size);
 			m_pool[m_pool_index++] = id;
 		}
 

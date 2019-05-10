@@ -1891,160 +1891,160 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 };
 
 
-struct FurPainterPlugin MALMY_FINAL : public StudioApp::GUIPlugin
-{
-	explicit FurPainterPlugin(StudioApp& _app)
-		: app(_app)
-		, is_open(false)
-	{
-		fur_painter = MALMY_NEW(app.getWorldEditor().getAllocator(), FurPainter)(_app);
-		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Fur Painter", "Toggle fur painter", "fur_painter");
-		action->func.bind<FurPainterPlugin, &FurPainterPlugin::onAction>(this);
-		action->is_selected.bind<FurPainterPlugin, &FurPainterPlugin::isOpen>(this);
-		app.addWindowAction(action);
-	}
-
-
-	~FurPainterPlugin()
-	{
-		app.getWorldEditor().removePlugin(*fur_painter);
-		MALMY_DELETE(app.getWorldEditor().getAllocator(), fur_painter);
-	}
-
-
-	const char* getName() const override { return "fur_painter"; }
-
-
-	bool isOpen() const { return is_open; }
-	void onAction() { is_open = !is_open; }
-
-
-	void onWindowGUI() override
-	{
-		if (ImGui::BeginDock("Fur painter", &is_open))
-		{
-			ImGui::Checkbox("Enabled", &fur_painter->enabled);
-			if (!fur_painter->enabled) goto end;
-
-
-			WorldEditor& editor = app.getWorldEditor();
-			const auto& entities = editor.getSelectedEntities();
-			if (entities.empty())
-			{
-				ImGui::Text("No entity selected.");
-				goto end;
-			}
-			Project* project = editor.getProject();
-			RenderScene* scene = static_cast<RenderScene*>(project->getScene(MODEL_INSTANCE_TYPE));
-			ComponentUID model_instance = project->getComponent(entities[0], MODEL_INSTANCE_TYPE);
-
-			if (!model_instance.isValid())
-			{
-				ImGui::Text("Entity does not have model_instance component.");
-				goto end;
-			}
-
-			Model* model = scene->getModelInstanceModel(model_instance.entity);
-			if (!model)
-			{
-				ImGui::Text("Entity does not have model.");
-				goto end;
-			}
-
-			if (model->isFailure())
-			{
-				ImGui::Text("Model failed to load.");
-				goto end;
-			}
-			else if (model->isEmpty())
-			{
-				ImGui::Text("Model is not loaded.");
-				goto end;
-			}
-
-			if(model->getMeshCount() < 1 || !model->getMesh(0).material)
-			{
-				ImGui::Text("Model file is invalid.");
-				goto end;
-			}
-
-			Texture* texture = model->getMesh(0).material->getTexture(0);
-			if (!texture)
-			{
-				ImGui::Text("Missing texture.");
-				goto end;
-			}
-
-			if(!endsWith(texture->getPath().c_str(), ".tga"))
-			{
-				ImGui::Text("Only TGA can be painted");
-				goto end;
-			}
-
-			if (texture->data.empty())
-			{
-				texture->addDataReference();
-				texture->getResourceManager().reload(*texture);
-				goto end;
-			}
-
-			ImGui::DragFloat("Brush radius", &fur_painter->brush_radius);
-			ImGui::DragFloat("Brush strength", &fur_painter->brush_strength, 0.01f, 0.0f, 1.0f);
-			if (ImGui::Button("Save texture")) fur_painter->saveTexture();
-			ImGui::SameLine();
-			if (ImGui::Button("Postprocess")) fur_painter->postprocess();
-
-			drawGizmo();
-		}
-		
-		end:
-			ImGui::EndDock();
-	}
-
-
-	void drawGizmo()
-	{
-		if (!fur_painter->enabled) return;
-
-		WorldEditor& editor = app.getWorldEditor();
-		auto& entities = editor.getSelectedEntities();
-		if (entities.empty()) return;
-
-		ComponentUID model_instance = editor.getProject()->getComponent(entities[0], MODEL_INSTANCE_TYPE);
-		if (!model_instance.isValid()) return;
-
-		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
-		Model* model = scene->getModelInstanceModel(model_instance.entity);
-
-		if (!model || !model->isReady() || model->getMeshCount() < 1) return;
-		if (!model->getMesh(0).material) return;
-
-		Texture* texture = model->getMesh(0).material->getTexture(0);
-		if (!texture || texture->data.empty()) return;
-
-		const Pose* pose = scene->lockPose(model_instance.entity);
-		if (!pose) return;
-
-		Vec3 origin, dir;
-		scene->getRay(editor.getEditCamera().entity, editor.getMousePos(), origin, dir);
-		RayCastModelHit hit = model->castRay(origin, dir, editor.getProject()->getMatrix(entities[0]), pose);
-		if (!hit.m_is_hit)
-		{
-			scene->unlockPose(model_instance.entity, false);
-			return;
-		}
-
-		Vec3 hit_pos = hit.m_origin + hit.m_t * hit.m_dir;
-		scene->addDebugSphere(hit_pos, fur_painter->brush_radius, 0xffffFFFF, 0);
-		scene->unlockPose(model_instance.entity, false);
-	}
-
-
-	FurPainter* fur_painter;
-	bool is_open;
-	StudioApp& app;
-};
-
+//struct FurPainterPlugin MALMY_FINAL : public StudioApp::GUIPlugin
+//{
+//	explicit FurPainterPlugin(StudioApp& _app)
+//		: app(_app)
+//		, is_open(false)
+//	{
+//		fur_painter = MALMY_NEW(app.getWorldEditor().getAllocator(), FurPainter)(_app);
+//		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Fur Painter asd", "Toggle fur painter", "fur_painter");
+//		action->func.bind<FurPainterPlugin, &FurPainterPlugin::onAction>(this);
+//		action->is_selected.bind<FurPainterPlugin, &FurPainterPlugin::isOpen>(this);
+//		app.addWindowAction(action);
+//	}
+//
+//
+//	~FurPainterPlugin()
+//	{
+//		app.getWorldEditor().removePlugin(*fur_painter);
+//		MALMY_DELETE(app.getWorldEditor().getAllocator(), fur_painter);
+//	}
+//
+//
+//	const char* getName() const override { return "fur_painter"; }
+//
+//
+//	bool isOpen() const { return is_open; }
+//	void onAction() { is_open = !is_open; }
+//
+//
+//	void onWindowGUI() override
+//	{
+//		if (ImGui::BeginDock("Fur painter", &is_open))
+//		{
+//			ImGui::Checkbox("Enabled", &fur_painter->enabled);
+//			if (!fur_painter->enabled) goto end;
+//
+//
+//			WorldEditor& editor = app.getWorldEditor();
+//			const auto& entities = editor.getSelectedEntities();
+//			if (entities.empty())
+//			{
+//				ImGui::Text("No entity selected.");
+//				goto end;
+//			}
+//			Project* project = editor.getProject();
+//			RenderScene* scene = static_cast<RenderScene*>(project->getScene(MODEL_INSTANCE_TYPE));
+//			ComponentUID model_instance = project->getComponent(entities[0], MODEL_INSTANCE_TYPE);
+//
+//			if (!model_instance.isValid())
+//			{
+//				ImGui::Text("Entity does not have model_instance component.");
+//				goto end;
+//			}
+//
+//			Model* model = scene->getModelInstanceModel(model_instance.entity);
+//			if (!model)
+//			{
+//				ImGui::Text("Entity does not have model.");
+//				goto end;
+//			}
+//
+//			if (model->isFailure())
+//			{
+//				ImGui::Text("Model failed to load.");
+//				goto end;
+//			}
+//			else if (model->isEmpty())
+//			{
+//				ImGui::Text("Model is not loaded.");
+//				goto end;
+//			}
+//
+//			if(model->getMeshCount() < 1 || !model->getMesh(0).material)
+//			{
+//				ImGui::Text("Model file is invalid.");
+//				goto end;
+//			}
+//
+//			Texture* texture = model->getMesh(0).material->getTexture(0);
+//			if (!texture)
+//			{
+//				ImGui::Text("Missing texture.");
+//				goto end;
+//			}
+//
+//			if(!endsWith(texture->getPath().c_str(), ".tga"))
+//			{
+//				ImGui::Text("Only TGA can be painted");
+//				goto end;
+//			}
+//
+//			if (texture->data.empty())
+//			{
+//				texture->addDataReference();
+//				texture->getResourceManager().reload(*texture);
+//				goto end;
+//			}
+//
+//			ImGui::DragFloat("Brush radius", &fur_painter->brush_radius);
+//			ImGui::DragFloat("Brush strength", &fur_painter->brush_strength, 0.01f, 0.0f, 1.0f);
+//			if (ImGui::Button("Save texture")) fur_painter->saveTexture();
+//			ImGui::SameLine();
+//			if (ImGui::Button("Postprocess")) fur_painter->postprocess();
+//
+//			drawGizmo();
+//		}
+//		
+//		end:
+//			ImGui::EndDock();
+//	}
+//
+//
+//	void drawGizmo()
+//	{
+//		if (!fur_painter->enabled) return;
+//
+//		WorldEditor& editor = app.getWorldEditor();
+//		auto& entities = editor.getSelectedEntities();
+//		if (entities.empty()) return;
+//
+//		ComponentUID model_instance = editor.getProject()->getComponent(entities[0], MODEL_INSTANCE_TYPE);
+//		if (!model_instance.isValid()) return;
+//
+//		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
+//		Model* model = scene->getModelInstanceModel(model_instance.entity);
+//
+//		if (!model || !model->isReady() || model->getMeshCount() < 1) return;
+//		if (!model->getMesh(0).material) return;
+//
+//		Texture* texture = model->getMesh(0).material->getTexture(0);
+//		if (!texture || texture->data.empty()) return;
+//
+//		const Pose* pose = scene->lockPose(model_instance.entity);
+//		if (!pose) return;
+//
+//		Vec3 origin, dir;
+//		scene->getRay(editor.getEditCamera().entity, editor.getMousePos(), origin, dir);
+//		RayCastModelHit hit = model->castRay(origin, dir, editor.getProject()->getMatrix(entities[0]), pose);
+//		if (!hit.m_is_hit)
+//		{
+//			scene->unlockPose(model_instance.entity, false);
+//			return;
+//		}
+//
+//		Vec3 hit_pos = hit.m_origin + hit.m_t * hit.m_dir;
+//		scene->addDebugSphere(hit_pos, fur_painter->brush_radius, 0xffffFFFF, 0);
+//		scene->unlockPose(model_instance.entity, false);
+//	}
+//
+//
+//	FurPainter* fur_painter;
+//	bool is_open;
+//	StudioApp& app;
+//};
+//
 
 struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 {
@@ -2750,42 +2750,42 @@ struct EditorUIRenderPlugin MALMY_FINAL : public StudioApp::GUIPlugin
 	int m_ib_offset;
 };
 
-
-struct ShaderEditorPlugin MALMY_FINAL : public StudioApp::GUIPlugin
-{
-	explicit ShaderEditorPlugin(StudioApp& app)
-		: m_shader_editor(app.getWorldEditor().getAllocator())
-		, m_app(app)
-	{
-		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Shader Editor", "Toggle shader editor", "shaderEditor");
-		action->func.bind<ShaderEditorPlugin, &ShaderEditorPlugin::onAction>(this);
-		action->is_selected.bind<ShaderEditorPlugin, &ShaderEditorPlugin::isOpen>(this);
-		app.addWindowAction(action);
-		m_shader_editor.m_is_open = false;
-
-		m_compiler = MALMY_NEW(app.getWorldEditor().getAllocator(), ShaderCompiler)(app, app.getLogUI());
-
-		lua_State* L = app.getWorldEditor().getEngine().getState();
-		auto* f =
-			&LuaWrapper::wrapMethodClosure<ShaderCompiler, decltype(&ShaderCompiler::makeUpToDate), &ShaderCompiler::makeUpToDate>;
-		LuaWrapper::createSystemClosure(L, "Editor", m_compiler, "compileShaders", f);
-	}
-
-
-	~ShaderEditorPlugin() { MALMY_DELETE(m_app.getWorldEditor().getAllocator(), m_compiler); }
-
-
-	const char* getName() const override { return "shader_editor"; }
-	void update(float) override { m_compiler->update(); }
-	void onAction() { m_shader_editor.m_is_open = !m_shader_editor.m_is_open; }
-	void onWindowGUI() override { m_shader_editor.onGUI(*m_compiler); }
-	bool hasFocus() override { return m_shader_editor.hasFocus(); }
-	bool isOpen() const { return m_shader_editor.m_is_open; }
-
-	StudioApp& m_app;
-	ShaderCompiler* m_compiler;
-	ShaderEditor m_shader_editor;
-};
+//
+//struct ShaderEditorPlugin MALMY_FINAL : public StudioApp::GUIPlugin
+//{
+//	explicit ShaderEditorPlugin(StudioApp& app)
+//		: m_shader_editor(app.getWorldEditor().getAllocator())
+//		, m_app(app)
+//	{
+//		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Shader Editor asd", "Toggle shader editor", "shaderEditor");
+//		action->func.bind<ShaderEditorPlugin, &ShaderEditorPlugin::onAction>(this);
+//		action->is_selected.bind<ShaderEditorPlugin, &ShaderEditorPlugin::isOpen>(this);
+//		app.addWindowAction(action);
+//		m_shader_editor.m_is_open = false;
+//
+//		m_compiler = MALMY_NEW(app.getWorldEditor().getAllocator(), ShaderCompiler)(app, app.getLogUI());
+//
+//		lua_State* L = app.getWorldEditor().getEngine().getState();
+//		auto* f =
+//			&LuaWrapper::wrapMethodClosure<ShaderCompiler, decltype(&ShaderCompiler::makeUpToDate), &ShaderCompiler::makeUpToDate>;
+//		LuaWrapper::createSystemClosure(L, "Editor", m_compiler, "compileShaders", f);
+//	}
+//
+//
+//	~ShaderEditorPlugin() { MALMY_DELETE(m_app.getWorldEditor().getAllocator(), m_compiler); }
+//
+//
+//	const char* getName() const override { return "shader_editor"; }
+//	void update(float) override { m_compiler->update(); }
+//	void onAction() { m_shader_editor.m_is_open = !m_shader_editor.m_is_open; }
+//	void onWindowGUI() override { m_shader_editor.onGUI(*m_compiler); }
+//	bool hasFocus() override { return m_shader_editor.hasFocus(); }
+//	bool isOpen() const { return m_shader_editor.m_is_open; }
+//
+//	StudioApp& m_app;
+//	ShaderCompiler* m_compiler;
+//	ShaderEditor m_shader_editor;
+//};
 
 
 struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
@@ -3022,27 +3022,29 @@ struct StudioAppPlugin : StudioApp::IPlugin
 
 		app.registerComponent("camera", "Render/Camera");
 		app.registerComponent("global_light", "Render/Global light");
+		app.registerComponent("point_light", "Render/Point light");
 
 		app.registerComponentWithResource("renderable", "Render/Mesh", Model::TYPE, *Reflection::getProperty(MODEL_INSTANCE_TYPE, "Source"));
-		app.registerComponentWithResource("particle_emitter", "Render/Particle emitter/Emitter", Material::TYPE, *Reflection::getProperty(PARTICLE_EMITTER_TYPE, "Material"));
-		app.registerComponentWithResource("scripted_particle_emitter", "Render/Particle emitter/DO NOT USE YET! Scripted Emitter", Material::TYPE, *Reflection::getProperty(SCRIPTED_PARTICLE_EMITTER_TYPE, "Material"));
-		app.registerComponent("particle_emitter_spawn_shape", "Render/Particle emitter/Spawn shape");
-		app.registerComponent("particle_emitter_alpha", "Render/Particle emitter/Alpha");
-		app.registerComponent("particle_emitter_plane", "Render/Particle emitter/Plane");
-		app.registerComponent("particle_emitter_force", "Render/Particle emitter/Force");
-		app.registerComponent("particle_emitter_attractor", "Render/Particle emitter/Attractor");
-		app.registerComponent("particle_emitter_subimage", "Render/Particle emitter/Subimage");
-		app.registerComponent("particle_emitter_linear_movement", "Render/Particle emitter/Linear movement");
-		app.registerComponent("particle_emitter_random_rotation", "Render/Particle emitter/Random rotation");
-		app.registerComponent("particle_emitter_size", "Render/Particle emitter/Size");
-		app.registerComponent("point_light", "Render/Point light");
-		app.registerComponent("decal", "Render/Decal");
-		app.registerComponent("bone_attachment", "Render/Bone attachment");
-		app.registerComponent("environment_probe", "Render/Environment probe");
-		app.registerComponentWithResource("text_mesh", "Render/Text 3D", FontResource::TYPE, *Reflection::getProperty(TEXT_MESH_TYPE, "Font"));
+		
+		//app.registerComponentWithResource("particle_emitter", "Render/Particle emitter/Emitter", Material::TYPE, *Reflection::getProperty(PARTICLE_EMITTER_TYPE, "Material"));
+		//app.registerComponentWithResource("scripted_particle_emitter", "Render/Particle emitter/DO NOT USE YET! Scripted Emitter", Material::TYPE, *Reflection::getProperty(SCRIPTED_PARTICLE_EMITTER_TYPE, "Material"));
+		//app.registerComponent("particle_emitter_spawn_shape", "Render/Particle emitter/Spawn shape");
+		//app.registerComponent("particle_emitter_alpha", "Render/Particle emitter/Alpha");
+		//app.registerComponent("particle_emitter_plane", "Render/Particle emitter/Plane");
+		//app.registerComponent("particle_emitter_force", "Render/Particle emitter/Force");
+		//app.registerComponent("particle_emitter_attractor", "Render/Particle emitter/Attractor");
+		//app.registerComponent("particle_emitter_subimage", "Render/Particle emitter/Subimage");
+		//app.registerComponent("particle_emitter_linear_movement", "Render/Particle emitter/Linear movement");
+		//app.registerComponent("particle_emitter_random_rotation", "Render/Particle emitter/Random rotation");
+		//app.registerComponent("particle_emitter_size", "Render/Particle emitter/Size");
+	
+		//app.registerComponent("decal", "Render/Decal");
+		//app.registerComponent("bone_attachment", "Render/Bone attachment");
+		//app.registerComponent("environment_probe", "Render/Environment probe");
+		//app.registerComponentWithResource("text_mesh", "Render/Text 3D", FontResource::TYPE, *Reflection::getProperty(TEXT_MESH_TYPE, "Font"));
 
 		m_add_terrain_plugin = MALMY_NEW(allocator, AddTerrainComponentPlugin)(app);
-		app.registerComponent("terrain", *m_add_terrain_plugin);
+		//app.registerComponent("terrain", *m_add_terrain_plugin);
 
 		m_model_plugin = MALMY_NEW(allocator, ModelPlugin)(app);
 		m_material_plugin = MALMY_NEW(allocator, MaterialPlugin)(app);
@@ -3068,16 +3070,16 @@ struct StudioAppPlugin : StudioApp::IPlugin
 		m_game_view = MALMY_NEW(allocator, GameView)(app);
 		m_import_asset_dialog = MALMY_NEW(allocator, ImportAssetDialog)(app);
 		m_editor_ui_render_plugin = MALMY_NEW(allocator, EditorUIRenderPlugin)(app, *m_scene_view, *m_game_view);
-		m_fur_painter_plugin = MALMY_NEW(allocator, FurPainterPlugin)(app);
+		//m_fur_painter_plugin = MALMY_NEW(allocator, FurPainterPlugin)(app);
 		m_render_stats_plugin = MALMY_NEW(allocator, RenderStatsPlugin)(app);
-		m_shader_editor_plugin = MALMY_NEW(allocator, ShaderEditorPlugin)(app);
+		//m_shader_editor_plugin = MALMY_NEW(allocator, ShaderEditorPlugin)(app);
 		app.addPlugin(*m_scene_view);
 		app.addPlugin(*m_game_view);
 		app.addPlugin(*m_import_asset_dialog);
 		app.addPlugin(*m_editor_ui_render_plugin);
-		app.addPlugin(*m_fur_painter_plugin);
+		//app.addPlugin(*m_fur_painter_plugin);
 		app.addPlugin(*m_render_stats_plugin);
-		app.addPlugin(*m_shader_editor_plugin);
+		//app.addPlugin(*m_shader_editor_plugin);
 
 		m_gizmo_plugin = MALMY_NEW(allocator, GizmoPlugin)();
 		app.getWorldEditor().addPlugin(*m_gizmo_plugin);
@@ -3115,17 +3117,17 @@ struct StudioAppPlugin : StudioApp::IPlugin
 		m_app.removePlugin(*m_game_view);
 		m_app.removePlugin(*m_import_asset_dialog);
 		m_app.removePlugin(*m_editor_ui_render_plugin);
-		m_app.removePlugin(*m_fur_painter_plugin);
+		//m_app.removePlugin(*m_fur_painter_plugin);
 		m_app.removePlugin(*m_render_stats_plugin);
-		m_app.removePlugin(*m_shader_editor_plugin);
+		//m_app.removePlugin(*m_shader_editor_plugin);
 
 		MALMY_DELETE(allocator, m_scene_view);
 		MALMY_DELETE(allocator, m_game_view);
 		MALMY_DELETE(allocator, m_import_asset_dialog);
 		MALMY_DELETE(allocator, m_editor_ui_render_plugin);
-		MALMY_DELETE(allocator, m_fur_painter_plugin);
+		//MALMY_DELETE(allocator, m_fur_painter_plugin);
 		MALMY_DELETE(allocator, m_render_stats_plugin);
-		MALMY_DELETE(allocator, m_shader_editor_plugin);
+		//MALMY_DELETE(allocator, m_shader_editor_plugin);
 
 		m_app.getWorldEditor().removePlugin(*m_gizmo_plugin);
 		MALMY_DELETE(allocator, m_gizmo_plugin);
@@ -3146,9 +3148,9 @@ struct StudioAppPlugin : StudioApp::IPlugin
 	GameView* m_game_view;
 	ImportAssetDialog* m_import_asset_dialog;
 	EditorUIRenderPlugin* m_editor_ui_render_plugin;
-	FurPainterPlugin* m_fur_painter_plugin;
+	//FurPainterPlugin* m_fur_painter_plugin;
 	RenderStatsPlugin* m_render_stats_plugin;
-	ShaderEditorPlugin* m_shader_editor_plugin;
+	//ShaderEditorPlugin* m_shader_editor_plugin;
 	GizmoPlugin* m_gizmo_plugin;
 };
 

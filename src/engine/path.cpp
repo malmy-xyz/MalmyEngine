@@ -1,18 +1,15 @@
 #include "engine/malmy.h"
 #include "engine/path.h"
-
 #include "engine/blob.h"
 #include "engine/crc32.h"
 #include "engine/mt/sync.h"
 #include "engine/path_utils.h"
 #include "engine/string.h"
 
-
 namespace Malmy
 {
 
 	static PathManager* g_path_manager = nullptr;
-
 
 	PathManager::PathManager(IAllocator& allocator)
 		: m_paths(allocator)
@@ -23,7 +20,6 @@ namespace Malmy
 		m_empty_path = MALMY_NEW(m_allocator, Path)();
 	}
 
-
 	PathManager::~PathManager()
 	{
 		MALMY_DELETE(m_allocator, m_empty_path);
@@ -31,12 +27,10 @@ namespace Malmy
 		g_path_manager = nullptr;
 	}
 
-
 	const Path& PathManager::getEmptyPath()
 	{
 		return *g_path_manager->m_empty_path;
 	}
-
 
 	void PathManager::serialize(OutputBlob& serializer)
 	{
@@ -48,7 +42,6 @@ namespace Malmy
 			serializer.writeString(m_paths.at(i)->m_path);
 		}
 	}
-
 
 	void PathManager::deserialize(InputBlob& serializer)
 	{
@@ -65,19 +58,16 @@ namespace Malmy
 		}
 	}
 
-
 	Path::Path()
 	{
 		m_data = g_path_manager->getPath(0, "");
 	}
-
 
 	Path::Path(u32 hash)
 	{
 		m_data = g_path_manager->getPath(hash);
 		ASSERT(m_data);
 	}
-
 
 	PathInternal* PathManager::getPath(u32 hash)
 	{
@@ -91,13 +81,11 @@ namespace Malmy
 		return m_paths.at(index);
 	}
 
-
 	PathInternal* PathManager::getPath(u32 hash, const char* path)
 	{
 		MT::SpinLock lock(m_mutex);
 		return getPathMultithreadUnsafe(hash, path);
 	}
-
 
 	void PathManager::clear()
 	{
@@ -110,7 +98,6 @@ namespace Malmy
 			}
 		}
 	}
-
 
 	PathInternal* PathManager::getPathMultithreadUnsafe(u32 hash, const char* path)
 	{
@@ -128,13 +115,11 @@ namespace Malmy
 		return m_paths.at(index);
 	}
 
-
 	void PathManager::incrementRefCount(PathInternal* path)
 	{
 		MT::SpinLock lock(m_mutex);
 		++path->m_ref_count;
 	}
-
 
 	void PathManager::decrementRefCount(PathInternal* path)
 	{
@@ -147,13 +132,11 @@ namespace Malmy
 		}
 	}
 
-
 	Path::Path(const Path& rhs)
 		: m_data(rhs.m_data)
 	{
 		g_path_manager->incrementRefCount(m_data);
 	}
-
 
 	Path::Path(const char* s1, const char* s2)
 	{
@@ -164,7 +147,6 @@ namespace Malmy
 		m_data = g_path_manager->getPath(hash, out);
 	}
 
-
 	Path::Path(const char* s1, const char* s2, const char* s3)
 	{
 		StaticString<MAX_PATH_LENGTH> tmp(s1, s2, s3);
@@ -173,7 +155,6 @@ namespace Malmy
 		u32 hash = crc32(out);
 		m_data = g_path_manager->getPath(hash, out);
 	}
-
 
 	Path::Path(const char* path)
 	{
@@ -185,18 +166,15 @@ namespace Malmy
 		m_data = g_path_manager->getPath(hash, tmp);
 	}
 
-
 	Path::~Path()
 	{
 		g_path_manager->decrementRefCount(m_data);
 	}
 
-
 	int Path::length() const
 	{
 		return stringLength(m_data->m_path);
 	}
-
 
 	void Path::operator =(const Path& rhs)
 	{
@@ -204,7 +182,6 @@ namespace Malmy
 		m_data = rhs.m_data;
 		g_path_manager->incrementRefCount(m_data);
 	}
-
 
 	void Path::operator =(const char* rhs)
 	{
@@ -216,6 +193,5 @@ namespace Malmy
 		u32 hash = crc32(tmp);
 		m_data = g_path_manager->getPath(hash, tmp);
 	}
-
 
 } // namespace Malmy

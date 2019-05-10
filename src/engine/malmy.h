@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef _WIN32
-	#include <signal.h> // SIGTRAP
-#endif
-
 #ifdef _WIN32
 	#ifdef _WIN64
 		#define PLATFORM64
@@ -25,39 +21,37 @@
 #define STRINGIZE_2( _ ) #_
 #define STRINGIZE( _ ) STRINGIZE_2( _ )
 
-
 namespace Malmy
 {
 
-
-typedef char i8;
-typedef unsigned char u8;
-typedef short i16;
-typedef unsigned short u16;
-typedef int i32;
-typedef unsigned int u32;
-typedef unsigned int uint;
+	typedef char i8;
+	typedef unsigned char u8;
+	typedef short i16;
+	typedef unsigned short u16;
+	typedef int i32;
+	typedef unsigned int u32;
+	typedef unsigned int uint;
 
 #ifdef _WIN32
 	typedef long long i64;
 	typedef unsigned long long u64;
-	#define MALMY_ALIGN_BEGIN(_align) __declspec(align(_align))
-	#define MALMY_ALIGN_END(_align)
+#define MALMY_ALIGN_BEGIN(_align) __declspec(align(_align))
+#define MALMY_ALIGN_END(_align)
 #elif defined __EMSCRIPTEN__
 	typedef long long i64;
 	typedef unsigned long long u64;
-	#define MALMY_ALIGN_BEGIN(_align)
-	#define MALMY_ALIGN_END(_align) __attribute__( (aligned(_align) ) )
+#define MALMY_ALIGN_BEGIN(_align)
+#define MALMY_ALIGN_END(_align) __attribute__( (aligned(_align) ) )
 #else
-	#ifdef PLATFORM64
-		typedef long i64;
-		typedef unsigned long u64;
-	#else
-		typedef long long i64;
-		typedef unsigned long long u64;
-	#endif
-	#define MALMY_ALIGN_BEGIN(_align)
-	#define MALMY_ALIGN_END(_align) __attribute__( (aligned(_align) ) )
+#ifdef PLATFORM64
+	typedef long i64;
+	typedef unsigned long u64;
+#else
+	typedef long long i64;
+	typedef unsigned long long u64;
+#endif
+#define MALMY_ALIGN_BEGIN(_align)
+#define MALMY_ALIGN_END(_align) __attribute__( (aligned(_align) ) )
 #endif
 
 #ifdef PLATFORM64
@@ -66,45 +60,43 @@ typedef unsigned int uint;
 	typedef u32 uintptr;
 #endif
 
-static_assert(sizeof(uintptr) == sizeof(void*), "Incorrect size of uintptr");
-static_assert(sizeof(i64) == 8, "Incorrect size of i64");
-static_assert(sizeof(i32) == 4, "Incorrect size of i32");
-static_assert(sizeof(i16) == 2, "Incorrect size of i16");
-static_assert(sizeof(i8) == 1, "Incorrect size of i8");
+	static_assert(sizeof(uintptr) == sizeof(void*), "Incorrect size of uintptr");
+	static_assert(sizeof(i64) == 8, "Incorrect size of i64");
+	static_assert(sizeof(i32) == 4, "Incorrect size of i32");
+	static_assert(sizeof(i16) == 2, "Incorrect size of i16");
+	static_assert(sizeof(i8) == 1, "Incorrect size of i8");
 
-const u32 MAX_PATH_LENGTH = 260;
+	const u32 MAX_PATH_LENGTH = 260;
 
-struct Entity
-{
-	int index;
-	bool operator==(const Entity& rhs) const { return rhs.index == index; }
-	bool operator<(const Entity& rhs) const { return rhs.index < index; }
-	bool operator>(const Entity& rhs) const { return rhs.index > index; }
-	bool operator!=(const Entity& rhs) const { return rhs.index != index; }
-	bool isValid() const { return index >= 0; }
-};
+	struct Entity
+	{
+		int index;
+		bool operator==(const Entity& rhs) const { return rhs.index == index; }
+		bool operator<(const Entity& rhs) const { return rhs.index < index; }
+		bool operator>(const Entity& rhs) const { return rhs.index > index; }
+		bool operator!=(const Entity& rhs) const { return rhs.index != index; }
+		bool isValid() const { return index >= 0; }
+	};
 
-struct ComponentType
-{
-	enum { MAX_TYPES_COUNT = 64 };
+	struct ComponentType
+	{
+		enum { MAX_TYPES_COUNT = 64 };
 
-	int index;
-	bool operator==(const ComponentType& rhs) const { return rhs.index == index; }
-	bool operator<(const ComponentType& rhs) const { return rhs.index < index; }
-	bool operator>(const ComponentType& rhs) const { return rhs.index > index; }
-	bool operator!=(const ComponentType& rhs) const { return rhs.index != index; }
-};
-const ComponentType INVALID_COMPONENT_TYPE = {-1};
-const Entity INVALID_ENTITY = {-1};
+		int index;
+		bool operator==(const ComponentType& rhs) const { return rhs.index == index; }
+		bool operator<(const ComponentType& rhs) const { return rhs.index < index; }
+		bool operator>(const ComponentType& rhs) const { return rhs.index > index; }
+		bool operator!=(const ComponentType& rhs) const { return rhs.index != index; }
+	};
+	const ComponentType INVALID_COMPONENT_TYPE = { -1 };
+	const Entity INVALID_ENTITY = { -1 };
 
-template <typename T, int count> int lengthOf(const T (&)[count])
-{
-	return count;
-};
-
+	template <typename T, int count> int lengthOf(const T(&)[count])
+	{
+		return count;
+	};
 
 } // namespace Malmy
-
 
 #ifndef ASSERT
 	#ifdef NDEBUG

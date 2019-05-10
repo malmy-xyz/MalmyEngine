@@ -1,11 +1,8 @@
 #pragma once
-
-
 #include "engine/default_allocator.h"
 #include "engine/delegate_list.h"
 #include "engine/malmy.h"
 #include "engine/string.h"
-
 
 namespace Malmy
 {
@@ -15,52 +12,51 @@ namespace Malmy
 	class MALMY_ENGINE_API LogProxy
 	{
 		friend class Log;
-		public:
-			LogProxy(Log& log, const char* system, IAllocator& allocator);
-			~LogProxy();
+	public:
+		LogProxy(Log& log, const char* system, IAllocator& allocator);
+		~LogProxy();
 
-			LogProxy& operator <<(const char* message);
-			LogProxy& operator <<(float message);
-			LogProxy& operator <<(i32 message);
-			LogProxy& operator <<(u32 message);
-			LogProxy& operator <<(u64 message);
-			LogProxy& operator <<(const string& path);
-			LogProxy& operator <<(const Path& path);
-			LogProxy& substring(const char* str, int start, int length);
+		LogProxy& operator <<(const char* message);
+		LogProxy& operator <<(float message);
+		LogProxy& operator <<(i32 message);
+		LogProxy& operator <<(u32 message);
+		LogProxy& operator <<(u64 message);
+		LogProxy& operator <<(const string& path);
+		LogProxy& operator <<(const Path& path);
+		LogProxy& substring(const char* str, int start, int length);
 
-		private:
-			IAllocator& m_allocator;
-			string m_system;
-			string m_message;
-			Log& m_log;
+	private:
+		IAllocator& m_allocator;
+		string m_system;
+		string m_message;
+		Log& m_log;
 
-			LogProxy(const LogProxy&);
-			void operator = (const LogProxy&);
+		LogProxy(const LogProxy&);
+		void operator = (const LogProxy&);
 	};
 
 	class MALMY_ENGINE_API Log
 	{
-		public:
-			typedef DelegateList<void (const char*, const char*)> Callback;
+	public:
+		typedef DelegateList<void(const char*, const char*)> Callback;
 
-		public:
-			Log() : m_callbacks(m_allocator) {}
+	public:
+		Log() : m_callbacks(m_allocator) {}
 
-			LogProxy log(const char* system);
-			Callback& getCallback();
-		
-		private:
-			Log(const Log&);
-			void operator =(const Log&);
+		LogProxy log(const char* system);
+		Callback& getCallback();
 
-		private:
-			DefaultAllocator m_allocator;
-			Callback m_callbacks;
+	private:
+		Log(const Log&);
+		void operator =(const Log&);
+
+	private:
+		DefaultAllocator m_allocator;
+		Callback m_callbacks;
 	};
 
 	extern Log MALMY_ENGINE_API g_log_info;
 	extern Log MALMY_ENGINE_API g_log_warning;
 	extern Log MALMY_ENGINE_API g_log_error;
-
 
 } // namespace Malmy

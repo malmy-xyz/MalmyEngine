@@ -29,388 +29,379 @@
 namespace Malmy
 {
 
-namespace LuaImGui
-{
-
-
-int InputTextMultiline(lua_State* L)
-{
-	char buf[4096];
-	auto* name = LuaWrapper::checkArg<const char*>(L, 1);
-	auto* value = LuaWrapper::checkArg<const char*>(L, 2);
-	copyString(buf, value);
-	bool changed = ImGui::InputTextMultiline(name, buf, lengthOf(buf), ImVec2(-1, -1));
-	lua_pushboolean(L, changed);
-	if (changed)
+	namespace LuaImGui
 	{
-		lua_pushstring(L, buf);
+
+
+		int InputTextMultiline(lua_State* L)
+		{
+			char buf[4096];
+			auto* name = LuaWrapper::checkArg<const char*>(L, 1);
+			auto* value = LuaWrapper::checkArg<const char*>(L, 2);
+			copyString(buf, value);
+			bool changed = ImGui::InputTextMultiline(name, buf, lengthOf(buf), ImVec2(-1, -1));
+			lua_pushboolean(L, changed);
+			if (changed)
+			{
+				lua_pushstring(L, buf);
+			}
+			else
+			{
+				lua_pushvalue(L, 2);
+			}
+			return 2;
+		}
+
+		int DragFloat(lua_State* L)
+		{
+			auto* name = LuaWrapper::checkArg<const char*>(L, 1);
+			float value = LuaWrapper::checkArg<float>(L, 2);
+			bool changed = ImGui::DragFloat(name, &value);
+			lua_pushboolean(L, changed);
+			lua_pushnumber(L, value);
+			return 2;
+		}
+
+		int PushStyleColor(lua_State* L)
+		{
+			int var = LuaWrapper::checkArg<int>(L, 1);
+			ImVec4 v;
+			v.x = LuaWrapper::checkArg<float>(L, 2);
+			v.y = LuaWrapper::checkArg<float>(L, 3);
+			v.z = LuaWrapper::checkArg<float>(L, 4);
+			v.w = LuaWrapper::checkArg<float>(L, 5);
+			ImGui::PushStyleColor(var, v);
+			return 0;
+		}
+
+		int PushStyleVar(lua_State* L)
+		{
+			int var = LuaWrapper::checkArg<int>(L, 1);
+			if (lua_gettop(L) > 2)
+			{
+				ImVec2 v;
+				v.x = LuaWrapper::checkArg<float>(L, 2);
+				v.y = LuaWrapper::checkArg<float>(L, 3);
+				ImGui::PushStyleVar(var, v);
+			}
+			else
+			{
+				float v = LuaWrapper::checkArg<float>(L, 2);
+				ImGui::PushStyleVar(var, v);
+			}
+			return 0;
+		}
+
+		int PushID(lua_State* L)
+		{
+			int id = LuaWrapper::checkArg<int>(L, 1);
+			ImGui::PushID(id);
+			return 0;
+		}
+
+		int SetStyleColor(lua_State* L)
+		{
+			auto& style = ImGui::GetStyle();
+			int index = LuaWrapper::checkArg<int>(L, 1);
+			ImVec4 color;
+			color.x = LuaWrapper::checkArg<float>(L, 2);
+			color.y = LuaWrapper::checkArg<float>(L, 3);
+			color.z = LuaWrapper::checkArg<float>(L, 4);
+			color.w = LuaWrapper::checkArg<float>(L, 5);
+			style.Colors[index] = color;
+			return 0;
+		}
+
+
+		int ShowTestWindow(lua_State* L)
+		{
+			ImGui::ShowDemoWindow();
+			return 0;
+		}
+
+
+		int SliderFloat(lua_State* L)
+		{
+			auto* name = LuaWrapper::checkArg<const char*>(L, 1);
+			float value = LuaWrapper::checkArg<float>(L, 2);
+			float min = LuaWrapper::checkArg<float>(L, 3);
+			float max = LuaWrapper::checkArg<float>(L, 4);
+			bool changed = ImGui::SliderFloat(name, &value, min, max, "");
+			lua_pushboolean(L, changed);
+			lua_pushnumber(L, value);
+			return 2;
+		}
+
+
+		int Text(lua_State* L)
+		{
+			auto* text = LuaWrapper::checkArg<const char*>(L, 1);
+			ImGui::Text("%s", text);
+			return 0;
+		}
+
+		int LabelText(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			auto* text = LuaWrapper::checkArg<const char*>(L, 2);
+			ImGui::LabelText(label, "%s", text);
+			return 0;
+		}
+
+		int Button(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			ImVec2 size(0, 0);
+			if (lua_gettop(L) > 2)
+			{
+				size.x = LuaWrapper::checkArg<float>(L, 2);
+				size.y = LuaWrapper::checkArg<float>(L, 3);
+			}
+			bool clicked = ImGui::Button(label, size);
+			lua_pushboolean(L, clicked);
+			return 1;
+		}
+
+
+		int CollapsingHeader(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			lua_pushboolean(L, ImGui::CollapsingHeader(label));
+			return 1;
+		}
+
+
+		int CalcTextSize(lua_State* L)
+		{
+			auto* text = LuaWrapper::checkArg<const char*>(L, 1);
+			ImVec2 size = ImGui::CalcTextSize(text);
+
+			LuaWrapper::push(L, size.x);
+			LuaWrapper::push(L, size.y);
+			return 2;
+		}
+
+
+		int Checkbox(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			bool b = LuaWrapper::checkArg<bool>(L, 2);
+			bool clicked = ImGui::Checkbox(label, &b);
+			lua_pushboolean(L, clicked);
+			lua_pushboolean(L, b);
+			return 2;
+		}
+
+
+		int GetWindowPos(lua_State* L)
+		{
+			ImVec2 pos = ImGui::GetWindowPos();
+			LuaWrapper::push(L, Vec2(pos.x, pos.y));
+			return 1;
+		}
+
+
+		int SetNextWindowPos(lua_State* L)
+		{
+			ImVec2 pos;
+			pos.x = LuaWrapper::checkArg<float>(L, 1);
+			pos.y = LuaWrapper::checkArg<float>(L, 2);
+			ImGui::SetNextWindowPos(pos);
+			return 0;
+		}
+
+
+		int AlignTextToFramePadding(lua_State* L)
+		{
+			ImGui::AlignTextToFramePadding();
+			return 0;
+		}
+
+
+		int Selectable(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			bool selected = false;
+			if (lua_gettop(L) > 1)
+			{
+				selected = LuaWrapper::checkArg<bool>(L, 2);
+			}
+			bool clicked = ImGui::Selectable(label, selected);
+			lua_pushboolean(L, clicked);
+			return 1;
+		}
+
+
+		int SetCursorScreenPos(lua_State* L)
+		{
+			ImVec2 pos;
+			pos.x = LuaWrapper::checkArg<float>(L, 1);
+			pos.y = LuaWrapper::checkArg<float>(L, 2);
+			ImGui::SetCursorScreenPos(pos);
+			return 0;
+		}
+
+
+		int Separator(lua_State* L)
+		{
+			ImGui::Separator();
+			return 0;
+		}
+
+
+		void Rect(float w, float h, u32 color)
+		{
+			ImGui::Rect(w, h, color);
+		}
+
+
+		void Dummy(float w, float h)
+		{
+			ImGui::Dummy({ w, h });
+		}
+
+
+		void Image(void* texture_id, float w, float h)
+		{
+			ImGui::Image(texture_id, ImVec2(w, h));
+		}
+
+
+		bool IsItemHovered()
+		{
+			return ImGui::IsItemHovered();
+		}
+
+
+		bool IsMouseDown(int button)
+		{
+			return ImGui::IsMouseDown(button);
+		}
+
+
+		bool IsMouseClicked(int button)
+		{
+			return ImGui::IsMouseClicked(button);
+		}
+
+
+		int SetNextWindowPosCenter(lua_State* L)
+		{
+			ImVec2 size = ImGui::GetIO().DisplaySize;
+			ImGui::SetNextWindowPos(ImVec2(size.x * 0.5f, size.y * 0.5f), 0, ImVec2(0.5f, 0.5f));
+			return 0;
+		}
+
+
+		int SetNextWindowSize(float w, float h)
+		{
+			ImGui::SetNextWindowSize(ImVec2(w, h));
+			return 0;
+		}
+
+
+		int Begin(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			ImGuiWindowFlags flags = 0;
+			if (lua_gettop(L) > 1)
+			{
+				flags = LuaWrapper::checkArg<int>(L, 2);
+			}
+			bool res = ImGui::Begin(label, nullptr, flags);
+			lua_pushboolean(L, res);
+			return 1;
+		}
+
+
+		int BeginChildFrame(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			ImVec2 size(0, 0);
+			if (lua_gettop(L) > 1)
+			{
+				size.x = LuaWrapper::checkArg<float>(L, 2);
+				size.y = LuaWrapper::checkArg<float>(L, 3);
+			}
+			bool res = ImGui::BeginChildFrame(ImGui::GetID(label), size);
+			lua_pushboolean(L, res);
+			return 1;
+		}
+
+
+		int BeginDock(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			bool res = ImGui::BeginDock(label);
+			lua_pushboolean(L, res);
+			return 1;
+		}
+
+
+		int BeginPopup(lua_State* L)
+		{
+			auto* label = LuaWrapper::checkArg<const char*>(L, 1);
+			bool res = ImGui::BeginPopup(label);
+			lua_pushboolean(L, res);
+			return 1;
+		}
+
+
+		int GetDisplayWidth(lua_State* L)
+		{
+			float w = ImGui::GetIO().DisplaySize.x;
+			LuaWrapper::push(L, w);
+			return 1;
+		}
+
+
+		int GetDisplayHeight(lua_State* L)
+		{
+			float w = ImGui::GetIO().DisplaySize.y;
+			LuaWrapper::push(L, w);
+			return 1;
+		}
+
+
+		int GetWindowWidth(lua_State* L)
+		{
+			float w = ImGui::GetWindowWidth();
+			LuaWrapper::push(L, w);
+			return 1;
+		}
+
+
+		int GetWindowHeight(lua_State* L)
+		{
+			float w = ImGui::GetWindowHeight();
+			LuaWrapper::push(L, w);
+			return 1;
+		}
+
+
+		int SameLine(lua_State* L)
+		{
+			float pos_x = 0;
+			if (lua_gettop(L) > 0)
+			{
+				pos_x = LuaWrapper::checkArg<float>(L, 1);
+			}
+			ImGui::SameLine(pos_x);
+			return 0;
+		}
+
+
+		void registerCFunction(lua_State* L, const char* name, lua_CFunction f)
+		{
+			lua_pushcfunction(L, f);
+			lua_setfield(L, -2, name);
+		}
 	}
-	else
-	{
-		lua_pushvalue(L, 2);
-	}
-	return 2;
-}
-
-
-int DragFloat(lua_State* L)
-{
-	auto* name = LuaWrapper::checkArg<const char*>(L, 1);
-	float value = LuaWrapper::checkArg<float>(L, 2);
-	bool changed = ImGui::DragFloat(name, &value);
-	lua_pushboolean(L, changed);
-	lua_pushnumber(L, value);
-	return 2;
-}
-
-
-int PushStyleColor(lua_State* L)
-{
-	int var = LuaWrapper::checkArg<int>(L, 1);
-	ImVec4 v;
-	v.x = LuaWrapper::checkArg<float>(L, 2);
-	v.y = LuaWrapper::checkArg<float>(L, 3);
-	v.z = LuaWrapper::checkArg<float>(L, 4);
-	v.w = LuaWrapper::checkArg<float>(L, 5);
-	ImGui::PushStyleColor(var, v);
-	return 0;
-}
-
-
-int PushStyleVar(lua_State* L)
-{
-	int var = LuaWrapper::checkArg<int>(L, 1);
-	if (lua_gettop(L) > 2)
-	{
-		ImVec2 v;
-		v.x = LuaWrapper::checkArg<float>(L, 2);
-		v.y = LuaWrapper::checkArg<float>(L, 3);
-		ImGui::PushStyleVar(var, v);
-	}
-	else
-	{
-		float v = LuaWrapper::checkArg<float>(L, 2);
-		ImGui::PushStyleVar(var, v);
-	}
-	return 0;
-}
-
-
-int PushID(lua_State* L)
-{
-	int id = LuaWrapper::checkArg<int>(L, 1);
-	ImGui::PushID(id);
-	return 0;
-}
-
-
-int SetStyleColor(lua_State* L)
-{
-	auto& style = ImGui::GetStyle();
-	int index = LuaWrapper::checkArg<int>(L, 1);
-	ImVec4 color;
-	color.x = LuaWrapper::checkArg<float>(L, 2);
-	color.y = LuaWrapper::checkArg<float>(L, 3);
-	color.z = LuaWrapper::checkArg<float>(L, 4);
-	color.w = LuaWrapper::checkArg<float>(L, 5);
-	style.Colors[index] = color;
-	return 0;
-}
-
-
-int ShowTestWindow(lua_State* L)
-{
-	ImGui::ShowDemoWindow();
-	return 0;
-}
-
-
-int SliderFloat(lua_State* L)
-{
-	auto* name = LuaWrapper::checkArg<const char*>(L, 1);
-	float value = LuaWrapper::checkArg<float>(L, 2);
-	float min = LuaWrapper::checkArg<float>(L, 3);
-	float max = LuaWrapper::checkArg<float>(L, 4);
-	bool changed = ImGui::SliderFloat(name, &value, min, max, "");
-	lua_pushboolean(L, changed);
-	lua_pushnumber(L, value);
-	return 2;
-}
-
-
-int Text(lua_State* L)
-{
-	auto* text = LuaWrapper::checkArg<const char*>(L, 1);
-	ImGui::Text("%s", text);
-	return 0;
-}
-
-
-int LabelText(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	auto* text = LuaWrapper::checkArg<const char*>(L, 2);
-	ImGui::LabelText(label, "%s", text);
-	return 0;
-}
-
-
-int Button(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	ImVec2 size(0, 0);
-	if (lua_gettop(L) > 2)
-	{
-		size.x = LuaWrapper::checkArg<float>(L, 2);
-		size.y = LuaWrapper::checkArg<float>(L, 3);
-	}
-	bool clicked = ImGui::Button(label, size);
-	lua_pushboolean(L, clicked);
-	return 1;
-}
-
-
-int CollapsingHeader(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	lua_pushboolean(L, ImGui::CollapsingHeader(label));
-	return 1;
-}
-
-
-int CalcTextSize(lua_State* L)
-{
-	auto* text = LuaWrapper::checkArg<const char*>(L, 1);
-	ImVec2 size = ImGui::CalcTextSize(text);
-
-	LuaWrapper::push(L, size.x);
-	LuaWrapper::push(L, size.y);
-	return 2;
-}
-
-
-int Checkbox(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	bool b = LuaWrapper::checkArg<bool>(L, 2);
-	bool clicked = ImGui::Checkbox(label, &b);
-	lua_pushboolean(L, clicked);
-	lua_pushboolean(L, b);
-	return 2;
-}
-
-
-int GetWindowPos(lua_State* L)
-{
-	ImVec2 pos = ImGui::GetWindowPos();
-	LuaWrapper::push(L, Vec2(pos.x, pos.y));
-	return 1;
-}
-
-
-int SetNextWindowPos(lua_State* L)
-{
-	ImVec2 pos;
-	pos.x = LuaWrapper::checkArg<float>(L, 1);
-	pos.y = LuaWrapper::checkArg<float>(L, 2);
-	ImGui::SetNextWindowPos(pos);
-	return 0;
-}
-
-
-int AlignTextToFramePadding(lua_State* L)
-{
-	ImGui::AlignTextToFramePadding();
-	return 0;
-}
-
-
-int Selectable(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	bool selected = false;
-	if (lua_gettop(L) > 1)
-	{
-		selected = LuaWrapper::checkArg<bool>(L, 2);
-	}
-	bool clicked = ImGui::Selectable(label, selected);
-	lua_pushboolean(L, clicked);
-	return 1;
-}
-
-
-int SetCursorScreenPos(lua_State* L)
-{
-	ImVec2 pos;
-	pos.x = LuaWrapper::checkArg<float>(L, 1);
-	pos.y = LuaWrapper::checkArg<float>(L, 2);
-	ImGui::SetCursorScreenPos(pos);
-	return 0;
-}
-
-
-int Separator(lua_State* L)
-{
-	ImGui::Separator();
-	return 0;
-}
-
-
-void Rect(float w, float h, u32 color)
-{
-	ImGui::Rect(w, h, color);
-}
-
-
-void Dummy(float w, float h)
-{
-	ImGui::Dummy({w, h});
-}
-
-
-void Image(void* texture_id, float w, float h)
-{
-	ImGui::Image(texture_id, ImVec2(w, h));
-}
-
-
-bool IsItemHovered()
-{
-	return ImGui::IsItemHovered();
-}
-
-
-bool IsMouseDown(int button)
-{
-	return ImGui::IsMouseDown(button);
-}
-
-
-bool IsMouseClicked(int button)
-{
-	return ImGui::IsMouseClicked(button);
-}
-
-
-int SetNextWindowPosCenter(lua_State* L)
-{
-	ImVec2 size = ImGui::GetIO().DisplaySize;
-	ImGui::SetNextWindowPos(ImVec2(size.x * 0.5f, size.y * 0.5f), 0, ImVec2(0.5f, 0.5f));
-	return 0;
-}
-
-
-int SetNextWindowSize(float w, float h)
-{
-	ImGui::SetNextWindowSize(ImVec2(w, h));
-	return 0;
-}
-
-
-int Begin(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	ImGuiWindowFlags flags = 0;
-	if (lua_gettop(L) > 1)
-	{
-		flags = LuaWrapper::checkArg<int>(L, 2);
-	}
-	bool res = ImGui::Begin(label, nullptr, flags);
-	lua_pushboolean(L, res);
-	return 1;
-}
-
-
-int BeginChildFrame(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	ImVec2 size(0, 0);
-	if (lua_gettop(L) > 1)
-	{
-		size.x = LuaWrapper::checkArg<float>(L, 2);
-		size.y = LuaWrapper::checkArg<float>(L, 3);
-	}
-	bool res = ImGui::BeginChildFrame(ImGui::GetID(label), size);
-	lua_pushboolean(L, res);
-	return 1;
-}
-
-
-int BeginDock(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	bool res = ImGui::BeginDock(label);
-	lua_pushboolean(L, res);
-	return 1;
-}
-
-
-int BeginPopup(lua_State* L)
-{
-	auto* label = LuaWrapper::checkArg<const char*>(L, 1);
-	bool res = ImGui::BeginPopup(label);
-	lua_pushboolean(L, res);
-	return 1;
-}
-
-
-int GetDisplayWidth(lua_State* L)
-{
-	float w = ImGui::GetIO().DisplaySize.x;
-	LuaWrapper::push(L, w);
-	return 1;
-}
-
-
-int GetDisplayHeight(lua_State* L)
-{
-	float w = ImGui::GetIO().DisplaySize.y;
-	LuaWrapper::push(L, w);
-	return 1;
-}
-
-
-int GetWindowWidth(lua_State* L)
-{
-	float w = ImGui::GetWindowWidth();
-	LuaWrapper::push(L, w);
-	return 1;
-}
-
-
-int GetWindowHeight(lua_State* L)
-{
-	float w = ImGui::GetWindowHeight();
-	LuaWrapper::push(L, w);
-	return 1;
-}
-
-
-int SameLine(lua_State* L)
-{
-	float pos_x = 0;
-	if (lua_gettop(L) > 0)
-	{
-		pos_x = LuaWrapper::checkArg<float>(L, 1);
-	}
-	ImGui::SameLine(pos_x);
-	return 0;
-}
-
-
-void registerCFunction(lua_State* L, const char* name, lua_CFunction f)
-{
-	lua_pushcfunction(L, f);
-	lua_setfield(L, -2, name);
-}
-}
 
 static const u32 SERIALIZED_ENGINE_MAGIC = 0x5f4c454e; // == '_LEN'
 
-
 static FS::OsFile g_error_file;
 static bool g_is_error_file_open = false;
-
 
 #pragma pack(1)
 class SerializedEngineHeader
@@ -420,7 +411,6 @@ public:
 	u32 m_reserved; // for crc
 };
 #pragma pack()
-
 
 static void showLogInVS(const char* system, const char* message)
 {
@@ -534,18 +524,15 @@ public:
 		return engine->getFileSystem().hasWork();
 	}
 
-
 	static void LUA_processFilesystemWork(Engine* engine)
 	{
 		engine->getFileSystem().updateAsyncTransactions();
 	}
 
-
 	static void LUA_startGame(Engine* engine, Project* project)
 	{
 		if(engine && project) engine->startGame(*project);
 	}
-
 
 	static bool LUA_createComponent(Project* project, Entity entity, const char* type)
 	{
@@ -563,12 +550,10 @@ public:
 		return true;
 	}
 
-
 	static Entity LUA_createEntity(Project* univ)
 	{
 		return univ->createEntity(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
 	}
-
 
 	struct SetPropertyVisitor : public Reflection::IPropertyVisitor
 	{
@@ -583,7 +568,6 @@ public:
 			}
 		}
 
-
 		void visit(const Reflection::Property<int>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -595,7 +579,6 @@ public:
 			}
 
 		}
-
 
 		void visit(const Reflection::Property<Entity>& prop) override
 		{
@@ -609,7 +592,6 @@ public:
 
 		}
 
-
 		void visit(const Reflection::Property<Int2>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -620,7 +602,6 @@ public:
 				prop.setValue(cmp, -1, input_blob);
 			}
 		}
-
 
 		void visit(const Reflection::Property<Vec2>& prop) override
 		{
@@ -633,7 +614,6 @@ public:
 			}
 		}
 
-
 		void visit(const Reflection::Property<Vec3>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -644,7 +624,6 @@ public:
 				prop.setValue(cmp, -1, input_blob);
 			}
 		}
-
 
 		void visit(const Reflection::Property<Vec4>& prop) override
 		{
@@ -657,7 +636,6 @@ public:
 			}
 		}
 
-
 		void visit(const Reflection::Property<Path>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -668,7 +646,6 @@ public:
 				prop.setValue(cmp, -1, input_blob);
 			}
 		}
-
 
 		void visit(const Reflection::Property<bool>& prop) override
 		{
@@ -681,7 +658,6 @@ public:
 			}
 		}
 
-
 		void visit(const Reflection::Property<const char*>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -693,7 +669,6 @@ public:
 			}
 		}
 
-
 		void visit(const Reflection::IArrayProperty& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
@@ -704,38 +679,32 @@ public:
 		void visit(const Reflection::IBlobProperty& prop) override { notSupported(prop); }
 		void visit(const Reflection::ISampledFuncProperty& prop) override { notSupported(prop); }
 
-
 		void notSupported(const Reflection::PropertyBase& prop)
 		{
 			if (!equalStrings(property_name, prop.name)) return;
 			g_log_error.log("Lua Script") << "Property " << prop.name << " has unsupported type";
 		}
 
-
 		lua_State* L;
 		ComponentUID cmp;
 		const char* property_name;
 	};
-
 
 	static int LUA_getComponentType(const char* component_type)
 	{
 		return Reflection::getComponentType(component_type).index;
 	}
 
-
 	static int LUA_getComponentTypesCount()
 	{
 		return Reflection::getComponentTypesCount();
 	}
-
 
 	static int LUA_getComponentTypeByIndex(int index)
 	{
 		const char* id = Reflection::getComponentTypeID(index);
 		return Reflection::getComponentType(id).index;
 	}
-
 
 	static int LUA_createEntityEx(lua_State* L)
 	{
@@ -799,7 +768,6 @@ public:
 		return 1;
 	}
 
-
 	static int LUA_setEntityRotation(lua_State* L)
 	{
 		Project* univ = LuaWrapper::checkArg<Project*>(L, 1);
@@ -820,13 +788,11 @@ public:
 		return 0;
 	}
 
-
 	static IScene* LUA_getScene(Project* project, const char* name)
 	{
 		u32 hash = crc32(name);
 		return project->getScene(hash);
 	}
-
 
 	static int LUA_loadResource(EngineImpl* engine, const char* path, const char* type)
 	{
@@ -838,7 +804,6 @@ public:
 		return engine->m_last_lua_resource_idx;
 	}
 
-
 	static void LUA_setEntityLocalRotation(Project* project, Entity entity, const Quat& rotation)
 	{
 		if (!entity.isValid()) return;
@@ -847,7 +812,6 @@ public:
 		project->setLocalRotation(entity, rotation);
 	}
 
-
 	static void LUA_setEntityLocalPosition(Project* project, Entity entity, const Vec3& position)
 	{
 		if (!entity.isValid()) return;
@@ -855,7 +819,6 @@ public:
 
 		project->setLocalPosition(entity, position);
 	}
-
 
 	static void LUA_setEntityPosition(Project* univ, Entity entity, Vec3 pos) { univ->setPosition(entity, pos); }
 	static void LUA_unloadResource(EngineImpl* engine, int resource_idx) { engine->unloadLuaResource(resource_idx); }
@@ -869,7 +832,6 @@ public:
 	static void LUA_setTimeMultiplier(Engine* engine, float multiplier) { engine->setTimeMultiplier(multiplier); }
 	static Vec4 LUA_multMatrixVec(const Matrix& m, const Vec4& v) { return m * v; }
 	static Quat LUA_multQuat(const Quat& a, const Quat& b) { return a * b; }
-
 
 	static int LUA_loadProject(lua_State* L)
 	{
@@ -895,15 +857,15 @@ public:
 				else
 				{
 					InputBlob blob(file.getBuffer(), (int)file.size());
-					#pragma pack(1)
-						struct Header
-						{
-							u32 magic;
-							int version;
-							u32 hash;
-							u32 engine_hash;
-						};
-					#pragma pack()
+#pragma pack(1)
+					struct Header
+					{
+						u32 magic;
+						int version;
+						u32 hash;
+						u32 engine_hash;
+					};
+#pragma pack()
 					Header header;
 					blob.read(&header, sizeof(header));
 
@@ -945,7 +907,6 @@ public:
 		return 0;
 	}
 
-
 	static int LUA_multVecQuat(lua_State* L)
 	{
 		Vec3 v = LuaWrapper::checkArg<Vec3>(L, 1);
@@ -968,7 +929,6 @@ public:
 		return 1;
 	}
 
-
 	static Vec3 LUA_getEntityPosition(Project* project, Entity entity)
 	{
 		if (!entity.isValid())
@@ -978,7 +938,6 @@ public:
 		}
 		return project->getPosition(entity);
 	}
-
 
 	static Quat LUA_getEntityRotation(Project* project, Entity entity)
 	{
@@ -990,13 +949,11 @@ public:
 		return project->getRotation(entity);
 	}
 
-
 	static Vec3 LUA_getEntityDirection(Project* project, Entity entity)
 	{
 		Quat rot = project->getRotation(entity);
 		return rot.rotate(Vec3(0, 0, 1));
 	}
-
 
 	void registerLuaAPI()
 	{
@@ -1058,7 +1015,6 @@ public:
 		REGISTER_FUNCTION(setParent);
 
 		#undef REGISTER_FUNCTION
-
 
 		LuaWrapper::createSystemFunction(m_state, "Engine", "instantiatePrefab", &LUA_instantiatePrefab);
 		LuaWrapper::createSystemFunction(m_state, "Engine", "createEntityEx", &LUA_createEntityEx);
@@ -1156,7 +1112,6 @@ public:
 		installLuaPackageLoader();
 	}
 
-
 	void installLuaPackageLoader() const
 	{
 		if (lua_getglobal(m_state, "package") != LUA_TTABLE)
@@ -1183,7 +1138,6 @@ public:
 		lua_pop(m_state, 2);
 	}
 
-
 	static int LUA_packageLoader(lua_State* L)
 	{
 		const char* module = LuaWrapper::toType<const char*>(L, 1);
@@ -1209,7 +1163,6 @@ public:
 		return 1;
 	}
 
-
 	static void* luaAllocator(void* ud, void* ptr, size_t osize, size_t nsize)
 	{
 		auto& allocator = *static_cast<IAllocator*>(ud);
@@ -1225,7 +1178,6 @@ public:
 		allocator.deallocate(ptr);
 		return new_mem;
 	}
-
 
 	~EngineImpl()
 	{
@@ -1255,7 +1207,6 @@ public:
 
 		g_error_file.close();
 	}
-
 
 	void setPatchPath(const char* path) override
 	{
@@ -1291,19 +1242,14 @@ public:
 		m_platform_data = data;
 	}
 
-
 	const PlatformData& getPlatformData() override
 	{
 		return m_platform_data;
 	}
 
-
-
 	IAllocator& getAllocator() override { return m_allocator; }
 
-
 	const char* getWorkingDirectory() const override { return m_working_dir; }
-
 
 	Project& createProject(bool set_lua_globals) override
 	{
@@ -1333,7 +1279,6 @@ public:
 		return *project;
 	}
 
-
 	void destroyProject(Project& project) override
 	{
 		auto& scenes = project.getScenes();
@@ -1348,12 +1293,10 @@ public:
 		m_resource_manager.removeUnreferenced();
 	}
 
-
 	PluginManager& getPluginManager() override
 	{
 		return *m_plugin_manager;
 	}
-
 
 	FS::FileSystem& getFileSystem() override { return *m_file_system; }
 	FS::DiskFileDevice* getDiskFileDevice() override { return m_disk_file_device; }
@@ -1374,7 +1317,6 @@ public:
 		}
 	}
 
-
 	void stopGame(Project& context) override
 	{
 		ASSERT(m_is_game_running);
@@ -1389,24 +1331,20 @@ public:
 		}
 	}
 
-
 	void pause(bool pause) override
 	{
 		m_paused = pause;
 	}
-
 
 	void nextFrame() override
 	{
 		m_next_frame = true;
 	}
 
-
 	void setTimeMultiplier(float multiplier) override
 	{
 		m_time_multiplier = Math::maximum(multiplier, 0.001f);
 	}
-
 
 	void update(Project& context) override
 	{
@@ -1450,18 +1388,14 @@ public:
 		}
 	}
 
-
 	InputSystem& getInputSystem() override { return *m_input_system; }
-
 
 	ResourceManager& getResourceManager() override
 	{
 		return m_resource_manager;
 	}
 
-
 	float getFPS() const override { return m_fps; }
-
 
 	void serializerSceneVersions(OutputBlob& serializer, Project& ctx)
 	{
@@ -1473,7 +1407,6 @@ public:
 		}
 	}
 
-
 	void serializePluginList(OutputBlob& serializer)
 	{
 		serializer.write((i32)m_plugin_manager->getPlugins().size());
@@ -1482,7 +1415,6 @@ public:
 			serializer.writeString(plugin->getName());
 		}
 	}
-
 
 	bool hasSupportedSceneVersions(InputBlob& serializer, Project& ctx)
 	{
@@ -1504,7 +1436,6 @@ public:
 		return true;
 	}
 
-
 	bool hasSerializedPlugins(InputBlob& serializer)
 	{
 		i32 count;
@@ -1521,7 +1452,6 @@ public:
 		}
 		return true;
 	}
-
 
 	u32 serialize(Project& ctx, OutputBlob& serializer) override
 	{
@@ -1544,7 +1474,6 @@ public:
 		u32 crc = crc32((const u8*)serializer.getData() + pos, serializer.getPos() - pos);
 		return crc;
 	}
-
 
 	bool deserialize(Project& ctx, InputBlob& serializer) override
 	{
@@ -1574,7 +1503,6 @@ public:
 		return true;
 	}
 
-
 	ComponentUID createComponent(Project& project, Entity entity, ComponentType type) override
 	{
 		IScene* scene = project.getScene(type);
@@ -1583,7 +1511,6 @@ public:
 		project.createComponent(type, entity);
 		return ComponentUID(entity, type, scene);
 	}
-
 
 	static int LUA_instantiatePrefab(lua_State* L)
 	{
@@ -1608,7 +1535,6 @@ public:
 		return 1;
 	}
 
-
 	void unloadLuaResource(int resource_idx) override
 	{
 		if (resource_idx < 0) return;
@@ -1616,7 +1542,6 @@ public:
 		m_lua_resources.erase(resource_idx);
 		res->getResourceManager().unload(*res);
 	}
-
 
 	int addLuaResource(const Path& path, ResourceType type) override
 	{
@@ -1628,7 +1553,6 @@ public:
 		return m_last_lua_resource_idx;
 	}
 
-
 	Resource* getLuaResource(int idx) const override
 	{
 		auto iter = m_lua_resources.find(idx);
@@ -1636,12 +1560,10 @@ public:
 		return nullptr;
 	}
 
-
 	IAllocator& getLIFOAllocator() override
 	{
 		return m_lifo_allocator;
 	}
-
 
 	void runScript(const char* src, int src_length, const char* path) override
 	{
@@ -1658,7 +1580,6 @@ public:
 			lua_pop(m_state, 1);
 		}
 	}
-
 
 	lua_State* getState() override { return m_state; }
 	PathManager& getPathManager() override{ return m_path_manager; }
@@ -1698,20 +1619,14 @@ private:
 	StaticString<MAX_PATH_LENGTH> m_working_dir;
 };
 
-
-Engine* Engine::create(const char* base_path0,
-	const char* base_path1,
-	FS::FileSystem* fs,
-	IAllocator& allocator)
+Engine* Engine::create(const char* base_path0, const char* base_path1, FS::FileSystem* fs, IAllocator& allocator)
 {
 	return MALMY_NEW(allocator, EngineImpl)(base_path0, base_path1, fs, allocator);
 }
-
 
 void Engine::destroy(Engine* engine, IAllocator& allocator)
 {
 	MALMY_DELETE(allocator, engine);
 }
-
 
 } // namespace Malmy

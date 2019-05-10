@@ -6,216 +6,197 @@
 #include "profiler.h"
 #include <cstring>
 
-
 namespace Malmy
 {
 
-
-namespace Profiler
-{
-
-
-static struct Instance
-{
-	Instance()
-		: contexts(allocator)
-		, timer(Timer::create(allocator))
-		, mutex(false)
-	{}
-
-
-	~Instance()
+	namespace Profiler
 	{
-		Timer::destroy(timer);
-	}
 
+		static struct Instance
+		{
+			Instance()
+				: contexts(allocator)
+				, timer(Timer::create(allocator))
+				, mutex(false)
+			{
+				//
+			}
 
-	ThreadContext* getThreadContext()
-	{
-		thread_local ThreadContext* ctx = [&](){
-			ThreadContext* new_ctx = MALMY_NEW(allocator, ThreadContext)(allocator);
-			MT::SpinLock lock(mutex);
-			contexts.push(new_ctx);
-			return new_ctx;
-		}();
+			~Instance()
+			{
+				Timer::destroy(timer);
+			}
 
-		return ctx;
-	}
+			ThreadContext* getThreadContext()
+			{
+				thread_local ThreadContext* ctx = [&]() {
+					ThreadContext* new_ctx = MALMY_NEW(allocator, ThreadContext)(allocator);
+					MT::SpinLock lock(mutex);
+					contexts.push(new_ctx);
+					return new_ctx;
+				}();
 
-	DefaultAllocator allocator;
-	Array<ThreadContext*> contexts;
-	MT::SpinMutex mutex;
-	Timer* timer;
-	bool paused = false;
-} g_instance;
+				return ctx;
+			}
 
+			DefaultAllocator allocator;
+			Array<ThreadContext*> contexts;
+			MT::SpinMutex mutex;
+			Timer* timer;
+			bool paused = false;
+		} g_instance;
 
-template <typename T>
-void write(ThreadContext& ctx, EventType type, const T& value)
-{
-	if(g_instance.paused) return;
+		template <typename T>
+		void write(ThreadContext& ctx, EventType type, const T& value)
+		{
+			if (g_instance.paused) return;
 
-	#pragma pack(1)
-	struct {
-		EventHeader header;
-		T value;
-	} v;
-	#pragma pack()
-	v.header.type = type;
-	v.header.size = sizeof(v);
-	v.header.time = now();
-	v.value = value;
+#pragma pack(1)
+			struct {
+				EventHeader header;
+				T value;
+			} v;
+#pragma pack()
+			v.header.type = type;
+			v.header.size = sizeof(v);
+			v.header.time = now();
+			v.value = value;
 
-	MT::SpinLock lock(ctx.mutex);
-	u8* buf = ctx.buffer.begin();
-	const int buf_size = ctx.buffer.size();
+			MT::SpinLock lock(ctx.mutex);
+			u8* buf = ctx.buffer.begin();
+			const int buf_size = ctx.buffer.size();
 
-	while (sizeof(v) + ctx.end - ctx.begin > buf_size) {
-		const u8 size = buf[ctx.begin % buf_size];
-		ctx.begin += size;
-	}
+			while (sizeof(v) + ctx.end - ctx.begin > buf_size) {
+				const u8 size = buf[ctx.begin % buf_size];
+				ctx.begin += size;
+			}
 
-	const uint lend = ctx.end % buf_size;
-	if (buf_size - lend >= sizeof(v)) {
-		memcpy(buf + lend, &v, sizeof(v));
-	}
-	else {
-		memcpy(buf + lend, &v, buf_size - lend);
-		memcpy(buf, ((u8*)&v) + buf_size - lend, sizeof(v) - (buf_size - lend));
-	}
+			const uint lend = ctx.end % buf_size;
+			if (buf_size - lend >= sizeof(v)) {
+				memcpy(buf + lend, &v, sizeof(v));
+			}
+			else {
+				memcpy(buf + lend, &v, buf_size - lend);
+				memcpy(buf, ((u8*)&v) + buf_size - lend, sizeof(v) - (buf_size - lend));
+			}
 
-	ctx.end += sizeof(v);
-};
+			ctx.end += sizeof(v);
+		};
 
+		void write(ThreadContext& ctx, EventType type, const u8* data, int size)
+		{
+			if (g_instance.paused) return;
 
-void write(ThreadContext& ctx, EventType type, const u8* data, int size)
-{
-	if(g_instance.paused) return;
+			EventHeader header;
+			header.type = type;
+			ASSERT(sizeof(header) + size <= 0xffff);
+			header.size = u16(sizeof(header) + size);
+			header.time = now();
 
-	EventHeader header;
-	header.type = type;
-	ASSERT(sizeof(header) + size <= 0xffff);
-	header.size = u16(sizeof(header) + size);
-	header.time = now();
+			MT::SpinLock lock(ctx.mutex);
+			u8* buf = ctx.buffer.begin();
+			const uint buf_size = ctx.buffer.size();
 
-	MT::SpinLock lock(ctx.mutex);
-	u8* buf = ctx.buffer.begin();
-	const uint buf_size = ctx.buffer.size();
+			while (header.size + ctx.end - ctx.begin > buf_size) {
+				const u8 size = buf[ctx.begin % buf_size];
+				ctx.begin += size;
+			}
 
-	while (header.size + ctx.end - ctx.begin > buf_size) {
-		const u8 size = buf[ctx.begin % buf_size];
-		ctx.begin += size;
-	}
+			auto cpy = [&](const u8* ptr, uint size) {
+				const uint lend = ctx.end % buf_size;
+				if (buf_size - lend >= size) {
+					memcpy(buf + lend, ptr, size);
+				}
+				else {
+					memcpy(buf + lend, ptr, buf_size - lend);
+					memcpy(buf, ((u8*)ptr) + buf_size - lend, size - (buf_size - lend));
+				}
 
-	auto cpy = [&](const u8* ptr, uint size){
-		const uint lend = ctx.end % buf_size;
-		if (buf_size - lend >= size) {
-			memcpy(buf + lend, ptr, size);
+				ctx.end += size;
+			};
+
+			cpy((u8*)&header, sizeof(header));
+			cpy(data, size);
+		};
+
+		void recordString(const char* value)
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			write(*ctx, EventType::STRING, (u8*)value, stringLength(value) + 1);
 		}
-		else {
-			memcpy(buf + lend, ptr, buf_size - lend);
-			memcpy(buf, ((u8*)ptr) + buf_size - lend, size - (buf_size - lend));
+
+		void blockColor(u8 r, u8 g, u8 b)
+		{
+			const u32 color = 0xff000000 + r + (g << 8) + (b << 16);
+			ThreadContext* ctx = g_instance.getThreadContext();
+			write(*ctx, EventType::BLOCK_COLOR, color);
 		}
 
-		ctx.end += size;
-	};
+		void beginBlock(const char* name)
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			++ctx->open_blocks_count;
+			write(*ctx, EventType::BEGIN_BLOCK, name);
+		}
 
-	cpy((u8*)&header, sizeof(header));
-	cpy(data, size);
-};
+		void beginFiberSwitch()
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			while (ctx->open_blocks_count > 0) {
+				write(*ctx, EventType::END_BLOCK, 0);
+				--ctx->open_blocks_count;
+			}
+		}
 
+		void endBlock()
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			if (ctx->open_blocks_count > 0) {
+				--ctx->open_blocks_count;
+				write(*ctx, EventType::END_BLOCK, 0);
+			}
+		}
 
-void recordString(const char* value)
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	write(*ctx, EventType::STRING, (u8*)value, stringLength(value) + 1);
-}
+		u64 now()
+		{
+			return g_instance.timer->getRawTimeSinceStart();
+		}
 
+		u64 frequency()
+		{
+			return g_instance.timer->getFrequency();
+		}
 
-void blockColor(u8 r, u8 g, u8 b)
-{
-	const u32 color = 0xff000000 + r + (g << 8) + (b << 16);
-	ThreadContext* ctx = g_instance.getThreadContext();
-	write(*ctx, EventType::BLOCK_COLOR, color);
-}
+		void frame()
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			write(*ctx, EventType::FRAME, 0);
+		}
 
+		void setThreadName(const char* name)
+		{
+			ThreadContext* ctx = g_instance.getThreadContext();
+			MT::SpinLock lock(ctx->mutex);
 
-void beginBlock(const char* name)
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	++ctx->open_blocks_count;
-	write(*ctx, EventType::BEGIN_BLOCK, name);
-}
+			ctx->name = name;
+		}
 
+		Array<ThreadContext*>& lockContexts()
+		{
+			g_instance.mutex.lock();
+			return g_instance.contexts;
+		}
 
-void beginFiberSwitch()
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	while(ctx->open_blocks_count > 0) {
-		write(*ctx, EventType::END_BLOCK, 0);
-		--ctx->open_blocks_count;
-	}
-}
+		void unlockContexts()
+		{
+			g_instance.mutex.unlock();
+		}
 
+		void pause(bool paused)
+		{
+			g_instance.paused = paused;
+		}
 
-void endBlock()
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	if(ctx->open_blocks_count > 0) {
-		--ctx->open_blocks_count;
-		write(*ctx, EventType::END_BLOCK, 0);
-	}
-}
-
-
-u64 now()
-{
-	return g_instance.timer->getRawTimeSinceStart();
-}
-
-
-u64 frequency()
-{
-	return g_instance.timer->getFrequency();
-}
-
-
-void frame()
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	write(*ctx, EventType::FRAME, 0);
-}
-
-
-void setThreadName(const char* name)
-{
-	ThreadContext* ctx = g_instance.getThreadContext();
-	MT::SpinLock lock(ctx->mutex);
-
-	ctx->name = name;
-}
-
-
-Array<ThreadContext*>& lockContexts()
-{
-	g_instance.mutex.lock();
-	return g_instance.contexts;
-}
-
-
-void unlockContexts()
-{
-	g_instance.mutex.unlock();
-}
-
-
-void pause(bool paused)
-{
-	g_instance.paused = paused;
-}
-
-
-} // namespace Malmy
-
+	} // namespace Malmy
 
 } //	namespace Profiler

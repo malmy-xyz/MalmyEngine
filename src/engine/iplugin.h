@@ -1,8 +1,5 @@
 #pragma once
-
-
 #include "engine/malmy.h"
-
 
 namespace Malmy
 {
@@ -13,7 +10,6 @@ namespace Malmy
 	struct ISerializer;
 	class OutputBlob;
 	class Project;
-
 
 	struct MALMY_ENGINE_API IScene
 	{
@@ -33,7 +29,6 @@ namespace Malmy
 		virtual void clear() = 0;
 	};
 
-
 	struct MALMY_ENGINE_API IPlugin
 	{
 		virtual ~IPlugin();
@@ -50,7 +45,6 @@ namespace Malmy
 		virtual void stopGame() {}
 	};
 
-
 	struct MALMY_ENGINE_API StaticPluginRegister
 	{
 		typedef IPlugin* (*Creator)(Engine& engine);
@@ -63,18 +57,9 @@ namespace Malmy
 		const char* name;
 	};
 
-
 } // namespace Malmy
 
+#define MALMY_PLUGIN_ENTRY(plugin_name) \
+	extern "C" MALMY_LIBRARY_EXPORT IPlugin* createPlugin(Engine& engine)
 
-#ifdef STATIC_PLUGINS
-	#define MALMY_PLUGIN_ENTRY(plugin_name)                                           \
-		extern "C" IPlugin* createPlugin_##plugin_name(Engine& engine); \
-		extern "C" { StaticPluginRegister MALMY_ATTRIBUTE_USED s_##plugin_name##_plugin_register(          \
-			#plugin_name, createPlugin_##plugin_name); }                              \
-		extern "C" IPlugin* createPlugin_##plugin_name(Engine& engine)
-#else
-	#define MALMY_PLUGIN_ENTRY(plugin_name) \
-		extern "C" MALMY_LIBRARY_EXPORT IPlugin* createPlugin(Engine& engine)
-#endif
 

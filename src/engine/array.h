@@ -1,372 +1,352 @@
 #pragma once
-
-
 #include "engine/iallocator.h"
 #include "engine/string.h"
 
-
 namespace Malmy
 {
-
-
-template <typename T> class Array
-{
-public:
-	explicit Array(IAllocator& allocator)
-		: m_allocator(allocator)
+	template <typename T> class Array
 	{
-		m_data = nullptr;
-		m_capacity = 0;
-		m_size = 0;
-	}
-
-	explicit Array(const Array& rhs)
-		: m_allocator(rhs.m_allocator)
-	{
-		m_data = nullptr;
-		m_capacity = 0;
-		m_size = 0;
-		*this = rhs;
-	}
-
-
-	T* begin() const { return m_data; }
-
-
-	T* end() const { return m_data + m_size; }
-
-
-	void swap(Array<T>& rhs)
-	{
-		ASSERT(&rhs.m_allocator == &m_allocator);
-
-		int i = rhs.m_capacity;
-		rhs.m_capacity = m_capacity;
-		m_capacity = i;
-
-		i = m_size;
-		m_size = rhs.m_size;
-		rhs.m_size = i;
-
-		T* p = rhs.m_data;
-		rhs.m_data = m_data;
-		m_data = p;
-	}
-
-
-	template <typename Comparator>
-	void removeDuplicates(Comparator equals)
-	{
-		for (int i = 0; i < m_size - 1; ++i)
+	public:
+		explicit Array(IAllocator& allocator)
+			: m_allocator(allocator)
 		{
-			for (int j = i + 1; j < m_size; ++j)
+			m_data = nullptr;
+			m_capacity = 0;
+			m_size = 0;
+		}
+
+		explicit Array(const Array& rhs)
+			: m_allocator(rhs.m_allocator)
+		{
+			m_data = nullptr;
+			m_capacity = 0;
+			m_size = 0;
+			*this = rhs;
+		}
+
+		T* begin() const { return m_data; }
+
+		T* end() const { return m_data + m_size; }
+
+		void swap(Array<T>& rhs)
+		{
+			ASSERT(&rhs.m_allocator == &m_allocator);
+
+			int i = rhs.m_capacity;
+			rhs.m_capacity = m_capacity;
+			m_capacity = i;
+
+			i = m_size;
+			m_size = rhs.m_size;
+			rhs.m_size = i;
+
+			T* p = rhs.m_data;
+			rhs.m_data = m_data;
+			m_data = p;
+		}
+
+		template <typename Comparator>
+		void removeDuplicates(Comparator equals)
+		{
+			for (int i = 0; i < m_size - 1; ++i)
 			{
-				if (equals(m_data[i], m_data[j]))
+				for (int j = i + 1; j < m_size; ++j)
 				{
-					eraseFast(j);
-					--j;
+					if (equals(m_data[i], m_data[j]))
+					{
+						eraseFast(j);
+						--j;
+					}
 				}
 			}
 		}
-	}
 
-
-	void removeDuplicates()
-	{
-		for (int i = 0; i < m_size-1; ++i)
+		void removeDuplicates()
 		{
-			for (int j = i + 1; j < m_size; ++j)
+			for (int i = 0; i < m_size - 1; ++i)
 			{
-				if (m_data[i] == m_data[j])
+				for (int j = i + 1; j < m_size; ++j)
 				{
-					eraseFast(j);
-					--j;
+					if (m_data[i] == m_data[j])
+					{
+						eraseFast(j);
+						--j;
+					}
 				}
 			}
 		}
-	}
 
+		void operator=(const Array& rhs)
+		{
+			if (this != &rhs)
+			{
+				callDestructors(m_data, m_data + m_size);
+				m_allocator.deallocate_aligned(m_data);
+				m_data = (T*)m_allocator.allocate_aligned(rhs.m_capacity * sizeof(T), ALIGN_OF(T));
+				m_capacity = rhs.m_capacity;
+				m_size = rhs.m_size;
+				for (int i = 0; i < m_size; ++i)
+				{
+					new (NewPlaceholder(), (char*)(m_data + i)) T(rhs.m_data[i]);
+				}
+			}
+		}
 
-	void operator=(const Array& rhs)
-	{
-		if (this != &rhs)
+		void free()
+		{
+			clear();
+			m_allocator.deallocate_aligned(m_data);
+			m_capacity = 0;
+			m_data = nullptr;
+		}
+
+		~Array()
 		{
 			callDestructors(m_data, m_data + m_size);
 			m_allocator.deallocate_aligned(m_data);
-			m_data = (T*)m_allocator.allocate_aligned(rhs.m_capacity * sizeof(T), ALIGN_OF(T));
-			m_capacity = rhs.m_capacity;
-			m_size = rhs.m_size;
+		}
+
+		template <typename F>
+		int find(F predicate) const
+		{
 			for (int i = 0; i < m_size; ++i)
 			{
-				new (NewPlaceholder(), (char*)(m_data + i)) T(rhs.m_data[i]);
+				if (predicate(m_data[i]))
+				{
+					return i;
+				}
 			}
+			return -1;
 		}
-	}
 
-
-	void free()
-	{
-		clear();
-		m_allocator.deallocate_aligned(m_data);
-		m_capacity = 0;
-		m_data = nullptr;
-	}
-
-
-	~Array()
-	{
-		callDestructors(m_data, m_data + m_size);
-		m_allocator.deallocate_aligned(m_data);
-	}
-
-	template <typename F>
-	int find(F predicate) const
-	{
-		for (int i = 0; i < m_size; ++i)
+		template <typename R>
+		int indexOf(R item) const
 		{
-			if (predicate(m_data[i]))
+			for (int i = 0; i < m_size; ++i)
 			{
-				return i;
+				if (m_data[i] == item)
+				{
+					return i;
+				}
 			}
+			return -1;
 		}
-		return -1;
-	}
 
-	template <typename R>
-	int indexOf(R item) const
-	{
-		for (int i = 0; i < m_size; ++i)
+		int indexOf(const T& item) const
 		{
-			if (m_data[i] == item)
+			for (int i = 0; i < m_size; ++i)
 			{
-				return i;
+				if (m_data[i] == item)
+				{
+					return i;
+				}
 			}
+			return -1;
 		}
-		return -1;
-	}
 
-	int indexOf(const T& item) const
-	{
-		for (int i = 0; i < m_size; ++i)
+		template <typename F>
+		void eraseItems(F predicate)
 		{
-			if (m_data[i] == item)
+			for (int i = m_size - 1; i >= 0; --i)
 			{
-				return i;
+				if (predicate(m_data[i]))
+				{
+					erase(i);
+				}
 			}
 		}
-		return -1;
-	}
 
-	template <typename F>
-	void eraseItems(F predicate)
-	{
-		for (int i = m_size - 1; i >= 0; --i)
+		void eraseItemFast(const T& item)
 		{
-			if (predicate(m_data[i]))
+			for (int i = 0; i < m_size; ++i)
 			{
-				erase(i);
+				if (m_data[i] == item)
+				{
+					eraseFast(i);
+					return;
+				}
 			}
 		}
-	}
 
-	void eraseItemFast(const T& item)
-	{
-		for (int i = 0; i < m_size; ++i)
+		void eraseFast(int index)
 		{
-			if (m_data[i] == item)
+			if (index >= 0 && index < m_size)
 			{
-				eraseFast(i);
-				return;
+				m_data[index].~T();
+				if (index != m_size - 1)
+				{
+					moveMemory(m_data + index, m_data + m_size - 1, sizeof(T));
+				}
+				--m_size;
 			}
 		}
-	}
 
-	void eraseFast(int index)
-	{
-		if (index >= 0 && index < m_size)
+		void eraseItem(const T& item)
 		{
-			m_data[index].~T();
-			if (index != m_size - 1)
+			for (int i = 0; i < m_size; ++i)
 			{
-				moveMemory(m_data + index, m_data + m_size - 1, sizeof(T));
+				if (m_data[i] == item)
+				{
+					erase(i);
+					return;
+				}
 			}
-			--m_size;
 		}
-	}
 
-	void eraseItem(const T& item)
-	{
-		for (int i = 0; i < m_size; ++i)
+		void insert(int index, const T& value)
 		{
-			if (m_data[i] == item)
+			if (m_size == m_capacity)
 			{
-				erase(i);
-				return;
+				grow();
 			}
+			moveMemory(m_data + index + 1, m_data + index, sizeof(T) * (m_size - index));
+			new (NewPlaceholder(), &m_data[index]) T(value);
+			++m_size;
 		}
-	}
 
-
-	void insert(int index, const T& value)
-	{
-		if (m_size == m_capacity)
+		void erase(int index)
 		{
-			grow();
-		}
-		moveMemory(m_data + index + 1, m_data + index, sizeof(T) * (m_size - index));
-		new (NewPlaceholder(), &m_data[index]) T(value);
-		++m_size;
-	}
-
-
-	void erase(int index)
-	{
-		if (index >= 0 && index < m_size)
-		{
-			m_data[index].~T();
-			if (index < m_size - 1)
+			if (index >= 0 && index < m_size)
 			{
-				moveMemory(m_data + index, m_data + index + 1, sizeof(T) * (m_size - index - 1));
+				m_data[index].~T();
+				if (index < m_size - 1)
+				{
+					moveMemory(m_data + index, m_data + index + 1, sizeof(T) * (m_size - index - 1));
+				}
+				--m_size;
 			}
-			--m_size;
 		}
-	}
 
-	void push(const T& value)
-	{
-		int size = m_size;
-		if (size == m_capacity)
+		void push(const T& value)
 		{
-			grow();
+			int size = m_size;
+			if (size == m_capacity)
+			{
+				grow();
+			}
+			new (NewPlaceholder(), (char*)(m_data + size)) T(value);
+			++size;
+			m_size = size;
 		}
-		new (NewPlaceholder(), (char*)(m_data + size)) T(value);
-		++size;
-		m_size = size;
-	}
 
+		template <class _Ty> struct remove_reference { typedef _Ty type; };
+		template <class _Ty> struct remove_reference<_Ty&> { typedef _Ty type; };
+		template <class _Ty> struct remove_reference<_Ty&&> { typedef _Ty type; };
 
-	template <class _Ty> struct remove_reference { typedef _Ty type; };
-	template <class _Ty> struct remove_reference<_Ty&> { typedef _Ty type; };
-	template <class _Ty> struct remove_reference<_Ty&&> { typedef _Ty type; };
-
-	template <class _Ty> _Ty&& myforward(typename remove_reference<_Ty>::type& _Arg)
-	{
-		return (static_cast<_Ty&&>(_Arg));
-	}
-
-	template <typename... Params> T& emplace(Params&&... params)
-	{
-		if (m_size == m_capacity)
+		template <class _Ty> _Ty&& myforward(typename remove_reference<_Ty>::type& _Arg)
 		{
-			grow();
+			return (static_cast<_Ty&&>(_Arg));
 		}
-		new (NewPlaceholder(), (char*)(m_data + m_size)) T(myforward<Params>(params)...);
-		++m_size;
-		return m_data[m_size - 1];
-	}
 
-	template <typename... Params> T& emplaceAt(int idx, Params&&... params)
-	{
-		if (m_size == m_capacity)
+		template <typename... Params> T& emplace(Params&&... params)
 		{
-			grow();
+			if (m_size == m_capacity)
+			{
+				grow();
+			}
+			new (NewPlaceholder(), (char*)(m_data + m_size)) T(myforward<Params>(params)...);
+			++m_size;
+			return m_data[m_size - 1];
 		}
-		for (int i = m_size - 1; i >= idx; --i)
+
+		template <typename... Params> T& emplaceAt(int idx, Params&&... params)
 		{
-			copyMemory(&m_data[i + 1], &m_data[i], sizeof(m_data[i]));
+			if (m_size == m_capacity)
+			{
+				grow();
+			}
+			for (int i = m_size - 1; i >= idx; --i)
+			{
+				copyMemory(&m_data[i + 1], &m_data[i], sizeof(m_data[i]));
+			}
+			new (NewPlaceholder(), (char*)(m_data + idx)) T(myforward<Params>(params)...);
+			++m_size;
+			return m_data[idx];
 		}
-		new (NewPlaceholder(), (char*)(m_data + idx)) T(myforward<Params>(params)...);
-		++m_size;
-		return m_data[idx];
-	}
 
-	bool empty() const { return m_size == 0; }
+		bool empty() const { return m_size == 0; }
 
-	void clear()
-	{
-		callDestructors(m_data, m_data + m_size);
-		m_size = 0;
-	}
-
-	const T& back() const { return m_data[m_size - 1]; }
-
-
-	T& back() { return m_data[m_size - 1]; }
-
-
-	void pop()
-	{
-		if (m_size > 0)
+		void clear()
 		{
-			m_data[m_size - 1].~T();
-			--m_size;
+			callDestructors(m_data, m_data + m_size);
+			m_size = 0;
 		}
-	}
 
-	void resize(int size)
-	{
-		if (size > m_capacity)
+		const T& back() const { return m_data[m_size - 1]; }
+
+		T& back() { return m_data[m_size - 1]; }
+
+		void pop()
 		{
-			reserve(size);
+			if (m_size > 0)
+			{
+				m_data[m_size - 1].~T();
+				--m_size;
+			}
 		}
-		for (int i = m_size; i < size; ++i)
+
+		void resize(int size)
 		{
-			new (NewPlaceholder(), (char*)(m_data + i)) T();
+			if (size > m_capacity)
+			{
+				reserve(size);
+			}
+			for (int i = m_size; i < size; ++i)
+			{
+				new (NewPlaceholder(), (char*)(m_data + i)) T();
+			}
+			callDestructors(m_data + size, m_data + m_size);
+			m_size = size;
 		}
-		callDestructors(m_data + size, m_data + m_size);
-		m_size = size;
-	}
 
-
-	void reserve(int capacity)
-	{
-		if (capacity > m_capacity)
+		void reserve(int capacity)
 		{
-			T* newData = (T*)m_allocator.allocate_aligned(capacity * sizeof(T), ALIGN_OF(T));
-			copyMemory(newData, m_data, sizeof(T) * m_size);
-			m_allocator.deallocate_aligned(m_data);
-			m_data = newData;
-			m_capacity = capacity;
+			if (capacity > m_capacity)
+			{
+				T* newData = (T*)m_allocator.allocate_aligned(capacity * sizeof(T), ALIGN_OF(T));
+				copyMemory(newData, m_data, sizeof(T) * m_size);
+				m_allocator.deallocate_aligned(m_data);
+				m_data = newData;
+				m_capacity = capacity;
+			}
 		}
-	}
 
-	const T& operator[](int index) const
-	{
-		ASSERT(index >= 0 && index < m_size);
-		return m_data[index];
-	}
-
-	T& operator[](int index)
-	{
-		ASSERT(index >= 0 && index < m_size);
-		return m_data[index];
-	}
-
-	int size() const { return m_size; }
-	int capacity() const { return m_capacity; }
-
-private:
-	void grow()
-	{
-		int new_capacity = m_capacity == 0 ? 4 : m_capacity * 2;
-		m_data = (T*)m_allocator.reallocate_aligned(m_data, new_capacity * sizeof(T), ALIGN_OF(T));
-		m_capacity = new_capacity;
-	}
-
-	void callDestructors(T* begin, T* end)
-	{
-		for (; begin < end; ++begin)
+		const T& operator[](int index) const
 		{
-			begin->~T();
+			ASSERT(index >= 0 && index < m_size);
+			return m_data[index];
 		}
-	}
 
-private:
-	IAllocator& m_allocator;
-	int m_capacity;
-	int m_size;
-	T* m_data;
-};
+		T& operator[](int index)
+		{
+			ASSERT(index >= 0 && index < m_size);
+			return m_data[index];
+		}
 
+		int size() const { return m_size; }
+		int capacity() const { return m_capacity; }
+
+	private:
+		void grow()
+		{
+			int new_capacity = m_capacity == 0 ? 4 : m_capacity * 2;
+			m_data = (T*)m_allocator.reallocate_aligned(m_data, new_capacity * sizeof(T), ALIGN_OF(T));
+			m_capacity = new_capacity;
+		}
+
+		void callDestructors(T* begin, T* end)
+		{
+			for (; begin < end; ++begin)
+			{
+				begin->~T();
+			}
+		}
+
+	private:
+		IAllocator& m_allocator;
+		int m_capacity;
+		int m_size;
+		T* m_data;
+	};
 
 } // namespace Malmy

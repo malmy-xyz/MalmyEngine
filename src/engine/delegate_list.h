@@ -1,57 +1,54 @@
 #pragma once
-
-
 #include "engine/array.h"
 #include "engine/delegate.h"
 
-
 namespace Malmy
 {
-template <typename T> class DelegateList;
+	template <typename T> class DelegateList;
 
-template <typename R, typename... Args> class DelegateList<R(Args...)>
-{
-public:
-	explicit DelegateList(IAllocator& allocator)
-		: m_delegates(allocator)
+	template <typename R, typename... Args> class DelegateList<R(Args...)>
 	{
-	}
-
-	template <typename C, R (C::*Function)(Args...)> void bind(C* instance)
-	{
-		Delegate<R(Args...)> cb;
-		cb.template bind<C, Function>(instance);
-		m_delegates.push(cb);
-	}
-
-	template <R (*Function)(Args...)> void bind()
-	{
-		Delegate<R(Args...)> cb;
-		cb.template bind<Function>();
-		m_delegates.push(cb);
-	}
-
-	template <typename C, R (C::*Function)(Args...)> void unbind(C* instance)
-	{
-		Delegate<R(Args...)> cb;
-		cb.template bind<C, Function>(instance);
-		for (int i = 0; i < m_delegates.size(); ++i)
+	public:
+		explicit DelegateList(IAllocator& allocator)
+			: m_delegates(allocator)
 		{
-			if (m_delegates[i] == cb)
+		}
+
+		template <typename C, R(C::*Function)(Args...)> void bind(C* instance)
+		{
+			Delegate<R(Args...)> cb;
+			cb.template bind<C, Function>(instance);
+			m_delegates.push(cb);
+		}
+
+		template <R(*Function)(Args...)> void bind()
+		{
+			Delegate<R(Args...)> cb;
+			cb.template bind<Function>();
+			m_delegates.push(cb);
+		}
+
+		template <typename C, R(C::*Function)(Args...)> void unbind(C* instance)
+		{
+			Delegate<R(Args...)> cb;
+			cb.template bind<C, Function>(instance);
+			for (int i = 0; i < m_delegates.size(); ++i)
 			{
-				m_delegates.eraseFast(i);
-				break;
+				if (m_delegates[i] == cb)
+				{
+					m_delegates.eraseFast(i);
+					break;
+				}
 			}
 		}
-	}
 
-	void invoke(Args... args)
-	{
-		for (auto& i : m_delegates) i.invoke(args...);
-	}
+		void invoke(Args... args)
+		{
+			for (auto& i : m_delegates) i.invoke(args...);
+		}
 
-private:
-	Array<Delegate<R(Args...)>> m_delegates;
-};
+	private:
+		Array<Delegate<R(Args...)>> m_delegates;
+	};
 
 } // namespace Malmy

@@ -1,9 +1,6 @@
 #pragma once
-
-
 #include "engine/iallocator.h"
 #include "engine/math_utils.h"
-
 
 namespace Malmy
 {
@@ -35,10 +32,10 @@ namespace Malmy
 		}
 
 		bool full() const { return size() == count; }
-		bool empty() const { return m_rd == m_wr; } 
+		bool empty() const { return m_rd == m_wr; }
 		u32 size() const { return m_wr - m_rd; }
-		Iterator begin() { return {this, m_rd}; }
-		Iterator end() { return {this, m_wr}; }
+		Iterator begin() { return { this, m_rd }; }
+		Iterator end() { return { this, m_wr }; }
 
 		void push(const T& item)
 		{
