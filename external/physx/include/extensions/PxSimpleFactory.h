@@ -59,7 +59,7 @@ namespace physx
 	\param[in] geometry the geometry of the new object's shape, which must be a sphere, capsule, box or convex
 	\param[in] material the material for the new object's shape
 	\param[in] density the density of the new object. Must be greater than zero.
-	\param[in] shapeOffset an optional offset for the new shape, defaults to identity
+	\param[in] shapeOffset an optional offset for the new shape, defaults to idgameobject
 
 	\return a new dynamic actor with the PxRigidBodyFlag, or NULL if it could 
 	not be constructed
@@ -72,7 +72,7 @@ PxRigidDynamic*	PxCreateDynamic(PxPhysics& sdk,
 								const PxGeometry& geometry,
 								PxMaterial& material,
 								PxReal density,
-								const PxTransform& shapeOffset = PxTransform(PxIdentity));
+								const PxTransform& shapeOffset = PxTransform(PxIdgameobject));
 
 
 /** \brief simple method to create a PxRigidDynamic actor with a single PxShape. 
@@ -101,7 +101,7 @@ PxRigidDynamic*	PxCreateDynamic(PxPhysics& sdk,
 	\param[in] geometry the geometry of the new object's shape
 	\param[in] material the material for the new object's shape
 	\param[in] density the density of the new object. Must be greater than zero if the object is to participate in simulation.
-	\param[in] shapeOffset an optional offset for the new shape, defaults to identity
+	\param[in] shapeOffset an optional offset for the new shape, defaults to idgameobject
 
 	\note unlike PxCreateDynamic, the geometry is not restricted to box, capsule, sphere or convex. However, 
 	kinematics of other geometry types may not participate in simulation collision and may be used only for
@@ -119,7 +119,7 @@ PxRigidDynamic*	PxCreateKinematic(PxPhysics& sdk,
 								  const PxGeometry& geometry,
 								  PxMaterial& material,
 								  PxReal density,
-								  const PxTransform& shapeOffset = PxTransform(PxIdentity));
+								  const PxTransform& shapeOffset = PxTransform(PxIdgameobject));
 
 
 /** \brief simple method to create a kinematic PxRigidDynamic actor with a single PxShape. 
@@ -152,7 +152,7 @@ PxRigidDynamic*	PxCreateKinematic(PxPhysics& sdk,
 	\param[in] transform the global pose of the new object
 	\param[in] geometry the geometry of the new object's shape
 	\param[in] material the material for the new object's shape
-	\param[in] shapeOffset an optional offset for the new shape, defaults to identity
+	\param[in] shapeOffset an optional offset for the new shape, defaults to idgameobject
 
 	\return a new static actor, or NULL if it could not be constructed
 
@@ -163,7 +163,7 @@ PxRigidStatic*	PxCreateStatic(PxPhysics& sdk,
 							   const PxTransform& transform,
 							   const PxGeometry& geometry,
 							   PxMaterial& material,
-							   const PxTransform& shapeOffset = PxTransform(PxIdentity));
+							   const PxTransform& shapeOffset = PxTransform(PxIdgameobject));
 
 
 /** \brief simple method to create a PxRigidStatic actor with a single PxShape. 

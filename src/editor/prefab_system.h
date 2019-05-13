@@ -33,14 +33,14 @@ public:
 	virtual void deserialize(InputBlob& serializer) = 0;
 	virtual void serialize(ISerializer& serializer) = 0;
 	virtual void deserialize(IDeserializer& serializer) = 0;
-	virtual Entity instantiatePrefab(PrefabResource& prefab, const Vec3& pos, const Quat& rot, float scale) = 0;
-	virtual u64 getPrefab(Entity entity) const = 0;
-	virtual int getMaxEntityIndex() const = 0;
-	virtual void setPrefab(Entity entity, u64 prefab) = 0;
-	virtual Entity getFirstInstance(u64 prefab) = 0;
-	virtual Entity getNextInstance(Entity entity) = 0;
+	virtual GameObject instantiatePrefab(PrefabResource& prefab, const Vec3& pos, const Quat& rot, float scale) = 0;
+	virtual u64 getPrefab(GameObject gameobject) const = 0;
+	virtual int getMaxGameObjectIndex() const = 0;
+	virtual void setPrefab(GameObject gameobject, u64 prefab) = 0;
+	virtual GameObject getFirstInstance(u64 prefab) = 0;
+	virtual GameObject getNextInstance(GameObject gameobject) = 0;
 	virtual void savePrefab(const Path& path) = 0;
-	virtual PrefabResource* getPrefabResource(Entity entity) = 0;
+	virtual PrefabResource* getPrefabResource(GameObject gameobject) = 0;
 };
 
 

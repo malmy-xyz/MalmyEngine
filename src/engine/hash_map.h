@@ -82,9 +82,9 @@ namespace Malmy
 	};
 
 	template<>
-	struct HashFunc<Entity>
+	struct HashFunc<GameObject>
 	{
-		static u32 get(const Entity& key)
+		static u32 get(const GameObject& key)
 		{
 			static_assert(sizeof(i32) == sizeof(key.index), "Check this");
 			return HashFunc<i32>::get(key.index);

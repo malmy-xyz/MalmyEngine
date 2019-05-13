@@ -30,7 +30,7 @@ enum class IconType
 	CAMERA,
 	LIGHT,
 	TERRAIN,
-	ENTITY,
+	GAMEOBJECT,
 
 	COUNT
 };
@@ -54,7 +54,7 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 {
 	struct Icon
 	{
-		Entity entity;
+		GameObject gameobject;
 		IconType type;
 		float scale;
 	};
@@ -81,8 +81,8 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 		if(m_editor.getProject())
 		{
 			auto& project = *m_editor.getProject();
-			project.entityCreated().unbind<EditorIconsImpl, &EditorIconsImpl::onEntityCreated>(this);
-			project.entityDestroyed().unbind<EditorIconsImpl, &EditorIconsImpl::destroyIcon>(this);
+			project.gameobjectCreated().unbind<EditorIconsImpl, &EditorIconsImpl::onGameObjectCreated>(this);
+			project.gameobjectDestroyed().unbind<EditorIconsImpl, &EditorIconsImpl::destroyIcon>(this);
 			project.componentAdded().unbind<EditorIconsImpl, &EditorIconsImpl::refreshIcon>(this);
 			project.componentDestroyed().unbind<EditorIconsImpl, &EditorIconsImpl::refreshIcon>(this);
 		}
@@ -92,24 +92,24 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 	void onProjectCreated()
 	{
 		auto& project = *m_editor.getProject();
-		project.entityCreated().bind<EditorIconsImpl, &EditorIconsImpl::onEntityCreated>(this);
-		project.entityDestroyed().bind<EditorIconsImpl, &EditorIconsImpl::destroyIcon>(this);
+		project.gameobjectCreated().bind<EditorIconsImpl, &EditorIconsImpl::onGameObjectCreated>(this);
+		project.gameobjectDestroyed().bind<EditorIconsImpl, &EditorIconsImpl::destroyIcon>(this);
 		project.componentAdded().bind<EditorIconsImpl, &EditorIconsImpl::refreshIcon>(this);
 		project.componentDestroyed().bind<EditorIconsImpl, &EditorIconsImpl::refreshIcon>(this);
 	}
 
 
-	void onEntityCreated(Entity entity)
+	void onGameObjectCreated(GameObject gameobject)
 	{
-		createIcon(entity);
+		createIcon(gameobject);
 	}
 
 
-	void destroyIcon(Entity entity)
+	void destroyIcon(GameObject gameobject)
 	{
 		for(int i = 0, c = m_icons.size(); i < c; ++i)
 		{
-			if(m_icons[i].entity == entity)
+			if(m_icons[i].gameobject == gameobject)
 			{
 				m_icons.eraseFast(i);
 				return;
@@ -120,24 +120,24 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 
 	void refreshIcon(const ComponentUID& cmp)
 	{
-		destroyIcon(cmp.entity);
-		createIcon(cmp.entity);
+		destroyIcon(cmp.gameobject);
+		createIcon(cmp.gameobject);
 	}
 
 
-	void createIcon(Entity entity)
+	void createIcon(GameObject gameobject)
 	{
-		if (!entity.isValid()) return;
-		if (m_editor.getEditCamera().entity == entity) return;
+		if (!gameobject.isValid()) return;
+		if (m_editor.getEditCamera().gameobject == gameobject) return;
 
 		Project& project = *m_editor.getProject();
 		
-		if (project.getComponent(entity, MODEL_INSTANCE_TYPE).isValid()) return;
+		if (project.getComponent(gameobject, MODEL_INSTANCE_TYPE).isValid()) return;
 
 		auto& icon = m_icons.emplace();
-		icon.entity = entity;
-		icon.type = IconType::ENTITY;
-		for (ComponentUID cmp = project.getFirstComponent(entity); cmp.isValid(); cmp = project.getNextComponent(cmp))
+		icon.gameobject = gameobject;
+		icon.type = IconType::GAMEOBJECT;
+		for (ComponentUID cmp = project.getFirstComponent(gameobject); cmp.isValid(); cmp = project.getNextComponent(cmp))
 		{
 			if(cmp.type == PHYSICAL_CONTROLLER_TYPE)
 			{
@@ -173,9 +173,9 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 	{
 		clear();
 		auto& project = *m_editor.getProject();
-		for (Entity entity = project.getFirstEntity(); entity.isValid(); entity = project.getNextEntity(entity))
+		for (GameObject gameobject = project.getFirstGameObject(); gameobject.isValid(); gameobject = project.getNextGameObject(gameobject))
 		{
-			createIcon(entity);
+			createIcon(gameobject);
 		}
 	}
 
@@ -190,15 +190,15 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 	{
 		Hit hit;
 		hit.t = -1;
-		hit.entity = INVALID_ENTITY;
+		hit.gameobject = INVALID_GAMEOBJECT;
 
 		auto* render_interface = m_editor.getRenderInterface();
 		if(!render_interface) return hit;
 
 		const auto& project = *m_editor.getProject();
-		Entity camera = m_editor.getEditCamera().entity;
+		GameObject camera = m_editor.getEditCamera().gameobject;
 		if (!camera.isValid()) return hit;
-		Matrix camera_mtx = project.getMatrix(m_editor.getEditCamera().entity);
+		Matrix camera_mtx = project.getMatrix(m_editor.getEditCamera().gameobject);
 		bool is_ortho = render_interface->isCameraOrtho(camera);
 		float ortho_size = render_interface->getCameraOrthoSize(camera);
 
@@ -210,7 +210,7 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 			if(t >= 0 && (t < hit.t || hit.t < 0))
 			{
 				hit.t = t;
-				hit.entity = icon.entity;
+				hit.gameobject = icon.gameobject;
 			}
 		}
 
@@ -256,12 +256,12 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 		Matrix ret;
 		if (m_is_3d[(int)icon.type])
 		{
-			ret = m_editor.getProject()->getMatrix(icon.entity);
+			ret = m_editor.getProject()->getMatrix(icon.gameobject);
 		}
 		else
 		{
 			ret = camera_matrix;
-			ret.setTranslation(m_editor.getProject()->getPosition(icon.entity));
+			ret.setTranslation(m_editor.getProject()->getPosition(icon.gameobject));
 		}
 		if (is_ortho)
 		{
@@ -284,9 +284,9 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 		if(!render_interface) return;
 
 		const auto& project = *m_editor.getProject();
-		Entity camera = m_editor.getEditCamera().entity;
+		GameObject camera = m_editor.getEditCamera().gameobject;
 		if (!camera.isValid()) return;
-		Matrix camera_mtx = project.getMatrix(m_editor.getEditCamera().entity);
+		Matrix camera_mtx = project.getMatrix(m_editor.getEditCamera().gameobject);
 		Vec3 camera_pos = camera_mtx.getTranslation();
 		float fov = m_editor.getRenderInterface()->getCameraFOV(camera);
 		bool is_ortho = m_editor.getRenderInterface()->isCameraOrtho(camera);
@@ -294,7 +294,7 @@ struct EditorIconsImpl MALMY_FINAL : public EditorIcons
 
 		for(auto& icon : m_icons)
 		{
-			Vec3 position = project.getPosition(icon.entity);
+			Vec3 position = project.getPosition(icon.gameobject);
 			float distance = (position - camera_pos).length();
 			float scale_factor = MIN_SCALE_FACTOR + distance;
 			scale_factor = Math::clamp(scale_factor, MIN_SCALE_FACTOR, MAX_SCALE_FACTOR);

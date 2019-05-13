@@ -24,7 +24,7 @@ namespace Malmy
 		{
 			return (u16)lua_tointeger(L, index);
 		}
-		template <> inline Entity toType(lua_State* L, int index)
+		template <> inline GameObject toType(lua_State* L, int index)
 		{
 			return { (int)lua_tointeger(L, index) };
 		}
@@ -155,9 +155,9 @@ namespace Malmy
 		{
 			return "number|u16";
 		}
-		template <> inline const char* typeToString<Entity>()
+		template <> inline const char* typeToString<GameObject>()
 		{
-			return "entity";
+			return "gameobject";
 		}
 		template <> inline const char* typeToString<ComponentType>()
 		{
@@ -194,7 +194,7 @@ namespace Malmy
 		{
 			return lua_isinteger(L, index) != 0;
 		}
-		template <> inline bool isType<Entity>(lua_State* L, int index)
+		template <> inline bool isType<GameObject>(lua_State* L, int index)
 		{
 			return lua_isinteger(L, index) != 0;
 		}
@@ -264,7 +264,7 @@ namespace Malmy
 		{
 			lua_pushlightuserdata(L, (T*)value);
 		}
-		template <> inline void push(lua_State* L, Entity value)
+		template <> inline void push(lua_State* L, GameObject value)
 		{
 			lua_pushinteger(L, value.index);
 		}

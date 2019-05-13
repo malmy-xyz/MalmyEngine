@@ -74,7 +74,7 @@ struct PxShapeFlag
 
 		\note This flag has no effect if simulation is disabled for the corresponding actor (see #PxActorFlag::eDISABLE_SIMULATION).
 
-		@see PxSimulationEventCallback.onContact() PxScene.setSimulationEventCallback() PxShape.setFlag(), PxShape.setFlags()
+		@see PxSimulationEventCallback.onCollision() PxScene.setSimulationEventCallback() PxShape.setFlag(), PxShape.setFlags()
 		*/
 		eSIMULATION_SHAPE				= (1<<0),
 
@@ -317,7 +317,7 @@ public:
 	/**
 	\brief Sets the pose of the shape in actor space, i.e. relative to the actors to which they are attached.
 	
-	This transformation is identity by default.
+	This transformation is idgameobject by default.
 
 	The local pose is an attribute of the shape, and so will apply to all actors to which the shape is attached.
 
@@ -326,7 +326,7 @@ public:
 	<i>Note:</i> Does not automatically update the inertia properties of the owning actor (if applicable); use the
 	PhysX extensions method #PxRigidBodyExt::updateMassAndInertia() to do this.
 
-	<b>Default:</b> the identity transform
+	<b>Default:</b> the idgameobject transform
 
 	\param[in] pose	The new transform from the actor frame to the shape frame. <b>Range:</b> rigid body transform
 
@@ -337,7 +337,7 @@ public:
 	/**
 	\brief Retrieves the pose of the shape in actor space, i.e. relative to the actor they are owned by.
 
-	This transformation is identity by default.
+	This transformation is idgameobject by default.
 
 	\return Pose of shape relative to the actor's frame.
 

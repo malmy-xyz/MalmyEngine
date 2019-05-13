@@ -928,7 +928,7 @@ GLAPI void GLAPIENTRY glPushMatrix( void );
 
 GLAPI void GLAPIENTRY glPopMatrix( void );
 
-GLAPI void GLAPIENTRY glLoadIdentity( void );
+GLAPI void GLAPIENTRY glLoadIdgameobject( void );
 
 GLAPI void GLAPIENTRY glLoadMatrixd( const GLdouble *m );
 GLAPI void GLAPIENTRY glLoadMatrixf( const GLfloat *m );

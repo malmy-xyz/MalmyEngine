@@ -351,8 +351,8 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 
 	explicit ModelPlugin(StudioApp& app)
 		: m_app(app)
-		, m_camera_entity(INVALID_ENTITY)
-		, m_mesh(INVALID_ENTITY)
+		, m_camera_gameobject(INVALID_GAMEOBJECT)
+		, m_mesh(INVALID_GAMEOBJECT)
 		, m_pipeline(nullptr)
 		, m_project(nullptr)
 		, m_is_mouse_captured(false)
@@ -475,16 +475,16 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 
 		Matrix mtx;
 		mtx.lookAt({10, 10, 10}, Vec3::ZERO, {0, 1, 0});
-		Entity light_entity = m_tile.project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
-		m_tile.project->setMatrix(light_entity, mtx);
+		GameObject light_gameobject = m_tile.project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		m_tile.project->setMatrix(light_gameobject, mtx);
 		RenderScene* render_scene = (RenderScene*)m_tile.project->getScene(MODEL_INSTANCE_TYPE);
-		m_tile.project->createComponent(GLOBAL_LIGHT_TYPE, light_entity);
-		render_scene->setGlobalLightIntensity(light_entity, 1);
-		render_scene->setGlobalLightIndirectIntensity(light_entity, 1);
+		m_tile.project->createComponent(GLOBAL_LIGHT_TYPE, light_gameobject);
+		render_scene->setGlobalLightIntensity(light_gameobject, 1);
+		render_scene->setGlobalLightIndirectIntensity(light_gameobject, 1);
 
-		m_tile.camera_entity = m_tile.project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
-		m_tile.project->createComponent(CAMERA_TYPE, m_tile.camera_entity);
-		render_scene->setCameraSlot(m_tile.camera_entity, "editor");
+		m_tile.camera_gameobject = m_tile.project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		m_tile.project->createComponent(CAMERA_TYPE, m_tile.camera_gameobject);
+		render_scene->setCameraSlot(m_tile.camera_gameobject, "editor");
 
 		m_tile.pipeline->setScene(render_scene);
 	}
@@ -498,18 +498,18 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		m_pipeline = Pipeline::create(*renderer, Path("pipelines/main.lua"), "", engine.getAllocator());
 		m_pipeline->load();
 
-		auto mesh_entity = m_project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		auto mesh_gameobject = m_project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
 		auto* render_scene = static_cast<RenderScene*>(m_project->getScene(MODEL_INSTANCE_TYPE));
-		m_mesh = mesh_entity;
-		m_project->createComponent(MODEL_INSTANCE_TYPE, mesh_entity);
+		m_mesh = mesh_gameobject;
+		m_project->createComponent(MODEL_INSTANCE_TYPE, mesh_gameobject);
 
-		auto light_entity = m_project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
-		m_project->createComponent(GLOBAL_LIGHT_TYPE, light_entity);
-		render_scene->setGlobalLightIntensity(light_entity, 1);
+		auto light_gameobject = m_project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		m_project->createComponent(GLOBAL_LIGHT_TYPE, light_gameobject);
+		render_scene->setGlobalLightIntensity(light_gameobject, 1);
 
-		m_camera_entity = m_project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
-		m_project->createComponent(CAMERA_TYPE, m_camera_entity);
-		render_scene->setCameraSlot(m_camera_entity, "editor");
+		m_camera_gameobject = m_project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		m_project->createComponent(CAMERA_TYPE, m_camera_gameobject);
+		render_scene->setCameraSlot(m_camera_gameobject, "editor");
 
 		m_pipeline->setScene(render_scene);
 	}
@@ -532,7 +532,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 			
 			mtx.lookAt(eye, center, Vec3(-1, 1, -1).normalized());
 			mtx.inverse();
-			m_project->setMatrix(m_camera_entity, mtx);
+			m_project->setMatrix(m_camera_gameobject, mtx);
 		}
 		ImVec2 image_size(ImGui::GetContentRegionAvailWidth(), ImGui::GetContentRegionAvailWidth());
 
@@ -555,7 +555,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		{
 			if (ImGui::Selectable("Save preview"))
 			{
-				Matrix mtx = m_project->getMatrix(m_camera_entity);
+				Matrix mtx = m_project->getMatrix(m_camera_gameobject);
 				model.getResourceManager().load(model);
 				renderTile(&model, &mtx);
 			}
@@ -577,8 +577,8 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 			if (delta.x != 0 || delta.y != 0)
 			{
 				const Vec2 MOUSE_SENSITIVITY(50, 50);
-				Vec3 pos = m_project->getPosition(m_camera_entity);
-				Quat rot = m_project->getRotation(m_camera_entity);
+				Vec3 pos = m_project->getPosition(m_camera_gameobject);
+				Quat rot = m_project->getRotation(m_camera_gameobject);
 
 				float yaw = -Math::signum(delta.x) * (Math::pow(Math::abs((float)delta.x / MOUSE_SENSITIVITY.x), 1.2f));
 				Quat yaw_rot(Vec3(0, 1, 0), yaw);
@@ -598,8 +598,8 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 				float dist = (origin - pos).length();
 				pos = origin + dir * dist;
 
-				m_project->setRotation(m_camera_entity, rot);
-				m_project->setPosition(m_camera_entity, pos);
+				m_project->setRotation(m_camera_gameobject, rot);
+				m_project->setPosition(m_camera_gameobject, pos);
 			}
 
 		}
@@ -781,7 +781,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 			return;
 		}
 
-		if (m_tile.m_entity_in_fly.isValid()) return;
+		if (m_tile.m_gameobject_in_fly.isValid()) return;
 		if (m_tile.queue.empty()) return;
 
 		Resource* resource = m_tile.queue.front();
@@ -819,17 +819,17 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		Renderer* renderer = (Renderer*)engine.getPluginManager().getPlugin("renderer");
 		if (!renderer) return;
 
-		Entity mesh_entity = m_tile.project->instantiatePrefab(*prefab, Vec3::ZERO, Quat::IDENTITY, 1);
-		if (!mesh_entity.isValid()) return;
+		GameObject mesh_gameobject = m_tile.project->instantiatePrefab(*prefab, Vec3::ZERO, Quat::IDGAMEOBJECT, 1);
+		if (!mesh_gameobject.isValid()) return;
 
-		if (!render_scene->getProject().hasComponent(mesh_entity, MODEL_INSTANCE_TYPE)) return;
+		if (!render_scene->getProject().hasComponent(mesh_gameobject, MODEL_INSTANCE_TYPE)) return;
 
-		Model* model = render_scene->getModelInstanceModel(mesh_entity);
+		Model* model = render_scene->getModelInstanceModel(mesh_gameobject);
 		if (!model) return;
 
 		m_tile.path_hash = prefab->getPath().getHash();
 		prefab->getResourceManager().unload(*prefab);
-		m_tile.m_entity_in_fly = mesh_entity;
+		m_tile.m_gameobject_in_fly = mesh_gameobject;
 		model->onLoaded<ModelPlugin, &ModelPlugin::renderPrefabSecondStage>(this);
 	}
 
@@ -854,7 +854,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		Vec3 eye = center + Vec3(1, 1, 1) * (aabb.max - aabb.min).length() / Math::SQRT2;
 		mtx.lookAt(eye, center, Vec3(-1, 1, -1).normalized());
 		mtx.inverse();
-		m_tile.project->setMatrix(m_tile.camera_entity, mtx);
+		m_tile.project->setMatrix(m_tile.camera_gameobject, mtx);
 
 		m_tile.pipeline->resize(AssetBrowser::TILE_SIZE, AssetBrowser::TILE_SIZE);
 		m_tile.pipeline->render();
@@ -872,10 +872,10 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		m_tile.data.resize(AssetBrowser::TILE_SIZE * AssetBrowser::TILE_SIZE * 4);
 		bgfx::readTexture(m_tile.texture, &m_tile.data[0]);
 		bgfx::touch(renderer->getViewCounter());
-		m_tile.project->destroyEntity(m_tile.m_entity_in_fly);
+		m_tile.project->destroyGameObject(m_tile.m_gameobject_in_fly);
 
 		m_tile.frame_countdown = 2;
-		m_tile.m_entity_in_fly = INVALID_ENTITY;
+		m_tile.m_gameobject_in_fly = INVALID_GAMEOBJECT;
 	}
 
 
@@ -888,10 +888,10 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		Renderer* renderer = (Renderer*)engine.getPluginManager().getPlugin("renderer");
 		if (!renderer) return;
 
-		Entity mesh_entity = m_tile.project->createEntity({ 0, 0, 0 }, { 0, 0, 0, 1 });
-		m_tile.project->createComponent(MODEL_INSTANCE_TYPE, mesh_entity);
+		GameObject mesh_gameobject = m_tile.project->createGameObject({ 0, 0, 0 }, { 0, 0, 0, 1 });
+		m_tile.project->createComponent(MODEL_INSTANCE_TYPE, mesh_gameobject);
 
-		render_scene->setModelInstancePath(mesh_entity, model->getPath());
+		render_scene->setModelInstancePath(mesh_gameobject, model->getPath());
 		AABB aabb = model->getAABB();
 
 		Matrix mtx;
@@ -903,7 +903,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		{
 			mtx = *in_mtx;
 		}
-		m_tile.project->setMatrix(m_tile.camera_entity, mtx);
+		m_tile.project->setMatrix(m_tile.camera_gameobject, mtx);
 
 		m_tile.pipeline->resize(AssetBrowser::TILE_SIZE, AssetBrowser::TILE_SIZE);
 		m_tile.pipeline->render();
@@ -921,7 +921,7 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 		m_tile.data.resize(AssetBrowser::TILE_SIZE * AssetBrowser::TILE_SIZE * 4);
 		bgfx::readTexture(m_tile.texture, &m_tile.data[0]);
 		bgfx::touch(renderer->getViewCounter());
-		m_tile.project->destroyEntity(mesh_entity);
+		m_tile.project->destroyGameObject(mesh_gameobject);
 
 		m_tile.frame_countdown = 2;
 		m_tile.path_hash = model->getPath().getHash();
@@ -966,8 +966,8 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 
 		Project* project = nullptr;
 		Pipeline* pipeline = nullptr;
-		Entity m_entity_in_fly = INVALID_ENTITY;
-		Entity camera_entity = INVALID_ENTITY;
+		GameObject m_gameobject_in_fly = INVALID_GAMEOBJECT;
+		GameObject camera_gameobject = INVALID_GAMEOBJECT;
 		int frame_countdown = -1;
 		u32 path_hash;
 		Array<u8> data;
@@ -980,8 +980,8 @@ struct ModelPlugin MALMY_FINAL : public AssetBrowser::IPlugin
 	StudioApp& m_app;
 	Project* m_project;
 	Pipeline* m_pipeline;
-	Entity m_mesh;
-	Entity m_camera_entity;
+	GameObject m_mesh;
+	GameObject m_camera_gameobject;
 	bool m_is_mouse_captured;
 	int m_captured_mouse_x;
 	int m_captured_mouse_y;
@@ -1217,7 +1217,7 @@ struct EnvironmentProbePlugin MALMY_FINAL : public PropertyGrid::IPlugin
 		{
 			g_log_error.log("Editor") << "Failed to create " << path;
 		}
-		u64 probe_guid = ((RenderScene*)cmp.scene)->getEnvironmentProbeGUID(cmp.entity);
+		u64 probe_guid = ((RenderScene*)cmp.scene)->getEnvironmentProbeGUID(cmp.gameobject);
 		path << probe_guid << postfix << ".dds";
 		if (!file.open(path, FS::Mode::CREATE_AND_WRITE))
 		{
@@ -1278,16 +1278,16 @@ struct EnvironmentProbePlugin MALMY_FINAL : public PropertyGrid::IPlugin
 		auto& plugin_manager = engine.getPluginManager();
 		IAllocator& allocator = engine.getAllocator();
 
-		Vec3 probe_position = project->getPosition(cmp.entity);
+		Vec3 probe_position = project->getPosition(cmp.gameobject);
 		auto* scene = static_cast<RenderScene*>(project->getScene(CAMERA_TYPE));
-		Entity camera_entity = scene->getCameraInSlot("probe");
-		if (!camera_entity.isValid())
+		GameObject camera_gameobject = scene->getCameraInSlot("probe");
+		if (!camera_gameobject.isValid())
 		{
 			g_log_error.log("Renderer") << "No camera in slot 'probe'.";
 			return;
 		}
 
-		scene->setCameraFOV(camera_entity, Math::degreesToRadians(90));
+		scene->setCameraFOV(camera_gameobject, Math::degreesToRadians(90));
 
 		m_pipeline->setScene(scene);
 		m_pipeline->resize(TEXTURE_SIZE, TEXTURE_SIZE);
@@ -1307,14 +1307,14 @@ struct EnvironmentProbePlugin MALMY_FINAL : public PropertyGrid::IPlugin
 
 		for (int i = 0; i < 6; ++i)
 		{
-			Matrix mtx = Matrix::IDENTITY;
+			Matrix mtx = Matrix::IDGAMEOBJECT;
 			mtx.setTranslation(probe_position);
 			bool ndc_bottom_left = bgfx::getCaps()->originBottomLeft;
 			Vec3 side = crossProduct(ndc_bottom_left ? ups_opengl[i] : ups[i], dirs[i]);
 			mtx.setZVector(dirs[i]);
 			mtx.setYVector(ndc_bottom_left ? ups_opengl[i] : ups[i]);
 			mtx.setXVector(side);
-			project->setMatrix(camera_entity, mtx);
+			project->setMatrix(camera_gameobject, mtx);
 			m_pipeline->render();
 
 			renderer->viewCounterAdd();
@@ -1374,22 +1374,22 @@ struct EnvironmentProbePlugin MALMY_FINAL : public PropertyGrid::IPlugin
 		int radiance_size = 128;
 		int reflection_size = TEXTURE_SIZE;
 
-		if (scene->isEnvironmentProbeCustomSize(cmp.entity))
+		if (scene->isEnvironmentProbeCustomSize(cmp.gameobject))
 		{
-			irradiance_size = scene->getEnvironmentProbeIrradianceSize(cmp.entity);
-			radiance_size = scene->getEnvironmentProbeRadianceSize(cmp.entity);
-			reflection_size = scene->getEnvironmentProbeReflectionSize(cmp.entity);
+			irradiance_size = scene->getEnvironmentProbeIrradianceSize(cmp.gameobject);
+			radiance_size = scene->getEnvironmentProbeRadianceSize(cmp.gameobject);
+			reflection_size = scene->getEnvironmentProbeReflectionSize(cmp.gameobject);
 		}
 
 		saveCubemap(cmp, (u8*)irradiance.m_data, irradiance_size, "_irradiance");
 		saveCubemap(cmp, (u8*)image.m_data, radiance_size, "_radiance");
-		if (scene->isEnvironmentProbeReflectionEnabled(cmp.entity))
+		if (scene->isEnvironmentProbeReflectionEnabled(cmp.gameobject))
 		{
 			saveCubemap(cmp, &data[0], reflection_size, "");
 		}
 		bgfx::destroy(texture);
 		
-		scene->reloadEnvironmentProbe(cmp.entity);
+		scene->reloadEnvironmentProbe(cmp.gameobject);
 	}
 
 
@@ -1398,19 +1398,19 @@ struct EnvironmentProbePlugin MALMY_FINAL : public PropertyGrid::IPlugin
 		if (cmp.type != ENVIRONMENT_PROBE_TYPE) return;
 
 		auto* scene = static_cast<RenderScene*>(cmp.scene);
-		auto* texture = scene->getEnvironmentProbeTexture(cmp.entity);
+		auto* texture = scene->getEnvironmentProbeTexture(cmp.gameobject);
 		if (texture)
 		{
 			ImGui::LabelText("Reflection path", "%s", texture->getPath().c_str());
 			if (ImGui::Button("View reflection")) m_app.getAssetBrowser().selectResource(texture->getPath(), true);
 		}
-		texture = scene->getEnvironmentProbeIrradiance(cmp.entity);
+		texture = scene->getEnvironmentProbeIrradiance(cmp.gameobject);
 		if (texture)
 		{
 			ImGui::LabelText("Irradiance path", "%s", texture->getPath().c_str());
 			if (ImGui::Button("View irradiance")) m_app.getAssetBrowser().selectResource(texture->getPath(), true);
 		}
-		texture = scene->getEnvironmentProbeRadiance(cmp.entity);
+		texture = scene->getEnvironmentProbeRadiance(cmp.gameobject);
 		if (texture)
 		{
 			ImGui::LabelText("Radiance path", "%s", texture->getPath().c_str());
@@ -1445,14 +1445,14 @@ struct EmitterPlugin MALMY_FINAL : public PropertyGrid::IPlugin
 		ImGui::Checkbox("Update", &m_particle_emitter_updating);
 		auto* scene = static_cast<RenderScene*>(cmp.scene);
 		ImGui::SameLine();
-		if (ImGui::Button("Reset")) scene->resetParticleEmitter(cmp.entity);
+		if (ImGui::Button("Reset")) scene->resetParticleEmitter(cmp.gameobject);
 
 		if (m_particle_emitter_updating)
 		{
 			ImGui::DragFloat("Timescale", &m_particle_emitter_timescale, 0.01f, 0.01f, 10000.0f);
 			float time_delta = m_app.getWorldEditor().getEngine().getLastTimeDelta();
-			scene->updateEmitter(cmp.entity, time_delta * m_particle_emitter_timescale);
-			scene->getParticleEmitter(cmp.entity)->drawGizmo(m_app.getWorldEditor(), *scene);
+			scene->updateEmitter(cmp.gameobject, time_delta * m_particle_emitter_timescale);
+			scene->getParticleEmitter(cmp.gameobject)->drawGizmo(m_app.getWorldEditor(), *scene);
 		}
 	}
 
@@ -1515,7 +1515,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 		if (!model_instance.isValid()) return;
 
 		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
-		Model* model = scene->getModelInstanceModel(model_instance.entity);
+		Model* model = scene->getModelInstanceModel(model_instance.gameobject);
 
 		if (!model || !model->isReady()) return;
 
@@ -1561,7 +1561,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 		if (!model_instance.isValid()) return;
 
 		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
-		Model* model = scene->getModelInstanceModel(model_instance.entity);
+		Model* model = scene->getModelInstanceModel(model_instance.gameobject);
 
 		if (!model || !model->isReady() || model->getMeshCount() < 1) return;
 		if (!model->getMesh(0).material) return;
@@ -1832,10 +1832,10 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 
 	bool onMouseDown(const WorldEditor::RayHit& hit, int x, int y) override
 	{
-		if (!hit.entity.isValid()) return false;
+		if (!hit.gameobject.isValid()) return false;
 		auto& ents = app.getWorldEditor().getSelectedEntities();
 		
-		if (enabled && ents.size() == 1 && ents[0] == hit.entity)
+		if (enabled && ents.size() == 1 && ents[0] == hit.gameobject)
 		{
 			onMouseMove(x, y, 0, 0);
 			return true;
@@ -1856,7 +1856,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 		if (!model_instance.isValid()) return;
 
 		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
-		Model* model = scene->getModelInstanceModel(model_instance.entity);
+		Model* model = scene->getModelInstanceModel(model_instance.gameobject);
 
 		if (!model || !model->isReady() || model->getMeshCount() < 1) return;
 		if (!model->getMesh(0).material) return;
@@ -1864,15 +1864,15 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 		Texture* texture = model->getMesh(0).material->getTexture(0);
 		if (!texture || texture->data.empty()) return;
 
-		const Pose* pose = scene->lockPose(model_instance.entity);
+		const Pose* pose = scene->lockPose(model_instance.gameobject);
 		if (!pose) return;
 
 		Vec3 origin, dir;
-		scene->getRay(editor.getEditCamera().entity, {(float)x, (float)y}, origin, dir);
+		scene->getRay(editor.getEditCamera().gameobject, {(float)x, (float)y}, origin, dir);
 		RayCastModelHit hit = model->castRay(origin, dir, project->getMatrix(entities[0]), pose);
 		if (!hit.m_is_hit)
 		{
-			scene->unlockPose(model_instance.entity, false);
+			scene->unlockPose(model_instance.gameobject, false);
 			return;
 		}
 
@@ -1880,7 +1880,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 		hit_pos = project->getTransform(entities[0]).inverted().transform(hit_pos);
 
 		paint(texture, model, hit_pos);
-		scene->unlockPose(model_instance.entity, false);
+		scene->unlockPose(model_instance.gameobject, false);
 	}
 
 
@@ -1931,7 +1931,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 //			const auto& entities = editor.getSelectedEntities();
 //			if (entities.empty())
 //			{
-//				ImGui::Text("No entity selected.");
+//				ImGui::Text("No gameobject selected.");
 //				goto end;
 //			}
 //			Project* project = editor.getProject();
@@ -1940,14 +1940,14 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 //
 //			if (!model_instance.isValid())
 //			{
-//				ImGui::Text("Entity does not have model_instance component.");
+//				ImGui::Text("GameObject does not have model_instance component.");
 //				goto end;
 //			}
 //
-//			Model* model = scene->getModelInstanceModel(model_instance.entity);
+//			Model* model = scene->getModelInstanceModel(model_instance.gameobject);
 //			if (!model)
 //			{
-//				ImGui::Text("Entity does not have model.");
+//				ImGui::Text("GameObject does not have model.");
 //				goto end;
 //			}
 //
@@ -2014,7 +2014,7 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 //		if (!model_instance.isValid()) return;
 //
 //		RenderScene* scene = static_cast<RenderScene*>(model_instance.scene);
-//		Model* model = scene->getModelInstanceModel(model_instance.entity);
+//		Model* model = scene->getModelInstanceModel(model_instance.gameobject);
 //
 //		if (!model || !model->isReady() || model->getMeshCount() < 1) return;
 //		if (!model->getMesh(0).material) return;
@@ -2022,21 +2022,21 @@ struct FurPainter MALMY_FINAL : public WorldEditor::Plugin
 //		Texture* texture = model->getMesh(0).material->getTexture(0);
 //		if (!texture || texture->data.empty()) return;
 //
-//		const Pose* pose = scene->lockPose(model_instance.entity);
+//		const Pose* pose = scene->lockPose(model_instance.gameobject);
 //		if (!pose) return;
 //
 //		Vec3 origin, dir;
-//		scene->getRay(editor.getEditCamera().entity, editor.getMousePos(), origin, dir);
+//		scene->getRay(editor.getEditCamera().gameobject, editor.getMousePos(), origin, dir);
 //		RayCastModelHit hit = model->castRay(origin, dir, editor.getProject()->getMatrix(entities[0]), pose);
 //		if (!hit.m_is_hit)
 //		{
-//			scene->unlockPose(model_instance.entity, false);
+//			scene->unlockPose(model_instance.gameobject, false);
 //			return;
 //		}
 //
 //		Vec3 hit_pos = hit.m_origin + hit.m_t * hit.m_dir;
 //		scene->addDebugSphere(hit_pos, fur_painter->brush_radius, 0xffffFFFF, 0);
-//		scene->unlockPose(model_instance.entity, false);
+//		scene->unlockPose(model_instance.gameobject, false);
 //	}
 //
 //
@@ -2094,16 +2094,16 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	Vec3 getClosestVertex(Project* project, Entity entity, const Vec3& wpos) override
+	Vec3 getClosestVertex(Project* project, GameObject gameobject, const Vec3& wpos) override
 	{
-		Matrix mtx = project->getMatrix(entity);
+		Matrix mtx = project->getMatrix(gameobject);
 		Matrix inv_mtx = mtx;
 		inv_mtx.inverse();
 		Vec3 lpos = inv_mtx.transformPoint(wpos);
 		auto* scene = (RenderScene*)project->getScene(MODEL_INSTANCE_TYPE);
-		if (!project->hasComponent(entity, MODEL_INSTANCE_TYPE)) return wpos;
+		if (!project->hasComponent(gameobject, MODEL_INSTANCE_TYPE)) return wpos;
 
-		Model* model = scene->getModelInstanceModel(entity);
+		Model* model = scene->getModelInstanceModel(gameobject);
 		
 		float min_dist_squared = FLT_MAX;
 		Vec3 closest_vertex = lpos;
@@ -2247,15 +2247,15 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	WorldEditor::RayHit castRay(const Vec3& origin, const Vec3& dir, Entity ignored) override
+	WorldEditor::RayHit castRay(const Vec3& origin, const Vec3& dir, GameObject ignored) override
 	{
 		auto hit = m_render_scene->castRay(origin, dir, ignored);
 
-		return{ hit.m_is_hit, hit.m_t, hit.m_entity, hit.m_origin + hit.m_dir * hit.m_t };
+		return{ hit.m_is_hit, hit.m_t, hit.m_gameobject, hit.m_origin + hit.m_dir * hit.m_t };
 	}
 
 
-	void getRay(Entity camera, const Vec2& screen_pos, Vec3& origin, Vec3& dir) override
+	void getRay(GameObject camera, const Vec2& screen_pos, Vec3& origin, Vec3& dir) override
 	{
 		m_render_scene->getRay(camera, screen_pos, origin, dir);
 	}
@@ -2273,22 +2273,22 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	AABB getEntityAABB(Project& project, Entity entity) override
+	AABB getGameObjectAABB(Project& project, GameObject gameobject) override
 	{
 		AABB aabb;
 		
-		if (project.hasComponent(entity, MODEL_INSTANCE_TYPE))
+		if (project.hasComponent(gameobject, MODEL_INSTANCE_TYPE))
 		{
-			Model* model = m_render_scene->getModelInstanceModel(entity);
+			Model* model = m_render_scene->getModelInstanceModel(gameobject);
 			if (!model) return aabb;
 
 			aabb = model->getAABB();
-			aabb.transform(project.getMatrix(entity));
+			aabb.transform(project.getMatrix(gameobject));
 
 			return aabb;
 		}
 
-		Vec3 pos = project.getPosition(entity);
+		Vec3 pos = project.getPosition(gameobject);
 		aabb.set(pos, pos);
 
 		return aabb;
@@ -2303,39 +2303,39 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	void setCameraSlot(Entity entity, const char* slot) override
+	void setCameraSlot(GameObject gameobject, const char* slot) override
 	{
-		m_render_scene->setCameraSlot(entity, slot);
+		m_render_scene->setCameraSlot(gameobject, slot);
 	}
 
 
-	Entity getCameraInSlot(const char* slot) override
+	GameObject getCameraInSlot(const char* slot) override
 	{
 		return m_render_scene->getCameraInSlot(slot);
 	}
 
 
-	Vec2 getCameraScreenSize(Entity entity) override
+	Vec2 getCameraScreenSize(GameObject gameobject) override
 	{
-		return m_render_scene->getCameraScreenSize(entity);
+		return m_render_scene->getCameraScreenSize(gameobject);
 	}
 
 
-	float getCameraOrthoSize(Entity entity) override
+	float getCameraOrthoSize(GameObject gameobject) override
 	{
-		return m_render_scene->getCameraOrthoSize(entity);
+		return m_render_scene->getCameraOrthoSize(gameobject);
 	}
 
 
-	bool isCameraOrtho(Entity entity) override
+	bool isCameraOrtho(GameObject gameobject) override
 	{
-		return m_render_scene->isCameraOrtho(entity);
+		return m_render_scene->isCameraOrtho(gameobject);
 	}
 
 
-	float getCameraFOV(Entity entity) override
+	float getCameraFOV(GameObject gameobject) override
 	{
-		return m_render_scene->getCameraFOV(entity);
+		return m_render_scene->getCameraFOV(gameobject);
 	}
 
 
@@ -2366,18 +2366,18 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	Vec3 getModelCenter(Entity entity) override
+	Vec3 getModelCenter(GameObject gameobject) override
 	{
-		if (!m_render_scene->getProject().hasComponent(entity, MODEL_INSTANCE_TYPE)) return Vec3::ZERO;
-		Model* model = m_render_scene->getModelInstanceModel(entity);
+		if (!m_render_scene->getProject().hasComponent(gameobject, MODEL_INSTANCE_TYPE)) return Vec3::ZERO;
+		Model* model = m_render_scene->getModelInstanceModel(gameobject);
 		if (!model) return Vec3(0, 0, 0);
 		return (model->getAABB().min + model->getAABB().max) * 0.5f;
 	}
 
 
-	Path getModelInstancePath(Entity entity) override
+	Path getModelInstancePath(GameObject gameobject) override
 	{
-		return m_render_scene->getModelInstancePath(entity);
+		return m_render_scene->getModelInstancePath(gameobject);
 	}
 
 
@@ -2415,7 +2415,7 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 
 	Vec2 worldToScreenPixels(const Vec3& world) override
 	{
-		Entity camera = m_pipeline.getAppliedCamera();
+		GameObject camera = m_pipeline.getAppliedCamera();
 		Matrix mtx = m_render_scene->getCameraViewProjection(camera);
 		Vec4 pos = mtx * Vec4(world, 1);
 		float inv = 1 / pos.w;
@@ -2425,13 +2425,13 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 	}
 
 
-	Frustum getFrustum(Entity camera, const Vec2& viewport_min, const Vec2& viewport_max) override
+	Frustum getFrustum(GameObject camera, const Vec2& viewport_min, const Vec2& viewport_max) override
 	{
 		return m_render_scene->getCameraFrustum(camera, viewport_min, viewport_max);
 	}
 
 
-	void getModelInstaces(Array<Entity>& entities, const Frustum& frustum, const Vec3& lod_ref_point, Entity camera) override
+	void getModelInstaces(Array<GameObject>& entities, const Frustum& frustum, const Vec3& lod_ref_point, GameObject camera) override
 	{
 		Array<Array<MeshInstance>>& res = m_render_scene->getModelInstanceInfos(frustum, lod_ref_point, camera, ~0ULL);
 		for (auto& sub : res)
@@ -2457,73 +2457,73 @@ struct RenderInterfaceImpl MALMY_FINAL : public RenderInterface
 };
 
 
-
-struct RenderStatsPlugin MALMY_FINAL : public StudioApp::GUIPlugin
-{
-	explicit RenderStatsPlugin(StudioApp& app)
-	{
-		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Render Stats", "Toggle render stats", "render_stats");
-		action->func.bind<RenderStatsPlugin, &RenderStatsPlugin::onAction>(this);
-		action->is_selected.bind<RenderStatsPlugin, &RenderStatsPlugin::isOpen>(this);
-		app.addWindowAction(action);
-	}
-
-
-	const char* getName() const override
-	{
-		return "render_stats";
-	}
-
-
-	void onWindowGUI() override
-	{
-		double total_cpu = 0;
-		double total_gpu = 0;
-		if (ImGui::BeginDock("Renderer Stats", &m_is_open))
-		{
-			ImGui::Columns(3);
-			ImGui::Text("%s", "View name");
-			ImGui::NextColumn();
-			ImGui::Text("%s", "GPU time (ms)");
-			ImGui::NextColumn();
-			ImGui::Text("%s", "CPU time (ms)");
-			ImGui::NextColumn();
-			ImGui::Separator();
-			const bgfx::Stats* stats = bgfx::getStats();
-			for (int i = 0; i < stats->numViews; ++i)
-			{
-				auto& view_stat = stats->viewStats[i];
-				ImGui::Text("%s", view_stat.name);
-				ImGui::NextColumn();
-				double gpu_time = 1000.0f * view_stat.gpuTimeElapsed / (double)stats->gpuTimerFreq;
-				ImGui::Text("%f", gpu_time);
-				ImGui::NextColumn();
-				double cpu_time = 1000.0f * view_stat.cpuTimeElapsed / (double)stats->cpuTimerFreq;
-				ImGui::Text("%f", cpu_time);
-				ImGui::NextColumn();
-				total_cpu += cpu_time;
-				total_gpu += gpu_time;
-			}
-			ImGui::Separator();
-			ImGui::Text("%s", "Total");
-			ImGui::NextColumn();
-			ImGui::Text("%f", total_gpu);
-			ImGui::NextColumn();
-			ImGui::Text("%f", total_cpu);
-			ImGui::NextColumn();
-			ImGui::Columns();
-		}
-		ImGui::EndDock();
-	}
-
-	
-	bool isOpen() const { return m_is_open; }
-	void onAction() { m_is_open = !m_is_open; }
-
-
-	bool m_is_open = false;
-};
-
+//
+//struct RenderStatsPlugin MALMY_FINAL : public StudioApp::GUIPlugin
+//{
+//	explicit RenderStatsPlugin(StudioApp& app)
+//	{
+//		Action* action = MALMY_NEW(app.getWorldEditor().getAllocator(), Action)("Render Stats", "Toggle render stats", "render_stats");
+//		action->func.bind<RenderStatsPlugin, &RenderStatsPlugin::onAction>(this);
+//		action->is_selected.bind<RenderStatsPlugin, &RenderStatsPlugin::isOpen>(this);
+//		app.addWindowAction(action);
+//	}
+//
+//
+//	const char* getName() const override
+//	{
+//		return "render_stats";
+//	}
+//
+//
+//	void onWindowGUI() override
+//	{
+//		double total_cpu = 0;
+//		double total_gpu = 0;
+//		if (ImGui::BeginDock("Renderer Stats", &m_is_open))
+//		{
+//			ImGui::Columns(3);
+//			ImGui::Text("%s", "View name");
+//			ImGui::NextColumn();
+//			ImGui::Text("%s", "GPU time (ms)");
+//			ImGui::NextColumn();
+//			ImGui::Text("%s", "CPU time (ms)");
+//			ImGui::NextColumn();
+//			ImGui::Separator();
+//			const bgfx::Stats* stats = bgfx::getStats();
+//			for (int i = 0; i < stats->numViews; ++i)
+//			{
+//				auto& view_stat = stats->viewStats[i];
+//				ImGui::Text("%s", view_stat.name);
+//				ImGui::NextColumn();
+//				double gpu_time = 1000.0f * view_stat.gpuTimeElapsed / (double)stats->gpuTimerFreq;
+//				ImGui::Text("%f", gpu_time);
+//				ImGui::NextColumn();
+//				double cpu_time = 1000.0f * view_stat.cpuTimeElapsed / (double)stats->cpuTimerFreq;
+//				ImGui::Text("%f", cpu_time);
+//				ImGui::NextColumn();
+//				total_cpu += cpu_time;
+//				total_gpu += gpu_time;
+//			}
+//			ImGui::Separator();
+//			ImGui::Text("%s", "Total");
+//			ImGui::NextColumn();
+//			ImGui::Text("%f", total_gpu);
+//			ImGui::NextColumn();
+//			ImGui::Text("%f", total_cpu);
+//			ImGui::NextColumn();
+//			ImGui::Columns();
+//		}
+//		ImGui::EndDock();
+//	}
+//
+//	
+//	bool isOpen() const { return m_is_open; }
+//	void onAction() { m_is_open = !m_is_open; }
+//
+//
+//	bool m_is_open = false;
+//};
+//
 
 struct EditorUIRenderPlugin MALMY_FINAL : public StudioApp::GUIPlugin
 {
@@ -2787,7 +2787,7 @@ struct EditorUIRenderPlugin MALMY_FINAL : public StudioApp::GUIPlugin
 //	ShaderEditor m_shader_editor;
 //};
 
-
+//burasi degiscek cok kucuk gozukuyor
 struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
 {
 	void showPointLightGizmo(ComponentUID light)
@@ -2795,9 +2795,9 @@ struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
 		RenderScene* scene = static_cast<RenderScene*>(light.scene);
 		Project& project = scene->getProject();
 
-		float range = scene->getLightRange(light.entity);
+		float range = scene->getLightRange(light.gameobject);
 
-		Vec3 pos = project.getPosition(light.entity);
+		Vec3 pos = project.getPosition(light.gameobject);
 		scene->addDebugSphere(pos, range, 0xff0000ff, 0);
 	}
 
@@ -2822,11 +2822,11 @@ struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
 	{
 		RenderScene* scene = static_cast<RenderScene*>(light.scene);
 		Project& project = scene->getProject();
-		Vec3 pos = project.getPosition(light.entity);
+		Vec3 pos = project.getPosition(light.gameobject);
 
-		Vec3 dir = project.getRotation(light.entity).rotate(Vec3(0, 0, 1));
-		Vec3 right = project.getRotation(light.entity).rotate(Vec3(1, 0, 0));
-		Vec3 up = project.getRotation(light.entity).rotate(Vec3(0, 1, 0));
+		Vec3 dir = project.getRotation(light.gameobject).rotate(Vec3(0, 0, 1));
+		Vec3 right = project.getRotation(light.gameobject).rotate(Vec3(1, 0, 0));
+		Vec3 up = project.getRotation(light.gameobject).rotate(Vec3(0, 1, 0));
 
 		scene->addDebugLine(pos, pos + dir, 0xff0000ff, 0);
 		scene->addDebugLine(pos + right, pos + dir + right, 0xff0000ff, 0);
@@ -2847,8 +2847,8 @@ struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
 	{
 		RenderScene* scene = static_cast<RenderScene*>(cmp.scene);
 		Project& project = scene->getProject();
-		Vec3 scale = scene->getDecalScale(cmp.entity);
-		Matrix mtx = project.getMatrix(cmp.entity);
+		Vec3 scale = scene->getDecalScale(cmp.gameobject);
+		Matrix mtx = project.getMatrix(cmp.gameobject);
 		scene->addDebugCube(mtx.getTranslation(),
 			mtx.getXVector() * scale.x,
 			mtx.getYVector() * scale.y,
@@ -2862,7 +2862,7 @@ struct GizmoPlugin MALMY_FINAL : public WorldEditor::Plugin
 	{
 		RenderScene* scene = static_cast<RenderScene*>(cmp.scene);
 
-		scene->addDebugFrustum(scene->getCameraFrustum(cmp.entity), 0xffff0000, 0);
+		scene->addDebugFrustum(scene->getCameraFrustum(cmp.gameobject), 0xffff0000, 0);
 	}
 
 
@@ -2953,7 +2953,7 @@ struct AddTerrainComponentPlugin MALMY_FINAL : public StudioApp::IAddComponentPl
 	}
 
 
-	void onGUI(bool create_entity, bool from_filter) override
+	void onGUI(bool create_gameobject, bool from_filter) override
 	{
 		WorldEditor& editor = app.getWorldEditor();
 
@@ -2980,15 +2980,15 @@ struct AddTerrainComponentPlugin MALMY_FINAL : public StudioApp::IAddComponentPl
 		bool create_empty = ImGui::Selectable("Empty", false);
 		if (asset_browser.resourceList(buf, lengthOf(buf), Material::TYPE, 0) || create_empty || new_created)
 		{
-			if (create_entity)
+			if (create_gameobject)
 			{
-				Entity entity = editor.addEntity();
-				editor.selectEntities(&entity, 1, false);
+				GameObject gameobject = editor.addGameObject();
+				editor.selectEntities(&gameobject, 1, false);
 			}
 			if (editor.getSelectedEntities().empty()) return;
-			Entity entity = editor.getSelectedEntities()[0];
+			GameObject gameobject = editor.getSelectedEntities()[0];
 
-			if (!editor.getProject()->hasComponent(entity, TERRAIN_TYPE))
+			if (!editor.getProject()->hasComponent(gameobject, TERRAIN_TYPE))
 			{
 				editor.addComponent(TERRAIN_TYPE);
 			}
@@ -2996,7 +2996,7 @@ struct AddTerrainComponentPlugin MALMY_FINAL : public StudioApp::IAddComponentPl
 			if (!create_empty)
 			{
 				auto* prop = Reflection::getProperty(TERRAIN_TYPE, "Material");
-				editor.setProperty(TERRAIN_TYPE, -1, *prop, &entity, 1, buf, stringLength(buf) + 1);
+				editor.setProperty(TERRAIN_TYPE, -1, *prop, &gameobject, 1, buf, stringLength(buf) + 1);
 			}
 
 			ImGui::CloseCurrentPopup();
@@ -3071,14 +3071,14 @@ struct StudioAppPlugin : StudioApp::IPlugin
 		m_import_asset_dialog = MALMY_NEW(allocator, ImportAssetDialog)(app);
 		m_editor_ui_render_plugin = MALMY_NEW(allocator, EditorUIRenderPlugin)(app, *m_scene_view, *m_game_view);
 		//m_fur_painter_plugin = MALMY_NEW(allocator, FurPainterPlugin)(app);
-		m_render_stats_plugin = MALMY_NEW(allocator, RenderStatsPlugin)(app);
+		//m_render_stats_plugin = MALMY_NEW(allocator, RenderStatsPlugin)(app);
 		//m_shader_editor_plugin = MALMY_NEW(allocator, ShaderEditorPlugin)(app);
 		app.addPlugin(*m_scene_view);
 		app.addPlugin(*m_game_view);
 		app.addPlugin(*m_import_asset_dialog);
 		app.addPlugin(*m_editor_ui_render_plugin);
 		//app.addPlugin(*m_fur_painter_plugin);
-		app.addPlugin(*m_render_stats_plugin);
+		//app.addPlugin(*m_render_stats_plugin);
 		//app.addPlugin(*m_shader_editor_plugin);
 
 		m_gizmo_plugin = MALMY_NEW(allocator, GizmoPlugin)();
@@ -3118,7 +3118,7 @@ struct StudioAppPlugin : StudioApp::IPlugin
 		m_app.removePlugin(*m_import_asset_dialog);
 		m_app.removePlugin(*m_editor_ui_render_plugin);
 		//m_app.removePlugin(*m_fur_painter_plugin);
-		m_app.removePlugin(*m_render_stats_plugin);
+		//m_app.removePlugin(*m_render_stats_plugin);
 		//m_app.removePlugin(*m_shader_editor_plugin);
 
 		MALMY_DELETE(allocator, m_scene_view);
@@ -3126,7 +3126,7 @@ struct StudioAppPlugin : StudioApp::IPlugin
 		MALMY_DELETE(allocator, m_import_asset_dialog);
 		MALMY_DELETE(allocator, m_editor_ui_render_plugin);
 		//MALMY_DELETE(allocator, m_fur_painter_plugin);
-		MALMY_DELETE(allocator, m_render_stats_plugin);
+		//MALMY_DELETE(allocator, m_render_stats_plugin);
 		//MALMY_DELETE(allocator, m_shader_editor_plugin);
 
 		m_app.getWorldEditor().removePlugin(*m_gizmo_plugin);
@@ -3149,7 +3149,7 @@ struct StudioAppPlugin : StudioApp::IPlugin
 	ImportAssetDialog* m_import_asset_dialog;
 	EditorUIRenderPlugin* m_editor_ui_render_plugin;
 	//FurPainterPlugin* m_fur_painter_plugin;
-	RenderStatsPlugin* m_render_stats_plugin;
+	//RenderStatsPlugin* m_render_stats_plugin;
 	//ShaderEditorPlugin* m_shader_editor_plugin;
 	GizmoPlugin* m_gizmo_plugin;
 };

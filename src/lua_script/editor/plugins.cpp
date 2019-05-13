@@ -42,21 +42,21 @@ namespace
 			bool execute() override
 			{
 				auto* scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
-				scr_index = scene->addScript(entity);
+				scr_index = scene->addScript(gameobject);
 				return true;
 			}
 
 			void undo() override
 			{
 				auto* scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
-				scene->removeScript(entity, scr_index);
+				scene->removeScript(gameobject, scr_index);
 			}
 
-			void serialize(JsonSerializer& serializer) override { serializer.serialize("entity", entity); }
+			void serialize(JsonSerializer& serializer) override { serializer.serialize("gameobject", gameobject); }
 
 			void deserialize(JsonDeserializer& serializer) override
 			{
-				serializer.deserialize("entity", entity, INVALID_ENTITY);
+				serializer.deserialize("gameobject", gameobject, INVALID_GAMEOBJECT);
 			}
 
 			const char* getType() override { return "add_script"; }
@@ -64,7 +64,7 @@ namespace
 			bool merge(IEditorCommand& command) override { return false; }
 
 			WorldEditor& editor;
-			Entity entity;
+			GameObject gameobject;
 			int scr_index;
 		};
 
@@ -73,7 +73,7 @@ namespace
 			explicit MoveScriptCommand(WorldEditor& editor)
 				: blob(editor.getAllocator())
 				, scr_index(-1)
-				, entity(INVALID_ENTITY)
+				, gameobject(INVALID_GAMEOBJECT)
 				, up(true)
 			{
 				scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
@@ -83,32 +83,32 @@ namespace
 				: blob(allocator)
 				, scene(nullptr)
 				, scr_index(-1)
-				, entity(INVALID_ENTITY)
+				, gameobject(INVALID_GAMEOBJECT)
 				, up(true)
 			{
 			}
 
 			bool execute() override
 			{
-				scene->moveScript(entity, scr_index, up);
+				scene->moveScript(gameobject, scr_index, up);
 				return true;
 			}
 
 			void undo() override
 			{
-				scene->moveScript(entity, up ? scr_index - 1 : scr_index + 1, !up);
+				scene->moveScript(gameobject, up ? scr_index - 1 : scr_index + 1, !up);
 			}
 
 			void serialize(JsonSerializer& serializer) override
 			{
-				serializer.serialize("entity", entity);
+				serializer.serialize("gameobject", gameobject);
 				serializer.serialize("scr_index", scr_index);
 				serializer.serialize("up", up);
 			}
 
 			void deserialize(JsonDeserializer& serializer) override
 			{
-				serializer.deserialize("entity", entity, INVALID_ENTITY);
+				serializer.deserialize("gameobject", gameobject, INVALID_GAMEOBJECT);
 				serializer.deserialize("scr_index", scr_index, 0);
 				serializer.deserialize("up", up, false);
 			}
@@ -119,7 +119,7 @@ namespace
 
 			OutputBlob blob;
 			LuaScriptScene* scene;
-			Entity entity;
+			GameObject gameobject;
 			int scr_index;
 			bool up;
 		};
@@ -129,7 +129,7 @@ namespace
 			explicit RemoveScriptCommand(WorldEditor& editor)
 				: blob(editor.getAllocator())
 				, scr_index(-1)
-				, entity(INVALID_ENTITY)
+				, gameobject(INVALID_GAMEOBJECT)
 			{
 				scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
 			}
@@ -138,33 +138,33 @@ namespace
 				: blob(allocator)
 				, scene(nullptr)
 				, scr_index(-1)
-				, entity(INVALID_ENTITY)
+				, gameobject(INVALID_GAMEOBJECT)
 			{
 			}
 
 			bool execute() override
 			{
-				scene->serializeScript(entity, scr_index, blob);
-				scene->removeScript(entity, scr_index);
+				scene->serializeScript(gameobject, scr_index, blob);
+				scene->removeScript(gameobject, scr_index);
 				return true;
 			}
 
 			void undo() override
 			{
-				scene->insertScript(entity, scr_index);
+				scene->insertScript(gameobject, scr_index);
 				InputBlob input(blob);
-				scene->deserializeScript(entity, scr_index, input);
+				scene->deserializeScript(gameobject, scr_index, input);
 			}
 
 			void serialize(JsonSerializer& serializer) override
 			{
-				serializer.serialize("entity", entity);
+				serializer.serialize("gameobject", gameobject);
 				serializer.serialize("scr_index", scr_index);
 			}
 
 			void deserialize(JsonDeserializer& serializer) override
 			{
-				serializer.deserialize("entity", entity, INVALID_ENTITY);
+				serializer.deserialize("gameobject", gameobject, INVALID_GAMEOBJECT);
 				serializer.deserialize("scr_index", scr_index, 0);
 			}
 
@@ -174,7 +174,7 @@ namespace
 
 			OutputBlob blob;
 			LuaScriptScene* scene;
-			Entity entity;
+			GameObject gameobject;
 			int scr_index;
 		};
 
@@ -189,7 +189,7 @@ namespace
 			}
 
 			SetPropertyCommand(WorldEditor& _editor,
-				Entity entity,
+				GameObject gameobject,
 				int scr_index,
 				const char* property_name,
 				const char* val,
@@ -197,20 +197,20 @@ namespace
 				: property_name(property_name, allocator)
 				, value(val, allocator)
 				, old_value(allocator)
-				, entity(entity)
+				, gameobject(gameobject)
 				, script_index(scr_index)
 				, editor(_editor)
 			{
 				auto* scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
 				if (property_name[0] == '-')
 				{
-					old_value = scene->getScriptPath(entity, script_index).c_str();
+					old_value = scene->getScriptPath(gameobject, script_index).c_str();
 				}
 				else
 				{
 					char tmp[1024];
 					tmp[0] = '\0';
-					scene->getPropertyValue(entity, scr_index, property_name, tmp, lengthOf(tmp));
+					scene->getPropertyValue(gameobject, scr_index, property_name, tmp, lengthOf(tmp));
 					old_value = tmp;
 					return;
 				}
@@ -221,11 +221,11 @@ namespace
 				auto* scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
 				if (property_name.length() > 0 && property_name[0] == '-')
 				{
-					scene->setScriptPath(entity, script_index, Path(value.c_str()));
+					scene->setScriptPath(gameobject, script_index, Path(value.c_str()));
 				}
 				else
 				{
-					scene->setPropertyValue(entity, script_index, property_name.c_str(), value.c_str());
+					scene->setPropertyValue(gameobject, script_index, property_name.c_str(), value.c_str());
 				}
 				return true;
 			}
@@ -235,17 +235,17 @@ namespace
 				auto* scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(crc32("lua_script")));
 				if (property_name.length() > 0 && property_name[0] == '-')
 				{
-					scene->setScriptPath(entity, script_index, Path(old_value.c_str()));
+					scene->setScriptPath(gameobject, script_index, Path(old_value.c_str()));
 				}
 				else
 				{
-					scene->setPropertyValue(entity, script_index, property_name.c_str(), old_value.c_str());
+					scene->setPropertyValue(gameobject, script_index, property_name.c_str(), old_value.c_str());
 				}
 			}
 
 			void serialize(JsonSerializer& serializer) override
 			{
-				serializer.serialize("entity", entity);
+				serializer.serialize("gameobject", gameobject);
 				serializer.serialize("script_index", script_index);
 				serializer.serialize("property_name", property_name.c_str());
 				serializer.serialize("value", value.c_str());
@@ -254,7 +254,7 @@ namespace
 
 			void deserialize(JsonDeserializer& serializer) override
 			{
-				serializer.deserialize("entity", entity, INVALID_ENTITY);
+				serializer.deserialize("gameobject", gameobject, INVALID_GAMEOBJECT);
 				serializer.deserialize("script_index", script_index, 0);
 				char buf[256];
 				serializer.deserialize("property_name", buf, lengthOf(buf), "");
@@ -283,7 +283,7 @@ namespace
 			string property_name;
 			string value;
 			string old_value;
-			Entity entity;
+			GameObject gameobject;
 			int script_index;
 		};
 
@@ -298,15 +298,15 @@ namespace
 			const char* name;
 		};
 
-		static void getSortedProperties(Array<SortedProperty>& props, LuaScriptScene& scene, Entity entity, int script_index)
+		static void getSortedProperties(Array<SortedProperty>& props, LuaScriptScene& scene, GameObject gameobject, int script_index)
 		{
-			int property_count = scene.getPropertyCount(entity, script_index);
+			int property_count = scene.getPropertyCount(gameobject, script_index);
 			props.resize(property_count);
 
 			for (int i = 0; i < property_count; ++i)
 			{
 				props[i].index = i;
-				props[i].name = scene.getPropertyName(entity, script_index, i);
+				props[i].name = scene.getPropertyName(gameobject, script_index, i);
 			}
 
 			if (!props.empty())
@@ -333,24 +333,24 @@ namespace
 			if (ImGui::Button("Add script"))
 			{
 				auto* cmd = MALMY_NEW(allocator, AddLuaScriptCommand)(editor);
-				cmd->entity = cmp.entity;
+				cmd->gameobject = cmp.gameobject;
 				editor.executeCommand(cmd);
 			}
 
-			for (int j = 0; j < scene->getScriptCount(cmp.entity); ++j)
+			for (int j = 0; j < scene->getScriptCount(cmp.gameobject); ++j)
 			{
 				char buf[MAX_PATH_LENGTH];
-				copyString(buf, scene->getScriptPath(cmp.entity, j).c_str());
+				copyString(buf, scene->getScriptPath(cmp.gameobject, j).c_str());
 				StaticString<MAX_PATH_LENGTH + 20> header;
 				PathUtils::getBasename(header.data, lengthOf(header.data), buf);
 				if (header.empty()) header << j;
 				ImGui::Unindent();
 				bool open = ImGui::TreeNodeEx(StaticString<32>("###", j), ImGuiTreeNodeFlags_AllowItemOverlap);
-				bool enabled = scene->isScriptEnabled(cmp.entity, j);
+				bool enabled = scene->isScriptEnabled(cmp.gameobject, j);
 				ImGui::SameLine();
 				if (ImGui::Checkbox(header, &enabled))
 				{
-					scene->enableScript(cmp.entity, j, enabled);
+					scene->enableScript(cmp.gameobject, j, enabled);
 				}
 
 				if (open)
@@ -358,7 +358,7 @@ namespace
 					if (ImGui::Button("Remove script"))
 					{
 						auto* cmd = MALMY_NEW(allocator, RemoveScriptCommand)(allocator);
-						cmd->entity = cmp.entity;
+						cmd->gameobject = cmp.gameobject;
 						cmd->scr_index = j;
 						cmd->scene = scene;
 						editor.executeCommand(cmd);
@@ -370,7 +370,7 @@ namespace
 					if (ImGui::Button("Up"))
 					{
 						auto* cmd = MALMY_NEW(allocator, MoveScriptCommand)(allocator);
-						cmd->entity = cmp.entity;
+						cmd->gameobject = cmp.gameobject;
 						cmd->scr_index = j;
 						cmd->scene = scene;
 						cmd->up = true;
@@ -383,7 +383,7 @@ namespace
 					if (ImGui::Button("Down"))
 					{
 						auto* cmd = MALMY_NEW(allocator, MoveScriptCommand)(allocator);
-						cmd->entity = cmp.entity;
+						cmd->gameobject = cmp.gameobject;
 						cmd->scr_index = j;
 						cmd->scene = scene;
 						cmd->up = false;
@@ -396,21 +396,21 @@ namespace
 					if (m_app.getAssetBrowser().resourceInput(
 						"Source", "src", buf, lengthOf(buf), LuaScript::TYPE))
 					{
-						auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(editor, cmp.entity, j, "-source", buf, allocator);
+						auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(editor, cmp.gameobject, j, "-source", buf, allocator);
 						editor.executeCommand(cmd);
 					}
 
 					Array<SortedProperty> sorted_props(editor.getEngine().getLIFOAllocator());
-					getSortedProperties(sorted_props, *scene, cmp.entity, j);
+					getSortedProperties(sorted_props, *scene, cmp.gameobject, j);
 
 					for (const SortedProperty& sorted_prop : sorted_props)
 					{
 						int k = sorted_prop.index;
 						char buf[256];
-						const char* property_name = scene->getPropertyName(cmp.entity, j, k);
+						const char* property_name = scene->getPropertyName(cmp.gameobject, j, k);
 						if (!property_name) continue;
-						scene->getPropertyValue(cmp.entity, j, property_name, buf, lengthOf(buf));
-						switch (scene->getPropertyType(cmp.entity, j, k))
+						scene->getPropertyValue(cmp.gameobject, j, property_name, buf, lengthOf(buf));
+						switch (scene->getPropertyType(cmp.gameobject, j, k))
 						{
 						case LuaScriptScene::Property::BOOLEAN:
 						{
@@ -418,7 +418,7 @@ namespace
 							if (ImGui::Checkbox(property_name, &b))
 							{
 								auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(
-									editor, cmp.entity, j, property_name, b ? "true" : "false", allocator);
+									editor, cmp.gameobject, j, property_name, b ? "true" : "false", allocator);
 								editor.executeCommand(cmd);
 							}
 						}
@@ -430,20 +430,20 @@ namespace
 							{
 								toCString(f, buf, sizeof(buf), 5);
 								auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(
-									editor, cmp.entity, j, property_name, buf, allocator);
+									editor, cmp.gameobject, j, property_name, buf, allocator);
 								editor.executeCommand(cmd);
 							}
 						}
 						break;
-						case LuaScriptScene::Property::ENTITY:
+						case LuaScriptScene::Property::GAMEOBJECT:
 						{
-							Entity e;
+							GameObject e;
 							fromCString(buf, sizeof(buf), &e.index);
-							if (grid.entityInput(property_name, StaticString<50>(property_name, cmp.entity.index), e))
+							if (grid.gameobjectInput(property_name, StaticString<50>(property_name, cmp.gameobject.index), e))
 							{
 								toCString(e.index, buf, sizeof(buf));
 								auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(
-									editor, cmp.entity, j, property_name, buf, allocator);
+									editor, cmp.gameobject, j, property_name, buf, allocator);
 								editor.executeCommand(cmd);
 							}
 						}
@@ -453,18 +453,18 @@ namespace
 							if (ImGui::InputText(property_name, buf, sizeof(buf)))
 							{
 								auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(
-									editor, cmp.entity, j, property_name, buf, allocator);
+									editor, cmp.gameobject, j, property_name, buf, allocator);
 								editor.executeCommand(cmd);
 							}
 							break;
 						case LuaScriptScene::Property::RESOURCE:
 						{
-							ResourceType res_type = scene->getPropertyResourceType(cmp.entity, j, k);
+							ResourceType res_type = scene->getPropertyResourceType(cmp.gameobject, j, k);
 							if (m_app.getAssetBrowser().resourceInput(
 								property_name, property_name, buf, lengthOf(buf), res_type))
 							{
 								auto* cmd = MALMY_NEW(allocator, SetPropertyCommand)(
-									editor, cmp.entity, j, property_name, buf, allocator);
+									editor, cmp.gameobject, j, property_name, buf, allocator);
 								editor.executeCommand(cmd);
 							}
 						}
@@ -472,7 +472,7 @@ namespace
 						default: ASSERT(false); break;
 						}
 					}
-					if (scene->beginFunctionCall(cmp.entity, j, "onGUI"))
+					if (scene->beginFunctionCall(cmp.gameobject, j, "onGUI"))
 					{
 						scene->endFunctionCall();
 					}
@@ -778,7 +778,7 @@ namespace
 		{
 		}
 
-		void onGUI(bool create_entity, bool) override
+		void onGUI(bool create_gameobject, bool) override
 		{
 			ImGui::SetNextWindowSize(ImVec2(300, 300));
 			if (!ImGui::BeginMenu(getLabel())) return;
@@ -809,15 +809,15 @@ namespace
 			if (asset_browser.resourceList(buf, lengthOf(buf), LuaScript::TYPE, 0) || create_empty || new_created)
 			{
 				WorldEditor& editor = app.getWorldEditor();
-				if (create_entity)
+				if (create_gameobject)
 				{
-					Entity entity = editor.addEntity();
-					editor.selectEntities(&entity, 1, false);
+					GameObject gameobject = editor.addGameObject();
+					editor.selectEntities(&gameobject, 1, false);
 				}
 				if (editor.getSelectedEntities().empty()) return;
-				Entity entity = editor.getSelectedEntities()[0];
+				GameObject gameobject = editor.getSelectedEntities()[0];
 
-				if (!editor.getProject()->hasComponent(entity, LUA_SCRIPT_TYPE))
+				if (!editor.getProject()->hasComponent(gameobject, LUA_SCRIPT_TYPE))
 				{
 					editor.addComponent(LUA_SCRIPT_TYPE);
 				}
@@ -826,14 +826,14 @@ namespace
 				auto* cmd = MALMY_NEW(allocator, PropertyGridPlugin::AddLuaScriptCommand)(editor);
 
 				auto* script_scene = static_cast<LuaScriptScene*>(editor.getProject()->getScene(LUA_SCRIPT_TYPE));
-				cmd->entity = entity;
+				cmd->gameobject = gameobject;
 				editor.executeCommand(cmd);
 
 				if (!create_empty)
 				{
-					int scr_count = script_scene->getScriptCount(entity);
+					int scr_count = script_scene->getScriptCount(gameobject);
 					auto* set_source_cmd = MALMY_NEW(allocator, PropertyGridPlugin::SetPropertyCommand)(
-						editor, entity, scr_count - 1, "-source", buf, allocator);
+						editor, gameobject, scr_count - 1, "-source", buf, allocator);
 					editor.executeCommand(set_source_cmd);
 				}
 
@@ -863,10 +863,10 @@ namespace
 			if (cmp.type == LUA_SCRIPT_TYPE)
 			{
 				auto* scene = static_cast<LuaScriptScene*>(cmp.scene);
-				int count = scene->getScriptCount(cmp.entity);
+				int count = scene->getScriptCount(cmp.gameobject);
 				for (int i = 0; i < count; ++i)
 				{
-					if (scene->beginFunctionCall(cmp.entity, i, "onDrawGizmo"))
+					if (scene->beginFunctionCall(cmp.gameobject, i, "onDrawGizmo"))
 					{
 						scene->endFunctionCall();
 					}

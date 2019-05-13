@@ -38,12 +38,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\data\bin\</OutDir>
+    <OutDir>..\bin\</OutDir>
     <TargetName>engine</TargetName>
     <TargetExt>.dll</TargetExt>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>..\obj\engine\</IntDir>
+    <IntDir>..\bin\obj\engine\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>engine</TargetName>
@@ -81,7 +81,7 @@
       <AdditionalDependencies>lua.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)engine.dll</OutputFile>
       <AdditionalLibraryDirectories>..\external\lua\lib\win64_vs2017\debug;..\external\lua\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>..\data\bin\engine.lib</ImportLibrary>
+      <ImportLibrary>..\bin\engine.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <AdditionalOptions>/DEF:"../src/engine/engine.def" %(AdditionalOptions)</AdditionalOptions>
     </Link>

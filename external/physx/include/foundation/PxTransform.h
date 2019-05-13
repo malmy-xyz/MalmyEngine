@@ -55,11 +55,11 @@ class PxTransform
 	{
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(const PxVec3& position) : q(PxIdentity), p(position)
+	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(const PxVec3& position) : q(PxIdgameobject), p(position)
 	{
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(PxIDENTITY r) : q(PxIdentity), p(PxZero)
+	PX_CUDA_CALLABLE PX_FORCE_INLINE explicit PxTransform(PxIDGAMEOBJECT r) : q(PxIdgameobject), p(PxZero)
 	{
 		PX_UNUSED(r);
 	}
@@ -69,7 +69,7 @@ class PxTransform
 		PX_SHARED_ASSERT(orientation.isSane());
 	}
 
-	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform(float x, float y, float z, PxQuat aQ = PxQuat(PxIdentity))
+	PX_CUDA_CALLABLE PX_FORCE_INLINE PxTransform(float x, float y, float z, PxQuat aQ = PxQuat(PxIdgameobject))
 	: q(aQ), p(x, y, z)
 	{
 	}

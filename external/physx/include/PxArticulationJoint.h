@@ -120,7 +120,7 @@ public:
 	\brief set the joint pose in the parent frame
 
 	\param[in] pose the joint pose in the parent frame
-	<b>Default:</b> the identity matrix
+	<b>Default:</b> the idgameobject matrix
 
 	@see getParentPose()
 	*/
@@ -146,7 +146,7 @@ public:
 	\brief set the joint pose in the child frame
 
 	\param[in] pose the joint pose in the child frame
-	<b>Default:</b> the identity matrix
+	<b>Default:</b> the idgameobject matrix
 
 	@see getChildPose()
 	*/
@@ -196,7 +196,7 @@ public:
 
 	\param[in] orientation the target orientation for the joint
 	<b>Range:</b> a unit quaternion
-	<b>Default:</b> the identity quaternion
+	<b>Default:</b> the idgameobject quaternion
 
 	@see getTargetOrientation()
 	*/

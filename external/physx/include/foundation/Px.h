@@ -78,10 +78,10 @@ enum PxZERO
 	PxZero
 };
 
-/** enum for identity constructor flag for quaternions, transforms, and matrices */
-enum PxIDENTITY
+/** enum for idgameobject constructor flag for quaternions, transforms, and matrices */
+enum PxIDGAMEOBJECT
 {
-	PxIdentity
+	PxIdgameobject
 };
 
 #if !PX_DOXYGEN

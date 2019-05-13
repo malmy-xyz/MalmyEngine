@@ -1,0 +1,34 @@
+#name
+	""
+#transform (-2.002707, 5.264090, 0.000000)  (0.000000, 0.000000, 0.000000, 1.000000)
+	3221236825
+	1084781420
+	0
+	0
+	0
+	0
+	1065353216
+#scale 0.010000
+	1008981770
+#parent
+	18446744073709551615
+#renderable
+	1512583253
+#source
+	"models/pau/logo_pau.msh"
+#flags
+	8
+#custom_materials
+	0
+#rigid_actor
+	401297833
+#layer
+	0
+#dynamic_type
+	1
+#trigger
+	0
+#count
+	0
+#cmp_end
+	0

@@ -130,7 +130,7 @@ struct GUISystemImpl MALMY_FINAL : public GUISystem
 	static int LUA_GUIRect_getScreenRect(lua_State* L)
 	{
 		GUIScene* scene = LuaWrapper::checkArg<GUIScene*>(L, 1);
-		Entity e = LuaWrapper::checkArg<Entity>(L, 2);
+		GameObject e = LuaWrapper::checkArg<GameObject>(L, 2);
 		GUIScene::Rect rect = scene->getRect(e);
 		lua_newtable(L);
 		LuaWrapper::push(L, rect.x);

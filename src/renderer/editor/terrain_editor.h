@@ -28,8 +28,8 @@ public:
 		SMOOTH_HEIGHT,
 		FLAT_HEIGHT,
 		LAYER,
-		ENTITY,
-		REMOVE_ENTITY,
+		GAMEOBJECT,
+		REMOVE_GAMEOBJECT,
 		COLOR,
 		ADD_GRASS,
 		REMOVE_GRASS,
@@ -50,7 +50,7 @@ private:
 	void mergeSplatmap(const char* dir);
 	void onProjectDestroyed();
 	void detectModifiers();
-	void drawCursor(RenderScene& scene, Entity terrain, const Vec3& center);
+	void drawCursor(RenderScene& scene, GameObject terrain, const Vec3& center);
 	Material* getMaterial();
 	void paint(const Vec3& hit, TerrainEditor::ActionType action_type, bool new_stroke);
 
@@ -83,7 +83,7 @@ private:
 	Action* m_decrease_texture_idx;
 	Action* m_lower_terrain_action;
 	Action* m_smooth_terrain_action;
-	Action* m_remove_entity_action;
+	Action* m_remove_gameobject_action;
 	Action* m_remove_grass_action;
 	BinaryArray m_brush_mask;
 	Texture* m_brush_texture;

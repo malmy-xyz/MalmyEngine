@@ -36,10 +36,10 @@ struct MALMY_EDITOR_API Action
 class WorldEditor;
 
 
-MALMY_EDITOR_API void getEntityListDisplayName(WorldEditor& editor,
+MALMY_EDITOR_API void getGameObjectListDisplayName(WorldEditor& editor,
 	char* buf,
 	int max_size,
-	Entity entity);
+	GameObject gameobject);
 
 
 } // namespace Malmy

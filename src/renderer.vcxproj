@@ -38,8 +38,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\data\bin\</OutDir>
-    <IntDir>..\obj\renderer\</IntDir>
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\bin\obj\renderer\</IntDir>
     <TargetName>renderer</TargetName>
     <TargetExt>.dll</TargetExt>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
@@ -81,7 +81,7 @@
       <AdditionalDependencies>shaderc.lib;crnlib.lib;cmft.lib;bgfx.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)renderer.dll</OutputFile>
       <AdditionalLibraryDirectories>..\external\crnlib\lib\win64_vs2017\debug;..\external\crnlib\dll\win64_vs2017\debug;..\external\cmft\lib\win64_vs2017\debug;..\external\cmft\dll\win64_vs2017\debug;..\external\bgfx\lib\win64_vs2017\debug;..\external\bgfx\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>..\data\bin\renderer.lib</ImportLibrary>
+      <ImportLibrary>..\bin\renderer.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>

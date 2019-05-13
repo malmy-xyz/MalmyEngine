@@ -95,8 +95,8 @@ class PxMat33
 	{
 	}
 
-	//! identity constructor
-	PX_CUDA_CALLABLE PX_INLINE PxMat33(PxIDENTITY r)
+	//! idgameobject constructor
+	PX_CUDA_CALLABLE PX_INLINE PxMat33(PxIDGAMEOBJECT r)
 	: column0(1.0f, 0.0f, 0.0f), column1(0.0f, 1.0f, 0.0f), column2(0.0f, 0.0f, 1.0f)
 	{
 		PX_UNUSED(r);
@@ -114,7 +114,7 @@ class PxMat33
 	{
 	}
 
-	//! constructor from a scalar, which generates a multiple of the identity matrix
+	//! constructor from a scalar, which generates a multiple of the idgameobject matrix
 	explicit PX_CUDA_CALLABLE PX_INLINE PxMat33(float r)
 	: column0(r, 0.0f, 0.0f), column1(0.0f, r, 0.0f), column2(0.0f, 0.0f, r)
 	{
@@ -222,7 +222,7 @@ class PxMat33
 		}
 		else
 		{
-			return PxMat33(PxIdentity);
+			return PxMat33(PxIdgameobject);
 		}
 	}
 

@@ -76,6 +76,7 @@ namespace Malmy
 			injectEvent(event);
 		}
 
+		//her farame de calisiyor
 		void update(float dt) override
 		{
 			PROFILE_FUNCTION();

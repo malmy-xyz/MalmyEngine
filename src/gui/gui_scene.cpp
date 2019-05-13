@@ -134,7 +134,7 @@ struct GUIRect
 		float relative = 0;
 	};
 
-	Entity entity;
+	GameObject gameobject;
 	FlagSet<Flags, u32> flags;
 	Anchor top;
 	Anchor right = { 0, 1 };
@@ -204,7 +204,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	void renderTextCursor(GUIRect& rect, Draw2D& draw, const Vec2& pos)
 	{
 		if (!rect.input_field) return;
-		if (m_focused_entity != rect.entity) return;
+		if (m_focused_gameobject != rect.gameobject) return;
 		if (rect.input_field->anim > CURSOR_BLINK_PERIOD * 0.5f) return;
 
 		const char* text = rect.text->text.c_str();
@@ -302,7 +302,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 			renderTextCursor(rect, draw, text_pos);
 		}
 
-		Entity child = m_project.getFirstChild(rect.entity);
+		GameObject child = m_project.getFirstChild(rect.gameobject);
 		while (child.isValid())
 		{
 			int idx = m_rects.find(child);
@@ -325,37 +325,37 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	Vec4 getButtonNormalColorRGBA(Entity entity) override
+	Vec4 getButtonNormalColorRGBA(GameObject gameobject) override
 	{
-		return ABGRu32ToRGBAVec4(m_buttons[entity].normal_color);
+		return ABGRu32ToRGBAVec4(m_buttons[gameobject].normal_color);
 	}
 
 
-	void setButtonNormalColorRGBA(Entity entity, const Vec4& color) override
+	void setButtonNormalColorRGBA(GameObject gameobject, const Vec4& color) override
 	{
-		m_buttons[entity].normal_color = RGBAVec4ToABGRu32(color);
+		m_buttons[gameobject].normal_color = RGBAVec4ToABGRu32(color);
 	}
 
 
-	Vec4 getButtonHoveredColorRGBA(Entity entity) override
+	Vec4 getButtonHoveredColorRGBA(GameObject gameobject) override
 	{
-		return ABGRu32ToRGBAVec4(m_buttons[entity].hovered_color);
+		return ABGRu32ToRGBAVec4(m_buttons[gameobject].hovered_color);
 	}
 
 
-	void setButtonHoveredColorRGBA(Entity entity, const Vec4& color) override
+	void setButtonHoveredColorRGBA(GameObject gameobject, const Vec4& color) override
 	{
-		m_buttons[entity].hovered_color = RGBAVec4ToABGRu32(color);
+		m_buttons[gameobject].hovered_color = RGBAVec4ToABGRu32(color);
 	}
 
 
-	void enableImage(Entity entity, bool enable) override { m_rects[entity]->image->flags.set(GUIImage::IS_ENABLED, enable); }
-	bool isImageEnabled(Entity entity) override { return m_rects[entity]->image->flags.isSet(GUIImage::IS_ENABLED); }
+	void enableImage(GameObject gameobject, bool enable) override { m_rects[gameobject]->image->flags.set(GUIImage::IS_ENABLED, enable); }
+	bool isImageEnabled(GameObject gameobject) override { return m_rects[gameobject]->image->flags.isSet(GUIImage::IS_ENABLED); }
 
 
-	Vec4 getImageColorRGBA(Entity entity) override
+	Vec4 getImageColorRGBA(GameObject gameobject) override
 	{
-		GUIImage* image = m_rects[entity]->image;
+		GUIImage* image = m_rects[gameobject]->image;
 		return ABGRu32ToRGBAVec4(image->color);
 	}
 
@@ -382,16 +382,16 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	Path getImageSprite(Entity entity) override
+	Path getImageSprite(GameObject gameobject) override
 	{
-		GUIImage* image = m_rects[entity]->image;
+		GUIImage* image = m_rects[gameobject]->image;
 		return image->sprite ? image->sprite->getPath() : Path();
 	}
 
 
-	void setImageSprite(Entity entity, const Path& path) override
+	void setImageSprite(GameObject gameobject, const Path& path) override
 	{
-		GUIImage* image = m_rects[entity]->image;
+		GUIImage* image = m_rects[gameobject]->image;
 		if (image->sprite)
 		{
 			image->sprite->getResourceManager().unload(*image->sprite);
@@ -408,24 +408,24 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	void setImageColorRGBA(Entity entity, const Vec4& color) override
+	void setImageColorRGBA(GameObject gameobject, const Vec4& color) override
 	{
-		GUIImage* image = m_rects[entity]->image;
+		GUIImage* image = m_rects[gameobject]->image;
 		image->color = RGBAVec4ToABGRu32(color);
 	}
 
 
-	bool hasGUI(Entity entity) const override
+	bool hasGUI(GameObject gameobject) const override
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0) return false;
 		return m_rects.at(idx)->flags.isSet(GUIRect::IS_VALID);
 	}
 
 
-	Entity getRectAt(GUIRect& rect, const Vec2& pos, const Rect& parent_rect) const
+	GameObject getRectAt(GUIRect& rect, const Vec2& pos, const Rect& parent_rect) const
 	{
-		if (!rect.flags.isSet(GUIRect::IS_VALID)) return INVALID_ENTITY;
+		if (!rect.flags.isSet(GUIRect::IS_VALID)) return INVALID_GAMEOBJECT;
 
 		Rect r;
 		r.x = parent_rect.x + rect.left.points + parent_rect.w * rect.left.relative;
@@ -438,23 +438,23 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 		bool intersect = pos.x >= r.x && pos.y >= r.y && pos.x <= r.x + r.w && pos.y <= r.y + r.h;
 
-		for (Entity child = m_project.getFirstChild(rect.entity); child.isValid(); child = m_project.getNextSibling(child))
+		for (GameObject child = m_project.getFirstChild(rect.gameobject); child.isValid(); child = m_project.getNextSibling(child))
 		{
 			int idx = m_rects.find(child);
 			if (idx < 0) continue;
 
 			GUIRect* child_rect = m_rects.at(idx);
-			Entity entity = getRectAt(*child_rect, pos, r);
-			if (entity.isValid()) return entity;
+			GameObject gameobject = getRectAt(*child_rect, pos, r);
+			if (gameobject.isValid()) return gameobject;
 		}
 
-		return intersect ? rect.entity : INVALID_ENTITY;
+		return intersect ? rect.gameobject : INVALID_GAMEOBJECT;
 	}
 
 
-	Entity getRectAt(const Vec2& pos, const Vec2& canvas_size) const override
+	GameObject getRectAt(const Vec2& pos, const Vec2& canvas_size) const override
 	{
-		if (!m_root) return INVALID_ENTITY;
+		if (!m_root) return INVALID_GAMEOBJECT;
 
 		return getRectAt(*m_root, pos, { 0, 0, canvas_size.x, canvas_size.y });
 	}
@@ -471,19 +471,19 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	Rect getRect(Entity entity) const override
+	Rect getRect(GameObject gameobject) const override
 	{
-		return getRectOnCanvas(entity, m_canvas_size);
+		return getRectOnCanvas(gameobject, m_canvas_size);
 	}
 
 
-	Rect getRectOnCanvas(Entity entity, const Vec2& canvas_size) const override
+	Rect getRectOnCanvas(GameObject gameobject, const Vec2& canvas_size) const override
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0) return { 0, 0, canvas_size.x, canvas_size.y };
-		Entity parent = m_project.getParent(entity);
+		GameObject parent = m_project.getParent(gameobject);
 		Rect parent_rect = getRectOnCanvas(parent, canvas_size);
-		GUIRect* gui = m_rects[entity];
+		GUIRect* gui = m_rects[gameobject];
 		float l = parent_rect.x + parent_rect.w * gui->left.relative + gui->left.points;
 		float r = parent_rect.x + parent_rect.w * gui->right.relative + gui->right.points;
 		float t = parent_rect.y + parent_rect.h * gui->top.relative + gui->top.points;
@@ -492,106 +492,106 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		return { l, t, r - l, b - t };
 	}
 
-	void setRectClip(Entity entity, bool enable) override { m_rects[entity]->flags.set(GUIRect::IS_CLIP, enable); }
-	bool getRectClip(Entity entity) override { return m_rects[entity]->flags.isSet(GUIRect::IS_CLIP); }
-	void enableRect(Entity entity, bool enable) override { m_rects[entity]->flags.set(GUIRect::IS_ENABLED, enable); }
-	bool isRectEnabled(Entity entity) override { return m_rects[entity]->flags.isSet(GUIRect::IS_ENABLED); }
-	float getRectLeftPoints(Entity entity) override { return m_rects[entity]->left.points; }
-	void setRectLeftPoints(Entity entity, float value) override { m_rects[entity]->left.points = value; }
-	float getRectLeftRelative(Entity entity) override { return m_rects[entity]->left.relative; }
-	void setRectLeftRelative(Entity entity, float value) override { m_rects[entity]->left.relative = value; }
+	void setRectClip(GameObject gameobject, bool enable) override { m_rects[gameobject]->flags.set(GUIRect::IS_CLIP, enable); }
+	bool getRectClip(GameObject gameobject) override { return m_rects[gameobject]->flags.isSet(GUIRect::IS_CLIP); }
+	void enableRect(GameObject gameobject, bool enable) override { m_rects[gameobject]->flags.set(GUIRect::IS_ENABLED, enable); }
+	bool isRectEnabled(GameObject gameobject) override { return m_rects[gameobject]->flags.isSet(GUIRect::IS_ENABLED); }
+	float getRectLeftPoints(GameObject gameobject) override { return m_rects[gameobject]->left.points; }
+	void setRectLeftPoints(GameObject gameobject, float value) override { m_rects[gameobject]->left.points = value; }
+	float getRectLeftRelative(GameObject gameobject) override { return m_rects[gameobject]->left.relative; }
+	void setRectLeftRelative(GameObject gameobject, float value) override { m_rects[gameobject]->left.relative = value; }
 
-	float getRectRightPoints(Entity entity) override { return m_rects[entity]->right.points; }
-	void setRectRightPoints(Entity entity, float value) override { m_rects[entity]->right.points = value; }
-	float getRectRightRelative(Entity entity) override { return m_rects[entity]->right.relative; }
-	void setRectRightRelative(Entity entity, float value) override { m_rects[entity]->right.relative = value; }
+	float getRectRightPoints(GameObject gameobject) override { return m_rects[gameobject]->right.points; }
+	void setRectRightPoints(GameObject gameobject, float value) override { m_rects[gameobject]->right.points = value; }
+	float getRectRightRelative(GameObject gameobject) override { return m_rects[gameobject]->right.relative; }
+	void setRectRightRelative(GameObject gameobject, float value) override { m_rects[gameobject]->right.relative = value; }
 
-	float getRectTopPoints(Entity entity) override { return m_rects[entity]->top.points; }
-	void setRectTopPoints(Entity entity, float value) override { m_rects[entity]->top.points = value; }
-	float getRectTopRelative(Entity entity) override { return m_rects[entity]->top.relative; }
-	void setRectTopRelative(Entity entity, float value) override { m_rects[entity]->top.relative = value; }
+	float getRectTopPoints(GameObject gameobject) override { return m_rects[gameobject]->top.points; }
+	void setRectTopPoints(GameObject gameobject, float value) override { m_rects[gameobject]->top.points = value; }
+	float getRectTopRelative(GameObject gameobject) override { return m_rects[gameobject]->top.relative; }
+	void setRectTopRelative(GameObject gameobject, float value) override { m_rects[gameobject]->top.relative = value; }
 
-	float getRectBottomPoints(Entity entity) override { return m_rects[entity]->bottom.points; }
-	void setRectBottomPoints(Entity entity, float value) override { m_rects[entity]->bottom.points = value; }
-	float getRectBottomRelative(Entity entity) override { return m_rects[entity]->bottom.relative; }
-	void setRectBottomRelative(Entity entity, float value) override { m_rects[entity]->bottom.relative = value; }
+	float getRectBottomPoints(GameObject gameobject) override { return m_rects[gameobject]->bottom.points; }
+	void setRectBottomPoints(GameObject gameobject, float value) override { m_rects[gameobject]->bottom.points = value; }
+	float getRectBottomRelative(GameObject gameobject) override { return m_rects[gameobject]->bottom.relative; }
+	void setRectBottomRelative(GameObject gameobject, float value) override { m_rects[gameobject]->bottom.relative = value; }
 
 
-	void setTextFontSize(Entity entity, int value) override
+	void setTextFontSize(GameObject gameobject, int value) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		gui_text->setFontSize(value);
 	}
 	
 	
-	int getTextFontSize(Entity entity) override
+	int getTextFontSize(GameObject gameobject) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		return gui_text->getFontSize();
 	}
 	
 	
-	Vec4 getTextColorRGBA(Entity entity) override
+	Vec4 getTextColorRGBA(GameObject gameobject) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		return ABGRu32ToRGBAVec4(gui_text->color);
 	}
 
 
-	void setTextColorRGBA(Entity entity, const Vec4& color) override
+	void setTextColorRGBA(GameObject gameobject, const Vec4& color) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		gui_text->color = RGBAVec4ToABGRu32(color);
 	}
 
 
-	Path getTextFontPath(Entity entity) override
+	Path getTextFontPath(GameObject gameobject) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		return gui_text->getFontResource() == nullptr ? Path() : gui_text->getFontResource()->getPath();
 	}
 
 
-	void setTextFontPath(Entity entity, const Path& path) override
+	void setTextFontPath(GameObject gameobject, const Path& path) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		FontResource* res = path.isValid() ? (FontResource*)m_font_manager->load(path) : nullptr;
 		gui_text->setFontResource(res);
 	}
 
 
-	TextHAlign getTextHAlign(Entity entity) override
+	TextHAlign getTextHAlign(GameObject gameobject) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		return gui_text->horizontal_align;
 		
 	}
 
 
-	void setTextHAlign(Entity entity, TextHAlign value) override
+	void setTextHAlign(GameObject gameobject, TextHAlign value) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		gui_text->horizontal_align = value;
 	}
 
 
-	void setText(Entity entity, const char* value) override
+	void setText(GameObject gameobject, const char* value) override
 	{
-		GUIText* gui_text = m_rects[entity]->text;
+		GUIText* gui_text = m_rects[gameobject]->text;
 		gui_text->text = value;
 	}
 
 
-	const char* getText(Entity entity) override
+	const char* getText(GameObject gameobject) override
 	{
-		GUIText* text = m_rects[entity]->text;
+		GUIText* text = m_rects[gameobject]->text;
 		return text->text.c_str();
 	}
 
 
-	void serializeRect(ISerializer& serializer, Entity entity)
+	void serializeRect(ISerializer& serializer, GameObject gameobject)
 	{
-		const GUIRect& rect = *m_rects[entity];
+		const GUIRect& rect = *m_rects[gameobject];
 		
 		serializer.write("flags", rect.flags.base);
 		serializer.write("top_pts", rect.top.points);
@@ -608,9 +608,9 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	void deserializeRect(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeRect(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		GUIRect* rect;
 		if (idx >= 0)
 		{
@@ -619,9 +619,9 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		else
 		{
 			rect = MALMY_NEW(m_allocator, GUIRect);
-			m_rects.insert(entity, rect);
+			m_rects.insert(gameobject, rect);
 		}
-		rect->entity = entity;
+		rect->gameobject = gameobject;
 		serializer.read(&rect->flags.base);
 		serializer.read(&rect->top.points);
 		serializer.read(&rect->top.relative);
@@ -637,85 +637,85 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		
 		m_root = findRoot();
 		
-		m_project.onComponentCreated(entity, GUI_RECT_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_RECT_TYPE, this);
 	}
 
 
-	void serializeRenderTarget(ISerializer& serializer, Entity entity)
+	void serializeRenderTarget(ISerializer& serializer, GameObject gameobject)
 	{
 	}
 
 
-	void deserializeRenderTarget(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeRenderTarget(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
 			GUIRect* rect = MALMY_NEW(m_allocator, GUIRect);
-			rect->entity = entity;
-			idx = m_rects.insert(entity, rect);
+			rect->gameobject = gameobject;
+			idx = m_rects.insert(gameobject, rect);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.render_target = &EMPTY_RENDER_TARGET;
-		m_project.onComponentCreated(entity, GUI_RENDER_TARGET_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_RENDER_TARGET_TYPE, this);
 	}
 
 
-	void serializeButton(ISerializer& serializer, Entity entity)
+	void serializeButton(ISerializer& serializer, GameObject gameobject)
 	{
-		const GUIButton& button = m_buttons[entity];
+		const GUIButton& button = m_buttons[gameobject];
 		serializer.write("normal_color", button.normal_color);
 		serializer.write("hovered_color", button.hovered_color);
 	}
 
 	
-	void deserializeButton(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeButton(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		GUIButton& button = m_buttons.emplace(entity);
+		GUIButton& button = m_buttons.emplace(gameobject);
 		serializer.read(&button.normal_color);
 		serializer.read(&button.hovered_color);
-		m_project.onComponentCreated(entity, GUI_BUTTON_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_BUTTON_TYPE, this);
 	}
 
 
-	void serializeInputField(ISerializer& serializer, Entity entity)
+	void serializeInputField(ISerializer& serializer, GameObject gameobject)
 	{
 	}
 
 
-	void deserializeInputField(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeInputField(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
 			GUIRect* rect = MALMY_NEW(m_allocator, GUIRect);
-			rect->entity = entity;
-			idx = m_rects.insert(entity, rect);
+			rect->gameobject = gameobject;
+			idx = m_rects.insert(gameobject, rect);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.input_field = MALMY_NEW(m_allocator, GUIInputField);
 
-		m_project.onComponentCreated(entity, GUI_INPUT_FIELD_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_INPUT_FIELD_TYPE, this);
 	}
 
 
-	void serializeImage(ISerializer& serializer, Entity entity)
+	void serializeImage(ISerializer& serializer, GameObject gameobject)
 	{
-		const GUIRect& rect = *m_rects[entity];
+		const GUIRect& rect = *m_rects[gameobject];
 		serializer.write("sprite", rect.image->sprite ? rect.image->sprite->getPath().c_str() : "");
 		serializer.write("color", rect.image->color);
 		serializer.write("flags", rect.image->flags.base);
 	}
 
 
-	void deserializeImage(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeImage(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
 			GUIRect* rect = MALMY_NEW(m_allocator, GUIRect);
-			rect->entity = entity;
-			idx = m_rects.insert(entity, rect);
+			rect->gameobject = gameobject;
+			idx = m_rects.insert(gameobject, rect);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.image = MALMY_NEW(m_allocator, GUIImage);
@@ -735,13 +735,13 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		serializer.read(&rect.image->color);
 		serializer.read(&rect.image->flags.base);
 		
-		m_project.onComponentCreated(entity, GUI_IMAGE_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_IMAGE_TYPE, this);
 	}
 
 
-	void serializeText(ISerializer& serializer, Entity entity)
+	void serializeText(ISerializer& serializer, GameObject gameobject)
 	{
-		const GUIRect& rect = *m_rects[entity];
+		const GUIRect& rect = *m_rects[gameobject];
 		serializer.write("font", rect.text->getFontResource() ? rect.text->getFontResource()->getPath().c_str() : "");
 		serializer.write("align", (int)rect.text->horizontal_align);
 		serializer.write("color", rect.text->color);
@@ -750,14 +750,14 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	void deserializeText(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeText(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
 			GUIRect* rect = MALMY_NEW(m_allocator, GUIRect);
-			rect->entity = entity;
-			idx = m_rects.insert(entity, rect);
+			rect->gameobject = gameobject;
+			idx = m_rects.insert(gameobject, rect);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.text = MALMY_NEW(m_allocator, GUIText)(m_allocator);
@@ -773,7 +773,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		FontResource* res = tmp[0] ? (FontResource*)m_font_manager->load(Path(tmp)) : nullptr;
 		rect.text->setFontResource(res);
 
-		m_project.onComponentCreated(entity, GUI_TEXT_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_TEXT_TYPE, this);
 	}
 
 
@@ -793,7 +793,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 	void hoverOut(const GUIRect& rect)
 	{
-		int idx = m_buttons.find(rect.entity);
+		int idx = m_buttons.find(rect.gameobject);
 		if (idx < 0) return;
 
 		const GUIButton& button = m_buttons.at(idx);
@@ -801,13 +801,13 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		if (rect.image) rect.image->color = button.normal_color;
 		if (rect.text) rect.text->color = button.normal_color;
 
-		m_rect_hovered_out.invoke(rect.entity);
+		m_rect_hovered_out.invoke(rect.gameobject);
 	}
 
 
 	void hover(const GUIRect& rect)
 	{
-		int idx = m_buttons.find(rect.entity);
+		int idx = m_buttons.find(rect.gameobject);
 		if (idx < 0) return;
 
 		const GUIButton& button = m_buttons.at(idx);
@@ -815,7 +815,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		if (rect.image) rect.image->color = button.hovered_color;
 		if (rect.text) rect.text->color = button.hovered_color;
 
-		m_rect_hovered.invoke(rect.entity);
+		m_rect_hovered.invoke(rect.gameobject);
 	}
 
 
@@ -827,12 +827,12 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 		bool is = contains(r, mouse_pos);
 		bool was = contains(r, prev_mouse_pos);
-		if (is != was && m_buttons.find(rect.entity) >= 0)
+		if (is != was && m_buttons.find(rect.gameobject) >= 0)
 		{
 			is ? hover(rect) : hoverOut(rect);
 		}
 
-		for (Entity e = m_project.getFirstChild(rect.entity); e.isValid(); e = m_project.getNextSibling(e))
+		for (GameObject e = m_project.getFirstChild(rect.gameobject); e.isValid(); e = m_project.getNextSibling(e))
 		{
 			int idx = m_rects.find(e);
 			if (idx < 0) continue;
@@ -847,7 +847,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	bool isButtonDown(Entity e) const
+	bool isButtonDown(GameObject e) const
 	{
 		for(int i = 0, c = m_buttons_down_count; i < c; ++i)
 		{
@@ -867,18 +867,18 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		
 		if (contains(r, pos) && contains(r, m_mouse_down_pos))
 		{
-			if (m_buttons.find(rect.entity) >= 0)
+			if (m_buttons.find(rect.gameobject) >= 0)
 			{
-				if (is_up && isButtonDown(rect.entity))
+				if (is_up && isButtonDown(rect.gameobject))
 				{
-					m_focused_entity = INVALID_ENTITY;
-					m_button_clicked.invoke(rect.entity);
+					m_focused_gameobject = INVALID_GAMEOBJECT;
+					m_button_clicked.invoke(rect.gameobject);
 				}
 				if (!is_up)
 				{
 					if (m_buttons_down_count < lengthOf(m_buttons_down))
 					{
-						m_buttons_down[m_buttons_down_count] = rect.entity;
+						m_buttons_down[m_buttons_down_count] = rect.gameobject;
 						++m_buttons_down_count;
 					}
 					else
@@ -890,7 +890,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 			
 			if (rect.input_field && is_up)
 			{
-				m_focused_entity = rect.entity;
+				m_focused_gameobject = rect.gameobject;
 				if (rect.text)
 				{
 					rect.input_field->cursor = rect.text->text.length();
@@ -899,7 +899,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 			}
 		}
 
-		for (Entity e = m_project.getFirstChild(rect.entity); e.isValid(); e = m_project.getNextSibling(e))
+		for (GameObject e = m_project.getFirstChild(rect.gameobject); e.isValid(); e = m_project.getNextSibling(e))
 		{
 			int idx = m_rects.find(e);
 			if (idx < 0) continue;
@@ -908,7 +908,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	GUIRect* getInput(Entity e)
+	GUIRect* getInput(GameObject e)
 	{
 		if (!e.isValid()) return nullptr;
 
@@ -925,7 +925,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 	void handleTextInput(const InputSystem::Event& event)
 	{
-		const GUIRect* rect = getInput(m_focused_entity);
+		const GUIRect* rect = getInput(m_focused_gameobject);
 		if (!rect) return;
 		rect->text->text.insert(rect->input_field->cursor, event.data.text.text);
 		rect->input_field->cursor += stringLength(event.data.text.text);
@@ -934,7 +934,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 	void handleKeyboardButtonEvent(const InputSystem::Event& event)
 	{
-		const GUIRect* rect = getInput(m_focused_entity);
+		const GUIRect* rect = getInput(m_focused_gameobject);
 		if (!rect) return;
 		if (event.data.button.state != InputSystem::ButtonEvent::DOWN) return;
 
@@ -1012,7 +1012,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 
 	void blinkCursor(float time_delta)
 	{
-		GUIRect* rect = getInput(m_focused_entity);
+		GUIRect* rect = getInput(m_focused_gameobject);
 		if (!rect) return;
 
 		rect->input_field->anim += time_delta;
@@ -1029,9 +1029,9 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 
 
-	void createRect(Entity entity)
+	void createRect(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		GUIRect* rect;
 		if (idx >= 0)
 		{
@@ -1040,91 +1040,91 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		else
 		{
 			rect = MALMY_NEW(m_allocator, GUIRect);
-			m_rects.insert(entity, rect);
+			m_rects.insert(gameobject, rect);
 		}
-		rect->entity = entity;
+		rect->gameobject = gameobject;
 		rect->flags.set(GUIRect::IS_VALID);
 		rect->flags.set(GUIRect::IS_ENABLED);
-		m_project.onComponentCreated(entity, GUI_RECT_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_RECT_TYPE, this);
 		m_root = findRoot();
 	}
 
 
-	void createText(Entity entity)
+	void createText(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
-			createRect(entity);
-			idx = m_rects.find(entity);
+			createRect(gameobject);
+			idx = m_rects.find(gameobject);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.text = MALMY_NEW(m_allocator, GUIText)(m_allocator);
 
-		m_project.onComponentCreated(entity, GUI_TEXT_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_TEXT_TYPE, this);
 	}
 
 
-	void createRenderTarget(Entity entity)
+	void createRenderTarget(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
-			createRect(entity);
-			idx = m_rects.find(entity);
+			createRect(gameobject);
+			idx = m_rects.find(gameobject);
 		}
 		m_rects.at(idx)->render_target = &EMPTY_RENDER_TARGET;
-		m_project.onComponentCreated(entity, GUI_RENDER_TARGET_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_RENDER_TARGET_TYPE, this);
 	}
 
 
-	void createButton(Entity entity)
+	void createButton(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
-			createRect(entity);
-			idx = m_rects.find(entity);
+			createRect(gameobject);
+			idx = m_rects.find(gameobject);
 		}
 		GUIImage* image = m_rects.at(idx)->image;
-		GUIButton& button = m_buttons.emplace(entity);
+		GUIButton& button = m_buttons.emplace(gameobject);
 		if (image)
 		{
 			button.hovered_color = image->color;
 			button.normal_color = image->color;
 		}
-		m_project.onComponentCreated(entity, GUI_BUTTON_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_BUTTON_TYPE, this);
 	}
 
 
-	void createInputField(Entity entity)
+	void createInputField(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
-			createRect(entity);
-			idx = m_rects.find(entity);
+			createRect(gameobject);
+			idx = m_rects.find(gameobject);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.input_field = MALMY_NEW(m_allocator, GUIInputField);
 
-		m_project.onComponentCreated(entity, GUI_INPUT_FIELD_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_INPUT_FIELD_TYPE, this);
 	}
 
 
-	void createImage(Entity entity)
+	void createImage(GameObject gameobject)
 	{
-		int idx = m_rects.find(entity);
+		int idx = m_rects.find(gameobject);
 		if (idx < 0)
 		{
-			createRect(entity);
-			idx = m_rects.find(entity);
+			createRect(gameobject);
+			idx = m_rects.find(gameobject);
 		}
 		GUIRect& rect = *m_rects.at(idx);
 		rect.image = MALMY_NEW(m_allocator, GUIImage);
 		rect.image->flags.set(GUIImage::IS_ENABLED);
 
-		m_project.onComponentCreated(entity, GUI_IMAGE_TYPE, this);
+		m_project.onComponentCreated(gameobject, GUI_IMAGE_TYPE, this);
 	}
 
 
@@ -1135,72 +1135,72 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		{
 			GUIRect& rect = *m_rects.at(i);
 			if (!rect.flags.isSet(GUIRect::IS_VALID)) continue;
-			Entity e = m_rects.getKey(i);
-			Entity parent = m_project.getParent(e);
-			if (parent == INVALID_ENTITY) return &rect;
+			GameObject e = m_rects.getKey(i);
+			GameObject parent = m_project.getParent(e);
+			if (parent == INVALID_GAMEOBJECT) return &rect;
 			if (m_rects.find(parent) < 0) return &rect;
 		}
 		return nullptr;
 	}
 
 
-	void destroyRect(Entity entity)
+	void destroyRect(GameObject gameobject)
 	{
-		GUIRect* rect = m_rects[entity];
+		GUIRect* rect = m_rects[gameobject];
 		rect->flags.set(GUIRect::IS_VALID, false);
 		if (rect->image == nullptr && rect->text == nullptr && rect->input_field == nullptr)
 		{
 			MALMY_DELETE(m_allocator, rect);
-			m_rects.erase(entity);
+			m_rects.erase(gameobject);
 			
 		}
 		if (rect == m_root)
 		{
 			m_root = findRoot();
 		}
-		m_project.onComponentDestroyed(entity, GUI_RECT_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GUI_RECT_TYPE, this);
 	}
 
 
-	void destroyButton(Entity entity)
+	void destroyButton(GameObject gameobject)
 	{
-		m_buttons.erase(entity);
-		m_project.onComponentDestroyed(entity, GUI_BUTTON_TYPE, this);
+		m_buttons.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, GUI_BUTTON_TYPE, this);
 	}
 
 
-	void destroyRenderTarget(Entity entity)
+	void destroyRenderTarget(GameObject gameobject)
 	{
-		GUIRect* rect = m_rects[entity];
+		GUIRect* rect = m_rects[gameobject];
 		rect->render_target = nullptr;
-		m_project.onComponentDestroyed(entity, GUI_RENDER_TARGET_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GUI_RENDER_TARGET_TYPE, this);
 	}
 
 
-	void destroyInputField(Entity entity)
+	void destroyInputField(GameObject gameobject)
 	{
-		GUIRect* rect = m_rects[entity];
+		GUIRect* rect = m_rects[gameobject];
 		MALMY_DELETE(m_allocator, rect->input_field);
 		rect->input_field = nullptr;
-		m_project.onComponentDestroyed(entity, GUI_INPUT_FIELD_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GUI_INPUT_FIELD_TYPE, this);
 	}
 
 
-	void destroyImage(Entity entity)
+	void destroyImage(GameObject gameobject)
 	{
-		GUIRect* rect = m_rects[entity];
+		GUIRect* rect = m_rects[gameobject];
 		MALMY_DELETE(m_allocator, rect->image);
 		rect->image = nullptr;
-		m_project.onComponentDestroyed(entity, GUI_IMAGE_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GUI_IMAGE_TYPE, this);
 	}
 
 
-	void destroyText(Entity entity)
+	void destroyText(GameObject gameobject)
 	{
-		GUIRect* rect = m_rects[entity];
+		GUIRect* rect = m_rects[gameobject];
 		MALMY_DELETE(m_allocator, rect->text);
 		rect->text = nullptr;
-		m_project.onComponentDestroyed(entity, GUI_TEXT_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GUI_TEXT_TYPE, this);
 	}
 
 
@@ -1210,7 +1210,7 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		for (GUIRect* rect : m_rects)
 		{
 			serializer.write(rect->flags);
-			serializer.write(rect->entity);
+			serializer.write(rect->gameobject);
 			serializer.write(rect->top);
 			serializer.write(rect->right);
 			serializer.write(rect->bottom);
@@ -1256,15 +1256,15 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 		{
 			GUIRect* rect = MALMY_NEW(m_allocator, GUIRect);
 			serializer.read(rect->flags);
-			serializer.read(rect->entity);
+			serializer.read(rect->gameobject);
 			serializer.read(rect->top);
 			serializer.read(rect->right);
 			serializer.read(rect->bottom);
 			serializer.read(rect->left);
-			m_rects.insert(rect->entity, rect);
+			m_rects.insert(rect->gameobject, rect);
 			if (rect->flags.isSet(GUIRect::IS_VALID))
 			{
-				m_project.onComponentCreated(rect->entity, GUI_RECT_TYPE, this);
+				m_project.onComponentCreated(rect->gameobject, GUI_RECT_TYPE, this);
 			}
 
 			char tmp[MAX_PATH_LENGTH];
@@ -1284,14 +1284,14 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 				}
 				serializer.read(rect->image->color);
 				serializer.read(rect->image->flags.base);
-				m_project.onComponentCreated(rect->entity, GUI_IMAGE_TYPE, this);
+				m_project.onComponentCreated(rect->gameobject, GUI_IMAGE_TYPE, this);
 
 			}
 			bool has_input_field = serializer.read<bool>();
 			if (has_input_field)
 			{
 				rect->input_field = MALMY_NEW(m_allocator, GUIInputField);
-				m_project.onComponentCreated(rect->entity, GUI_INPUT_FIELD_TYPE, this);
+				m_project.onComponentCreated(rect->gameobject, GUI_INPUT_FIELD_TYPE, this);
 
 			}
 			bool has_text = serializer.read<bool>();
@@ -1308,13 +1308,13 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 				serializer.read(text.text);
 				FontResource* res = tmp[0] == 0 ? nullptr : (FontResource*)m_font_manager->load(Path(tmp));
 				text.setFontResource(res);
-				m_project.onComponentCreated(rect->entity, GUI_TEXT_TYPE, this);
+				m_project.onComponentCreated(rect->gameobject, GUI_TEXT_TYPE, this);
 			}
 		}
 		count = serializer.read<int>();
 		for (int i = 0; i < count; ++i)
 		{
-			Entity e;
+			GameObject e;
 			serializer.read(e);
 			GUIButton& button = m_buttons.emplace(e);
 			serializer.read(button);
@@ -1323,25 +1323,25 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	}
 	
 
-	void setRenderTarget(Entity entity, bgfx::TextureHandle* texture_handle) override
+	void setRenderTarget(GameObject gameobject, bgfx::TextureHandle* texture_handle) override
 	{
-		m_rects[entity]->render_target = texture_handle;
+		m_rects[gameobject]->render_target = texture_handle;
 	}
 
 	
-	DelegateList<void(Entity)>& buttonClicked() override
+	DelegateList<void(GameObject)>& buttonClicked() override
 	{
 		return m_button_clicked;
 	}
 
 
-	DelegateList<void(Entity)>& rectHovered() override
+	DelegateList<void(GameObject)>& rectHovered() override
 	{
 		return m_rect_hovered;
 	}
 
 
-	DelegateList<void(Entity)>& rectHoveredOut() override
+	DelegateList<void(GameObject)>& rectHoveredOut() override
 	{
 		return m_rect_hovered_out;
 	}
@@ -1354,18 +1354,18 @@ struct GUISceneImpl MALMY_FINAL : public GUIScene
 	Project& m_project;
 	GUISystem& m_system;
 	
-	AssociativeArray<Entity, GUIRect*> m_rects;
-	AssociativeArray<Entity, GUIButton> m_buttons;
-	Entity m_buttons_down[16];
+	AssociativeArray<GameObject, GUIRect*> m_rects;
+	AssociativeArray<GameObject, GUIButton> m_buttons;
+	GameObject m_buttons_down[16];
 	int m_buttons_down_count;
-	Entity m_focused_entity = INVALID_ENTITY;
+	GameObject m_focused_gameobject = INVALID_GAMEOBJECT;
 	GUIRect* m_root = nullptr;
 	FontManager* m_font_manager = nullptr;
 	Vec2 m_canvas_size;
 	Vec2 m_mouse_down_pos;
-	DelegateList<void(Entity)> m_button_clicked;
-	DelegateList<void(Entity)> m_rect_hovered;
-	DelegateList<void(Entity)> m_rect_hovered_out;
+	DelegateList<void(GameObject)> m_button_clicked;
+	DelegateList<void(GameObject)> m_rect_hovered;
+	DelegateList<void(GameObject)> m_rect_hovered_out;
 };
 
 

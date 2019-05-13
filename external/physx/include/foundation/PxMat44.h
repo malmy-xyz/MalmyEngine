@@ -59,8 +59,8 @@ class PxMat44
 	{
 	}
 
-	//! identity constructor
-	PX_CUDA_CALLABLE PX_INLINE PxMat44(PxIDENTITY r)
+	//! idgameobject constructor
+	PX_CUDA_CALLABLE PX_INLINE PxMat44(PxIDGAMEOBJECT r)
 	: column0(1.0f, 0.0f, 0.0f, 0.0f)
 	, column1(0.0f, 1.0f, 0.0f, 0.0f)
 	, column2(0.0f, 0.0f, 1.0f, 0.0f)
@@ -81,7 +81,7 @@ class PxMat44
 	{
 	}
 
-	//! constructor that generates a multiple of the identity matrix
+	//! constructor that generates a multiple of the idgameobject matrix
 	explicit PX_CUDA_CALLABLE PX_INLINE PxMat44(float r)
 	: column0(r, 0.0f, 0.0f, 0.0f)
 	, column1(0.0f, r, 0.0f, 0.0f)

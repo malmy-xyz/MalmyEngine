@@ -20,7 +20,7 @@ class EditorIcons
 	public:
 		struct Hit
 		{
-			Entity entity;
+			GameObject gameobject;
 			float t;
 		};
 

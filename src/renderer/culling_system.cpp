@@ -11,14 +11,14 @@ namespace Malmy
 {
 typedef Array<u64> LayerMasks;
 typedef Array<int> ModelInstancetoSphereMap;
-typedef Array<Entity> SphereToModelInstanceMap;
+typedef Array<GameObject> SphereToModelInstanceMap;
 
 static void doCulling(int start_index,
 	const Sphere* MALMY_RESTRICT start,
 	const Sphere* MALMY_RESTRICT end,
 	const Frustum* MALMY_RESTRICT frustum,
 	const u64* MALMY_RESTRICT layer_masks,
-	const Entity* MALMY_RESTRICT sphere_to_model_instance_map,
+	const GameObject* MALMY_RESTRICT sphere_to_model_instance_map,
 	u64 layer_mask,
 	CullingSystem::Subresults& results)
 {
@@ -155,25 +155,25 @@ public:
 	}
 
 
-	void setLayerMask(Entity model_instance, u64 layer) override
+	void setLayerMask(GameObject model_instance, u64 layer) override
 	{
 		m_layer_masks[m_model_instance_to_sphere_map[model_instance.index]] = layer;
 	}
 
 
-	u64 getLayerMask(Entity model_instance) override
+	u64 getLayerMask(GameObject model_instance) override
 	{
 		return m_layer_masks[m_model_instance_to_sphere_map[model_instance.index]];
 	}
 
 
-	bool isAdded(Entity model_instance) override
+	bool isAdded(GameObject model_instance) override
 	{
 		return model_instance.index < m_model_instance_to_sphere_map.size() && m_model_instance_to_sphere_map[model_instance.index] != -1;
 	}
 
 
-	void addStatic(Entity model_instance, const Sphere& sphere, u64 layer_mask) override
+	void addStatic(GameObject model_instance, const Sphere& sphere, u64 layer_mask) override
 	{
 		if (model_instance.index < m_model_instance_to_sphere_map.size() &&
 			m_model_instance_to_sphere_map[model_instance.index] != -1)
@@ -193,7 +193,7 @@ public:
 	}
 
 
-	void removeStatic(Entity model_instance) override
+	void removeStatic(GameObject model_instance) override
 	{
 		if (model_instance.index >= m_model_instance_to_sphere_map.size()) return;
 		int index = m_model_instance_to_sphere_map[model_instance.index];
@@ -212,14 +212,14 @@ public:
 	}
 
 
-	void updateBoundingSphere(const Sphere& sphere, Entity model_instance) override
+	void updateBoundingSphere(const Sphere& sphere, GameObject model_instance) override
 	{
 		int idx = m_model_instance_to_sphere_map[model_instance.index];
 		if (idx >= 0) m_spheres[idx] = sphere;
 	}
 
 
-	void insert(const InputSpheres& spheres, const Array<Entity>& model_instances) override
+	void insert(const InputSpheres& spheres, const Array<GameObject>& model_instances) override
 	{
 		for (int i = 0; i < spheres.size(); i++)
 		{
@@ -235,7 +235,7 @@ public:
 	}
 
 
-	const Sphere& getSphere(Entity model_instance) override
+	const Sphere& getSphere(GameObject model_instance) override
 	{
 		return m_spheres[m_model_instance_to_sphere_map[model_instance.index]];
 	}

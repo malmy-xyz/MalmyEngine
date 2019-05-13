@@ -39,8 +39,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\data\bin\</OutDir>
-    <IntDir>..\obj\main\</IntDir>
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\bin\obj\main\</IntDir>
     <TargetName>malmy</TargetName>
     <TargetExt>.exe</TargetExt>
     <LinkIncremental>true</LinkIncremental>
@@ -83,12 +83,12 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXCommon_64.dll" "$(SolutionDir)data\bin\"
-xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXCooking_64.dll" "$(SolutionDir)data\bin\"
-xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXFoundation_64.dll" "$(SolutionDir)data\bin\"
-xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysX_64.dll" "$(SolutionDir)data/bin/"
-xcopy /Y "$(SolutionDir)external\dbghelp\dbghelp.dll" "$(SolutionDir)data\bin\"
-xcopy /Y "$(SolutionDir)external\dbghelp\dbgcore.dll" "$(SolutionDir)data\bin\"</Command>
+      <Command>xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXCommon_64.dll" "$(SolutionDir)bin\"
+xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXCooking_64.dll" "$(SolutionDir)bin\"
+xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysXFoundation_64.dll" "$(SolutionDir)bin\"
+xcopy /Y "$(SolutionDir)external\physx\dll\vs2017\win64\Debug\PhysX_64.dll" "$(SolutionDir)bin\"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbghelp.dll" "$(SolutionDir)bin\"
+xcopy /Y "$(SolutionDir)external\dbghelp\dbgcore.dll" "$(SolutionDir)bin\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

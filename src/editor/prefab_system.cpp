@@ -42,7 +42,7 @@ public:
 	{
 		if (ImGui::Button("instantiate"))
 		{
-			Array<Entity> entities(editor.getAllocator());
+			Array<GameObject> entities(editor.getAllocator());
 			system.instantiatePrefab(*(PrefabResource*)resource, editor.getCameraRaycastHit(), {0, 0, 0, 1}, 1);
 		}
 	}
@@ -74,41 +74,41 @@ class PrefabSystemImpl MALMY_FINAL : public PrefabSystem
 		}
 
 
-		void createEntityGUIDRecursive(Entity entity) const
+		void createGameObjectGUIDRecursive(GameObject gameobject) const
 		{
-			if (!entity.isValid()) return;
+			if (!gameobject.isValid()) return;
 
-			editor.createEntityGUID(entity);
+			editor.createGameObjectGUID(gameobject);
 			
 			Project& project = *editor.getProject();
-			createEntityGUIDRecursive(project.getFirstChild(entity));
-			createEntityGUIDRecursive(project.getNextSibling(entity));
+			createGameObjectGUIDRecursive(project.getFirstChild(gameobject));
+			createGameObjectGUIDRecursive(project.getNextSibling(gameobject));
 		}
 
 
-		void destroyEntityRecursive(Entity entity) const
+		void destroyGameObjectRecursive(GameObject gameobject) const
 		{
-			if (!entity.isValid()) return;
+			if (!gameobject.isValid()) return;
 
 			Project& project = *editor.getProject();
-			destroyEntityRecursive(project.getFirstChild(entity));
-			destroyEntityRecursive(project.getNextSibling(entity));
+			destroyGameObjectRecursive(project.getFirstChild(gameobject));
+			destroyGameObjectRecursive(project.getNextSibling(gameobject));
 
-			project.destroyEntity(entity);
-			editor.destroyEntityGUID(entity);
+			project.destroyGameObject(gameobject);
+			editor.destroyGameObjectGUID(gameobject);
 
 		}
 
 
 		bool execute() override
 		{
-			entity = INVALID_ENTITY;
+			gameobject = INVALID_GAMEOBJECT;
 			if (!prefab->isReady()) return false;
 			auto& system = (PrefabSystemImpl&)editor.getPrefabSystem();
 
-			entity = system.doInstantiatePrefab(*prefab, position, rotation, scale);
-			editor.createEntityGUID(entity);
-			createEntityGUIDRecursive(editor.getProject()->getFirstChild(entity));
+			gameobject = system.doInstantiatePrefab(*prefab, position, rotation, scale);
+			editor.createGameObjectGUID(gameobject);
+			createGameObjectGUIDRecursive(editor.getProject()->getFirstChild(gameobject));
 			return true;
 		}
 
@@ -117,9 +117,9 @@ class PrefabSystemImpl MALMY_FINAL : public PrefabSystem
 		{
 			Project& project = *editor.getProject();
 
-			destroyEntityRecursive(project.getFirstChild(entity));
-			project.destroyEntity(entity);
-			editor.destroyEntityGUID(entity);
+			destroyGameObjectRecursive(project.getFirstChild(gameobject));
+			project.destroyGameObject(gameobject);
+			editor.destroyGameObjectGUID(gameobject);
 		}
 
 
@@ -166,7 +166,7 @@ class PrefabSystemImpl MALMY_FINAL : public PrefabSystem
 		Quat rotation;
 		float scale;
 		WorldEditor& editor;
-		Entity entity;
+		GameObject gameobject;
 	};
 
 public:
@@ -208,15 +208,15 @@ public:
 	{
 		if (m_project)
 		{
-			m_project->entityDestroyed()
-				.unbind<PrefabSystemImpl, &PrefabSystemImpl::onEntityDestroyed>(
+			m_project->gameobjectDestroyed()
+				.unbind<PrefabSystemImpl, &PrefabSystemImpl::onGameObjectDestroyed>(
 					this);
 		}
 		m_project = project;
 		if (m_project)
 		{
-			m_project->entityDestroyed()
-				.bind<PrefabSystemImpl, &PrefabSystemImpl::onEntityDestroyed>(this);
+			m_project->gameobjectDestroyed()
+				.bind<PrefabSystemImpl, &PrefabSystemImpl::onGameObjectDestroyed>(this);
 		}
 	}
 
@@ -247,33 +247,33 @@ public:
 	}
 
 
-	void link(Entity entity, u64 prefab)
+	void link(GameObject gameobject, u64 prefab)
 	{
 		ASSERT(prefab != 0);
 		int idx = m_instances.find(prefab);
-		m_prefabs[entity.index].prev = INVALID_ENTITY;
+		m_prefabs[gameobject.index].prev = INVALID_GAMEOBJECT;
 		if (idx >= 0)
 		{
-			Entity e = m_instances.at(idx);
-			m_prefabs[e.index].prev = entity;
-			m_prefabs[entity.index].next = e;
+			GameObject e = m_instances.at(idx);
+			m_prefabs[e.index].prev = gameobject;
+			m_prefabs[gameobject.index].next = e;
 		}
 		else
 		{
-			m_prefabs[entity.index].next = INVALID_ENTITY;
+			m_prefabs[gameobject.index].next = INVALID_GAMEOBJECT;
 		}
-		m_instances[prefab] = entity;
+		m_instances[prefab] = gameobject;
 	}
 
 
-	void unlink(Entity entity)
+	void unlink(GameObject gameobject)
 	{
-		EntityPrefab& p = m_prefabs[entity.index];
+		GameObjectPrefab& p = m_prefabs[gameobject.index];
 		if (p.prefab == 0) return;
-		if (m_instances[p.prefab] == entity)
+		if (m_instances[p.prefab] == gameobject)
 		{
-			if (m_prefabs[entity.index].next.isValid())
-				m_instances[p.prefab] = m_prefabs[entity.index].next;
+			if (m_prefabs[gameobject.index].next.isValid())
+				m_instances[p.prefab] = m_prefabs[gameobject.index].next;
 			else
 				m_instances.erase(p.prefab);
 		}
@@ -282,62 +282,62 @@ public:
 	}
 
 
-	void onEntityDestroyed(Entity entity)
+	void onGameObjectDestroyed(GameObject gameobject)
 	{
-		if (entity.index >= m_prefabs.size()) return;
-		unlink(entity);
-		m_prefabs[entity.index].prefab = 0;
+		if (gameobject.index >= m_prefabs.size()) return;
+		unlink(gameobject);
+		m_prefabs[gameobject.index].prefab = 0;
 	}
 
 
-	void setPrefab(Entity entity, u64 prefab) override
+	void setPrefab(GameObject gameobject, u64 prefab) override
 	{
-		reserve(entity);
-		m_prefabs[entity.index].prefab = prefab;
-		link(entity, prefab);
+		reserve(gameobject);
+		m_prefabs[gameobject.index].prefab = prefab;
+		link(gameobject, prefab);
 	}
 
 
-	PrefabResource* getPrefabResource(Entity entity) override
+	PrefabResource* getPrefabResource(GameObject gameobject) override
 	{
-		if (entity.index >= m_prefabs.size()) return nullptr;
-		u32 hash = u32(m_prefabs[entity.index].prefab & 0xffffFFFF);
+		if (gameobject.index >= m_prefabs.size()) return nullptr;
+		u32 hash = u32(m_prefabs[gameobject.index].prefab & 0xffffFFFF);
 		auto iter = m_resources.find(hash);
 		if (!iter.isValid()) return nullptr;
 		return iter.value();
 	}
 
 
-	u64 getPrefab(Entity entity) const override
+	u64 getPrefab(GameObject gameobject) const override
 	{
-		if (entity.index >= m_prefabs.size()) return 0;
-		return m_prefabs[entity.index].prefab;
+		if (gameobject.index >= m_prefabs.size()) return 0;
+		return m_prefabs[gameobject.index].prefab;
 	}
 
 
-	int getMaxEntityIndex() const override
+	int getMaxGameObjectIndex() const override
 	{
 		return m_prefabs.size();
 	}
 
 
-	Entity getFirstInstance(u64 prefab) override
+	GameObject getFirstInstance(u64 prefab) override
 	{
 		int instances_index = m_instances.find(prefab);
 		if (instances_index >= 0) return m_instances.at(instances_index);
-		return INVALID_ENTITY;
+		return INVALID_GAMEOBJECT;
 	}
 
 
-	Entity getNextInstance(Entity entity) override
+	GameObject getNextInstance(GameObject gameobject) override
 	{
-		return m_prefabs[entity.index].next;
+		return m_prefabs[gameobject.index].next;
 	}
 
 
-	void reserve(Entity entity)
+	void reserve(GameObject gameobject)
 	{
-		while (entity.index >= m_prefabs.size())
+		while (gameobject.index >= m_prefabs.size())
 		{
 			auto& i = m_prefabs.emplace();
 			i.prefab = 0;
@@ -345,86 +345,86 @@ public:
 	}
 
 
-	struct LoadEntityGUIDMap : public ILoadEntityGUIDMap
+	struct LoadGameObjectGUIDMap : public ILoadGameObjectGUIDMap
 	{
-		explicit LoadEntityGUIDMap(const Array<Entity>& entities)
+		explicit LoadGameObjectGUIDMap(const Array<GameObject>& entities)
 			: entities(entities)
 		{
 		}
 
 
-		Entity get(EntityGUID guid) override
+		GameObject get(GameObjectGUID guid) override
 		{
-			if (guid.value >= entities.size()) return INVALID_ENTITY;
+			if (guid.value >= entities.size()) return INVALID_GAMEOBJECT;
 			return entities[(int)guid.value];
 		}
 
 
-		const Array<Entity>& entities;
+		const Array<GameObject>& entities;
 	};
 
 
-	struct SaveEntityGUIDMap : public ISaveEntityGUIDMap
+	struct SaveGameObjectGUIDMap : public ISaveGameObjectGUIDMap
 	{
-		explicit SaveEntityGUIDMap(const Array<Entity>& entities)
+		explicit SaveGameObjectGUIDMap(const Array<GameObject>& entities)
 			: entities(entities)
 		{
 		}
 
 
-		EntityGUID get(Entity entity) override
+		GameObjectGUID get(GameObject gameobject) override
 		{
-			int idx = entities.indexOf(entity);
-			if (idx < 0) return INVALID_ENTITY_GUID;
+			int idx = entities.indexOf(gameobject);
+			if (idx < 0) return INVALID_GAMEOBJECT_GUID;
 			return {(u64)idx};
 		}
 
 
-		const Array<Entity>& entities;
+		const Array<GameObject>& entities;
 	};
 
 
-	Entity doInstantiatePrefab(PrefabResource& prefab_res, const Vec3& pos, const Quat& rot, float scale)
+	GameObject doInstantiatePrefab(PrefabResource& prefab_res, const Vec3& pos, const Quat& rot, float scale)
 	{
-		if (!prefab_res.isReady()) return INVALID_ENTITY;
+		if (!prefab_res.isReady()) return INVALID_GAMEOBJECT;
 		if (!m_resources.find(prefab_res.getPath().getHash()).isValid())
 		{
 			m_resources.insert(prefab_res.getPath().getHash(), &prefab_res);
 			prefab_res.getResourceManager().load(prefab_res);
 		}
 		InputBlob blob(prefab_res.blob.getData(), prefab_res.blob.getPos());
-		Array<Entity> entities(m_editor.getAllocator());
-		LoadEntityGUIDMap entity_map(entities);
-		TextDeserializer deserializer(blob, entity_map);
+		Array<GameObject> entities(m_editor.getAllocator());
+		LoadGameObjectGUIDMap gameobject_map(entities);
+		TextDeserializer deserializer(blob, gameobject_map);
 		u32 version;
 		deserializer.read(&version);
 		if (version > (int)PrefabVersion::LAST)
 		{
 			g_log_error.log("Editor") << "Prefab " << prefab_res.getPath() << " has unsupported version.";
-			return INVALID_ENTITY;
+			return INVALID_GAMEOBJECT;
 		}
 		int count;
 		deserializer.read(&count);
 		entities.reserve(count);
 		for (int i = 0; i < count; ++i)
 		{
-			entities.push(m_project->createEntity({0, 0, 0}, {0, 0, 0, 1}));
+			entities.push(m_project->createGameObject({0, 0, 0}, {0, 0, 0, 1}));
 		}
 
-		int entity_idx = 0;
-		while (blob.getPosition() < blob.getSize() && entity_idx < count)
+		int gameobject_idx = 0;
+		while (blob.getPosition() < blob.getSize() && gameobject_idx < count)
 		{
 			u64 prefab;
 			deserializer.read(&prefab);
-			Entity entity = entities[entity_idx];
-			m_project->setTransform(entity, {pos, rot, scale});
-			reserve(entity);
-			m_prefabs[entity.index].prefab = prefab;
-			link(entity, prefab);
+			GameObject gameobject = entities[gameobject_idx];
+			m_project->setTransform(gameobject, {pos, rot, scale});
+			reserve(gameobject);
+			m_prefabs[gameobject.index].prefab = prefab;
+			link(gameobject, prefab);
 			
 			if (version > (int)PrefabVersion::WITH_HIERARCHY)
 			{
-				Entity parent;
+				GameObject parent;
 				deserializer.read(&parent);
 				if (parent.isValid())
 				{
@@ -432,8 +432,8 @@ public:
 					deserializer.read(&local_tr);
 					float scale;
 					deserializer.read(&scale);
-					m_project->setParent(parent, entity);
-					m_project->setLocalTransform(entity, {local_tr.pos, local_tr.rot, scale});
+					m_project->setParent(parent, gameobject);
+					m_project->setLocalTransform(gameobject, {local_tr.pos, local_tr.rot, scale});
 				}
 			}
 			u32 cmp_type_hash;
@@ -443,16 +443,16 @@ public:
 				ComponentType cmp_type = Reflection::getComponentTypeFromHash(cmp_type_hash);
 				int scene_version;
 				deserializer.read(&scene_version);
-				m_project->deserializeComponent(deserializer, entity, cmp_type, scene_version);
+				m_project->deserializeComponent(deserializer, gameobject, cmp_type, scene_version);
 				deserializer.read(&cmp_type_hash);
 			}
-			++entity_idx;
+			++gameobject_idx;
 		}
 		return entities[0];
 	}
 
 
-	Entity instantiatePrefab(PrefabResource& prefab, const Vec3& pos, const Quat& rot, float scale) override
+	GameObject instantiatePrefab(PrefabResource& prefab, const Vec3& pos, const Quat& rot, float scale) override
 	{
 		InstantiatePrefabCommand* cmd = MALMY_NEW(m_editor.getAllocator(), InstantiatePrefabCommand)(m_editor);
 		cmd->position = pos;
@@ -461,39 +461,39 @@ public:
 		cmd->rotation = rot;
 		cmd->scale = scale;
 		m_editor.executeCommand(cmd);
-		return cmd ? cmd->entity : INVALID_ENTITY;
+		return cmd ? cmd->gameobject : INVALID_GAMEOBJECT;
 	}
 
 
-	static int countHierarchy(Project* project, Entity entity)
+	static int countHierarchy(Project* project, GameObject gameobject)
 	{
-		if (!entity.isValid()) return 0;
-		int children_count = countHierarchy(project, project->getFirstChild(entity));
-		int siblings_count = countHierarchy(project, project->getNextSibling(entity));
+		if (!gameobject.isValid()) return 0;
+		int children_count = countHierarchy(project, project->getFirstChild(gameobject));
+		int siblings_count = countHierarchy(project, project->getNextSibling(gameobject));
 		return 1 + children_count + siblings_count;
 	}
 
 
-	static void serializePrefabEntity(u64 prefab,
+	static void serializePrefabGameObject(u64 prefab,
 		int& index,
 		TextSerializer& serializer,
 		Project* project,
-		Entity entity,
+		GameObject gameobject,
 		bool is_root)
 	{
-		if (!entity.isValid()) return;
+		if (!gameobject.isValid()) return;
 
 		prefab |= ((u64)index) << 32;
 		++index;
 		serializer.write("prefab", prefab);
-		Entity parent = is_root ? INVALID_ENTITY : project->getParent(entity);
+		GameObject parent = is_root ? INVALID_GAMEOBJECT : project->getParent(gameobject);
 		serializer.write("parent", parent);
 		if (parent.isValid())
 		{
-			serializer.write("local_transform", project->getLocalTransform(entity).getRigidPart());
-			serializer.write("local_scale", project->getLocalScale(entity));
+			serializer.write("local_transform", project->getLocalTransform(gameobject).getRigidPart());
+			serializer.write("local_scale", project->getLocalScale(gameobject));
 		}
-		for (ComponentUID cmp = project->getFirstComponent(entity); cmp.isValid();
+		for (ComponentUID cmp = project->getFirstComponent(gameobject); cmp.isValid();
 			cmp = project->getNextComponent(cmp))
 		{
 			const char* cmp_name = Reflection::getComponentTypeID(cmp.type.index);
@@ -501,37 +501,37 @@ public:
 			serializer.write(cmp_name, type_hash);
 			int scene_version = project->getScene(cmp.type)->getVersion();
 			serializer.write("scene_version", scene_version);
-			project->serializeComponent(serializer, cmp.type, cmp.entity);
+			project->serializeComponent(serializer, cmp.type, cmp.gameobject);
 		}
 		serializer.write("cmp_end", 0);
 
-		serializePrefabEntity(prefab, index, serializer, project, project->getFirstChild(entity), false);
+		serializePrefabGameObject(prefab, index, serializer, project, project->getFirstChild(gameobject), false);
 		if (!is_root)
 		{
-			serializePrefabEntity(prefab, index, serializer, project, project->getNextSibling(entity), false);
+			serializePrefabGameObject(prefab, index, serializer, project, project->getNextSibling(gameobject), false);
 		}
 	}
 
 
 
 	static void serializePrefab(Project* project,
-		Entity root,
+		GameObject root,
 		const Path& path,
 		TextSerializer& serializer)
 	{
 		serializer.write("version", (u32)PrefabVersion::LAST);
 		int count = 1 + countHierarchy(project, project->getFirstChild(root));
-		serializer.write("entity_count", count);
+		serializer.write("gameobject_count", count);
 		int i = 0;
 		u64 prefab = path.getHash();
-		serializePrefabEntity(prefab, i, serializer, project, root, true);
+		serializePrefabGameObject(prefab, i, serializer, project, root, true);
 	}
 
 
-	Entity getPrefabRoot(Entity entity) const
+	GameObject getPrefabRoot(GameObject gameobject) const
 	{
-		Entity root = entity;
-		Entity parent = m_project->getParent(root);
+		GameObject root = gameobject;
+		GameObject parent = m_project->getParent(root);
 		while (parent.isValid() && getPrefab(parent) != 0)
 		{
 			root = parent;
@@ -541,13 +541,13 @@ public:
 	}
 
 
-	void gatherHierarchy(Entity entity, bool is_root, Array<Entity>& out) const
+	void gatherHierarchy(GameObject gameobject, bool is_root, Array<GameObject>& out) const
 	{
-		if (!entity.isValid()) return;
+		if (!gameobject.isValid()) return;
 
-		out.push(entity);
-		gatherHierarchy(m_project->getFirstChild(entity), false, out);
-		gatherHierarchy(m_project->getNextSibling(entity), false, out);
+		out.push(gameobject);
+		gatherHierarchy(m_project->getFirstChild(gameobject), false, out);
+		gatherHierarchy(m_project->getNextSibling(gameobject), false, out);
 	}
 
 
@@ -556,9 +556,9 @@ public:
 		auto& selected_entities = m_editor.getSelectedEntities();
 		if (selected_entities.size() != 1) return;
 
-		Entity entity = selected_entities[0];
-		u64 prefab = getPrefab(entity);
-		if (prefab != 0) entity = getPrefabRoot(entity);
+		GameObject gameobject = selected_entities[0];
+		u64 prefab = getPrefab(gameobject);
+		if (prefab != 0) gameobject = getPrefabRoot(gameobject);
 
 		FS::OsFile file;
 		if (!file.open(path.c_str(), FS::Mode::CREATE_AND_WRITE))
@@ -567,11 +567,11 @@ public:
 			return;
 		}
 
-		Array<Entity> entities(m_editor.getAllocator());
-		gatherHierarchy(entity, true, entities);
+		Array<GameObject> entities(m_editor.getAllocator());
+		gatherHierarchy(gameobject, true, entities);
 		OutputBlob blob(m_editor.getAllocator());
-		SaveEntityGUIDMap entity_map(entities);
-		TextSerializer serializer(blob, entity_map);
+		SaveGameObjectGUIDMap gameobject_map(entities);
+		TextSerializer serializer(blob, gameobject_map);
 
 		serializePrefab(m_project, entities[0], path, serializer);
 
@@ -583,7 +583,7 @@ public:
 		{
 			m_editor.beginCommandGroup(crc32("save_prefab"));
 
-			Transform tr = m_project->getTransform(entity);
+			Transform tr = m_project->getTransform(gameobject);
 			m_editor.destroyEntities(&entities[0], entities.size());
 			auto* resource_manager = m_editor.getEngine().getResourceManager().get(PrefabResource::TYPE);
 			auto* res = (PrefabResource*)resource_manager->load(path);
@@ -625,7 +625,7 @@ public:
 		for (int i = 0; i < count; ++i)
 		{
 			u64 key;
-			Entity value;
+			GameObject value;
 			serializer.read(key);
 			serializer.read(value);
 			m_instances.insert(key, value);
@@ -656,14 +656,14 @@ public:
 		{
 			u64 prefab = m_instances.getKey(i);
 			if ((prefab & 0xffffFFFF) != prefab) continue;
-			Entity entity = m_instances.at(i);
-			while(entity.isValid())
+			GameObject gameobject = m_instances.at(i);
+			while(gameobject.isValid())
 			{
 				serializer.write("prefab", (u32)prefab);
-				serializer.write("pos", m_project->getPosition(entity));
-				serializer.write("rot", m_project->getRotation(entity));
-				serializer.write("scale", m_project->getScale(entity));
-				entity = m_prefabs[entity.index].next;
+				serializer.write("pos", m_project->getPosition(gameobject));
+				serializer.write("rot", m_project->getRotation(gameobject));
+				serializer.write("scale", m_project->getScale(gameobject));
+				gameobject = m_prefabs[gameobject.index].next;
 			}
 		}
 		serializer.write("prefab", (u32)0);
@@ -707,14 +707,14 @@ public:
 
 
 private:
-	struct EntityPrefab
+	struct GameObjectPrefab
 	{
 		u64 prefab;
-		Entity next;
-		Entity prev;
+		GameObject next;
+		GameObject prev;
 	};
-	Array<EntityPrefab> m_prefabs;
-	AssociativeArray<u64, Entity> m_instances;
+	Array<GameObjectPrefab> m_prefabs;
+	AssociativeArray<u64, GameObject> m_instances;
 	HashMap<u32, PrefabResource*> m_resources;
 	Project* m_project;
 	WorldEditor& m_editor;

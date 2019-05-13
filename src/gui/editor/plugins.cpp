@@ -278,7 +278,7 @@ private:
 		auto& selected_entities = m_editor->getSelectedEntities();
 		if (selected_entities.size() != 1) return MouseMode::NONE;
 
-		Entity e = selected_entities[0];
+		GameObject e = selected_entities[0];
 		if (!scene.hasGUI(e)) return MouseMode::NONE;
 
 		GUIScene::Rect& rect = scene.getRectOnCanvas(e, canvas_size);
@@ -329,7 +329,7 @@ private:
 		const Reflection::PropertyBase* prop = nullptr;
 		float value;
 
-		void set(GUIScene* scene, Entity e, const char* prop_name)
+		void set(GUIScene* scene, GameObject e, const char* prop_name)
 		{
 			prop = Reflection::getProperty(GUI_RECT_TYPE, prop_name);
 			OutputBlob blob(&value, sizeof(value));
@@ -339,7 +339,7 @@ private:
 	
 	int m_copy_position_buffer_count = 0;
 
-	void copy(Entity e, u8 mask)
+	void copy(GameObject e, u8 mask)
 	{
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
 		m_copy_position_buffer_count = 0;
@@ -374,7 +374,7 @@ private:
 	}
 
 
-	void paste(Entity e)
+	void paste(GameObject e)
 	{
 		m_editor->beginCommandGroup(crc32("gui_editor_paste"));
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
@@ -406,7 +406,7 @@ private:
 			
 			if (m_editor->getSelectedEntities().size() == 1)
 			{
-				Entity e = m_editor->getSelectedEntities()[0];
+				GameObject e = m_editor->getSelectedEntities()[0];
 				switch (m_mouse_mode)
 				{
 					case MouseMode::RESIZE:
@@ -440,7 +440,7 @@ private:
 
 			if (ImGui::IsMouseClicked(0) && ImGui::IsItemHovered() && m_mouse_mode == MouseMode::NONE)
 			{
-				Entity e = scene->getRectAt(toMalmy(mouse_canvas_pos), toMalmy(size));
+				GameObject e = scene->getRectAt(toMalmy(mouse_canvas_pos), toMalmy(size));
 				if (e.isValid()) m_editor->selectEntities(&e, 1, false);
 			}
 
@@ -451,7 +451,7 @@ private:
 			}
 			if (has_rect && ImGui::BeginPopupContextItem("context"))
 			{
-				Entity e = m_editor->getSelectedEntities()[0];
+				GameObject e = m_editor->getSelectedEntities()[0];
 				if (ImGui::BeginMenu("Make relative"))
 				{
 					if (ImGui::MenuItem("All")) makeRelative(e, toMalmy(size), (u8)EdgeMask::ALL);
@@ -523,18 +523,18 @@ private:
 	}
 
 
-	void createChild(Entity entity, ComponentType child_type)
+	void createChild(GameObject gameobject, ComponentType child_type)
 	{
 		m_editor->beginCommandGroup(crc32("create_gui_rect_child"));
-		Entity child = m_editor->addEntity();
-		m_editor->makeParent(entity, child);
+		GameObject child = m_editor->addGameObject();
+		m_editor->makeParent(gameobject, child);
 		m_editor->selectEntities(&child, 1, false);
 		m_editor->addComponent(child_type);
 		m_editor->endCommandGroup();
 	}
 
 
-	void setRectProperty(Entity e, const char* prop_name, float value)
+	void setRectProperty(GameObject e, const char* prop_name, float value)
 	{
 		const Reflection::PropertyBase* prop = Reflection::getProperty(GUI_RECT_TYPE, crc32(prop_name));
 		ASSERT(prop);
@@ -542,177 +542,177 @@ private:
 	}
 
 
-	void makeAbsolute(Entity entity, const Vec2& canvas_size, u8 mask)
+	void makeAbsolute(GameObject gameobject, const Vec2& canvas_size, u8 mask)
 	{
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
 
-		Entity parent = scene->getProject().getParent(entity);
+		GameObject parent = scene->getProject().getParent(gameobject);
 		GUIScene::Rect parent_rect = scene->getRectOnCanvas(parent, canvas_size);
-		GUIScene::Rect child_rect = scene->getRectOnCanvas(entity, canvas_size);
+		GUIScene::Rect child_rect = scene->getRectOnCanvas(gameobject, canvas_size);
 
 		m_editor->beginCommandGroup(crc32("make_gui_rect_absolute"));
 
 		if (mask & (u8)EdgeMask::TOP)
 		{
-			setRectProperty(entity, "Top Relative", 0);
-			setRectProperty(entity, "Top Points", child_rect.y - parent_rect.y);
+			setRectProperty(gameobject, "Top Relative", 0);
+			setRectProperty(gameobject, "Top Points", child_rect.y - parent_rect.y);
 		}
 		
 		if (mask & (u8)EdgeMask::LEFT)
 		{
-			setRectProperty(entity, "Left Relative", 0);
-			setRectProperty(entity, "Left Points", child_rect.x - parent_rect.x);
+			setRectProperty(gameobject, "Left Relative", 0);
+			setRectProperty(gameobject, "Left Points", child_rect.x - parent_rect.x);
 		}
 
 		if (mask & (u8)EdgeMask::RIGHT)
 		{
-			setRectProperty(entity, "Right Relative", 0);
-			setRectProperty(entity, "Right Points", child_rect.x + child_rect.w - parent_rect.x);
+			setRectProperty(gameobject, "Right Relative", 0);
+			setRectProperty(gameobject, "Right Points", child_rect.x + child_rect.w - parent_rect.x);
 		}
 		
 		if (mask & (u8)EdgeMask::BOTTOM)
 		{
-			setRectProperty(entity, "Bottom Relative", 0);
-			setRectProperty(entity, "Bottom Points", child_rect.y + child_rect.h - parent_rect.y);
+			setRectProperty(gameobject, "Bottom Relative", 0);
+			setRectProperty(gameobject, "Bottom Points", child_rect.y + child_rect.h - parent_rect.y);
 		}
 
 		m_editor->endCommandGroup();
 	}
 
 
-	void align(Entity entity, u8 mask)
+	void align(GameObject gameobject, u8 mask)
 	{
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
 
 		m_editor->beginCommandGroup(crc32("align_gui_rect"));
 
-		float br = scene->getRectBottomRelative(entity);
-		float bp = scene->getRectBottomPoints(entity);
-		float tr = scene->getRectTopRelative(entity);
-		float tp = scene->getRectTopPoints(entity);
-		float rr = scene->getRectRightRelative(entity);
-		float rp = scene->getRectRightPoints(entity);
-		float lr = scene->getRectLeftRelative(entity);
-		float lp = scene->getRectLeftPoints(entity);
+		float br = scene->getRectBottomRelative(gameobject);
+		float bp = scene->getRectBottomPoints(gameobject);
+		float tr = scene->getRectTopRelative(gameobject);
+		float tp = scene->getRectTopPoints(gameobject);
+		float rr = scene->getRectRightRelative(gameobject);
+		float rp = scene->getRectRightPoints(gameobject);
+		float lr = scene->getRectLeftRelative(gameobject);
+		float lp = scene->getRectLeftPoints(gameobject);
 
 		if (mask & (u8)EdgeMask::TOP)
 		{
-			setRectProperty(entity, "Bottom Relative", br - tr);
-			setRectProperty(entity, "Bottom Points", bp - tp);
-			setRectProperty(entity, "Top Relative", 0);
-			setRectProperty(entity, "Top Points", 0);
+			setRectProperty(gameobject, "Bottom Relative", br - tr);
+			setRectProperty(gameobject, "Bottom Points", bp - tp);
+			setRectProperty(gameobject, "Top Relative", 0);
+			setRectProperty(gameobject, "Top Points", 0);
 		}
 
 		if (mask & (u8)EdgeMask::LEFT)
 		{
-			setRectProperty(entity, "Right Relative", rr - lr);
-			setRectProperty(entity, "Right Points", rp - lp);
-			setRectProperty(entity, "Left Relative", 0);
-			setRectProperty(entity, "Left Points", 0);
+			setRectProperty(gameobject, "Right Relative", rr - lr);
+			setRectProperty(gameobject, "Right Points", rp - lp);
+			setRectProperty(gameobject, "Left Relative", 0);
+			setRectProperty(gameobject, "Left Points", 0);
 		}
 
 		if (mask & (u8)EdgeMask::RIGHT)
 		{
-			setRectProperty(entity, "Left Relative", lr + 1 - rr);
-			setRectProperty(entity, "Left Points", lp - rp);
-			setRectProperty(entity, "Right Relative", 1);
-			setRectProperty(entity, "Right Points", 0);
+			setRectProperty(gameobject, "Left Relative", lr + 1 - rr);
+			setRectProperty(gameobject, "Left Points", lp - rp);
+			setRectProperty(gameobject, "Right Relative", 1);
+			setRectProperty(gameobject, "Right Points", 0);
 		}
 
 		if (mask & (u8)EdgeMask::BOTTOM)
 		{
-			setRectProperty(entity, "Top Relative", tr + 1 - br);
-			setRectProperty(entity, "Top Points", tp - bp);
-			setRectProperty(entity, "Bottom Relative", 1);
-			setRectProperty(entity, "Bottom Points", 0);
+			setRectProperty(gameobject, "Top Relative", tr + 1 - br);
+			setRectProperty(gameobject, "Top Points", tp - bp);
+			setRectProperty(gameobject, "Bottom Relative", 1);
+			setRectProperty(gameobject, "Bottom Points", 0);
 		}
 
 		if (mask & (u8)EdgeMask::CENTER_VERTICAL)
 		{
-			setRectProperty(entity, "Top Relative", 0.5f - (br - tr) * 0.5f);
-			setRectProperty(entity, "Top Points", -(bp - tp) * 0.5f);
-			setRectProperty(entity, "Bottom Relative", 0.5f + (br - tr) * 0.5f);
-			setRectProperty(entity, "Bottom Points", (bp - tp) * 0.5f);
+			setRectProperty(gameobject, "Top Relative", 0.5f - (br - tr) * 0.5f);
+			setRectProperty(gameobject, "Top Points", -(bp - tp) * 0.5f);
+			setRectProperty(gameobject, "Bottom Relative", 0.5f + (br - tr) * 0.5f);
+			setRectProperty(gameobject, "Bottom Points", (bp - tp) * 0.5f);
 		}
 
 		if (mask & (u8)EdgeMask::CENTER_HORIZONTAL)
 		{
-			setRectProperty(entity, "Left Relative", 0.5f - (rr - lr) * 0.5f);
-			setRectProperty(entity, "Left Points", -(rp - lp) * 0.5f);
-			setRectProperty(entity, "Right Relative", 0.5f + (rr - lr) * 0.5f);
-			setRectProperty(entity, "Right Points", (rp - lp) * 0.5f);
+			setRectProperty(gameobject, "Left Relative", 0.5f - (rr - lr) * 0.5f);
+			setRectProperty(gameobject, "Left Points", -(rp - lp) * 0.5f);
+			setRectProperty(gameobject, "Right Relative", 0.5f + (rr - lr) * 0.5f);
+			setRectProperty(gameobject, "Right Points", (rp - lp) * 0.5f);
 		}
 
 		m_editor->endCommandGroup();
 	}
 
-	void expand(Entity entity, u8 mask)
+	void expand(GameObject gameobject, u8 mask)
 	{
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
 		m_editor->beginCommandGroup(crc32("expand_gui_rect"));
 
 		if (mask & (u8)EdgeMask::TOP)
 		{
-			setRectProperty(entity, "Top Points", 0);
-			setRectProperty(entity, "Top Relative", 0);
+			setRectProperty(gameobject, "Top Points", 0);
+			setRectProperty(gameobject, "Top Relative", 0);
 		}
 
 		if (mask & (u8)EdgeMask::RIGHT)
 		{
-			setRectProperty(entity, "Right Points", 0);
-			setRectProperty(entity, "Right Relative", 1);
+			setRectProperty(gameobject, "Right Points", 0);
+			setRectProperty(gameobject, "Right Relative", 1);
 		}
 
 
 		if (mask & (u8)EdgeMask::LEFT)
 		{
-			setRectProperty(entity, "Left Points", 0);
-			setRectProperty(entity, "Left Relative", 0);
+			setRectProperty(gameobject, "Left Points", 0);
+			setRectProperty(gameobject, "Left Relative", 0);
 		}
 
 		if (mask & (u8)EdgeMask::BOTTOM)
 		{
-			setRectProperty(entity, "Bottom Points", 0);
-			setRectProperty(entity, "Bottom Relative", 1);
+			setRectProperty(gameobject, "Bottom Points", 0);
+			setRectProperty(gameobject, "Bottom Relative", 1);
 		}
 
 		m_editor->endCommandGroup();
 	}
 
 
-	void makeRelative(Entity entity, const Vec2& canvas_size, u8 mask)
+	void makeRelative(GameObject gameobject, const Vec2& canvas_size, u8 mask)
 	{
 		GUIScene* scene = (GUIScene*)m_editor->getProject()->getScene(crc32("gui"));
 		
-		Entity parent = scene->getProject().getParent(entity);
+		GameObject parent = scene->getProject().getParent(gameobject);
 		GUIScene::Rect parent_rect = scene->getRectOnCanvas(parent, canvas_size);
-		GUIScene::Rect child_rect = scene->getRectOnCanvas(entity, canvas_size);
+		GUIScene::Rect child_rect = scene->getRectOnCanvas(gameobject, canvas_size);
 
 		m_editor->beginCommandGroup(crc32("make_gui_rect_relative"));
 		
 		if (mask & (u8)EdgeMask::TOP)
 		{
-			setRectProperty(entity, "Top Points", 0);
-			setRectProperty(entity, "Top Relative", (child_rect.y - parent_rect.y) / parent_rect.h);
+			setRectProperty(gameobject, "Top Points", 0);
+			setRectProperty(gameobject, "Top Relative", (child_rect.y - parent_rect.y) / parent_rect.h);
 		}
 
 		if (mask & (u8)EdgeMask::RIGHT)
 		{
-			setRectProperty(entity, "Right Points", 0);
-			setRectProperty(entity, "Right Relative", (child_rect.x + child_rect.w - parent_rect.x) / parent_rect.w);
+			setRectProperty(gameobject, "Right Points", 0);
+			setRectProperty(gameobject, "Right Relative", (child_rect.x + child_rect.w - parent_rect.x) / parent_rect.w);
 		}
 
 		
 		if (mask & (u8)EdgeMask::LEFT)
 		{
-			setRectProperty(entity, "Left Points", 0);
-			setRectProperty(entity, "Left Relative", (child_rect.x - parent_rect.x) / parent_rect.w);
+			setRectProperty(gameobject, "Left Points", 0);
+			setRectProperty(gameobject, "Left Relative", (child_rect.x - parent_rect.x) / parent_rect.w);
 		}
 			
 		if (mask & (u8)EdgeMask::BOTTOM)
 		{
-			setRectProperty(entity, "Bottom Points", 0);
-			setRectProperty(entity, "Bottom Relative", (child_rect.y + child_rect.h - parent_rect.y) / parent_rect.h);
+			setRectProperty(gameobject, "Bottom Points", 0);
+			setRectProperty(gameobject, "Bottom Relative", (child_rect.y + child_rect.h - parent_rect.y) / parent_rect.h);
 		}
 
 		m_editor->endCommandGroup();

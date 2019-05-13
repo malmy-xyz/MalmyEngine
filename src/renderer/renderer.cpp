@@ -88,7 +88,7 @@ struct BoneProperty : Reflection::IEnumProperty
 	void getValue(ComponentUID cmp, int index, OutputBlob& stream) const override
 	{
 		RenderScene* scene = static_cast<RenderScene*>(cmp.scene);
-		int value = scene->getBoneAttachmentBone(cmp.entity);
+		int value = scene->getBoneAttachmentBone(cmp.gameobject);
 		stream.write(value);
 	}
 
@@ -97,15 +97,15 @@ struct BoneProperty : Reflection::IEnumProperty
 	{
 		RenderScene* scene = static_cast<RenderScene*>(cmp.scene);
 		int value = stream.read<int>();
-		scene->setBoneAttachmentBone(cmp.entity, value);
+		scene->setBoneAttachmentBone(cmp.gameobject, value);
 	}
 
 
-	Entity getModelInstance(RenderScene* render_scene, Entity bone_attachment) const
+	GameObject getModelInstance(RenderScene* render_scene, GameObject bone_attachment) const
 	{
-		Entity parent_entity = render_scene->getBoneAttachmentParent(bone_attachment);
-		if (parent_entity == INVALID_ENTITY) return INVALID_ENTITY;
-		return render_scene->getProject().hasComponent(parent_entity, MODEL_INSTANCE_TYPE) ? parent_entity : INVALID_ENTITY;
+		GameObject parent_gameobject = render_scene->getBoneAttachmentParent(bone_attachment);
+		if (parent_gameobject == INVALID_GAMEOBJECT) return INVALID_GAMEOBJECT;
+		return render_scene->getProject().hasComponent(parent_gameobject, MODEL_INSTANCE_TYPE) ? parent_gameobject : INVALID_GAMEOBJECT;
 	}
 
 
@@ -116,7 +116,7 @@ struct BoneProperty : Reflection::IEnumProperty
 	int getEnumCount(ComponentUID cmp) const override
 	{
 		RenderScene* render_scene = static_cast<RenderScene*>(cmp.scene);
-		Entity model_instance = getModelInstance(render_scene, cmp.entity);
+		GameObject model_instance = getModelInstance(render_scene, cmp.gameobject);
 		if (!model_instance.isValid()) return 0;
 
 		auto* model = render_scene->getModelInstanceModel(model_instance);
@@ -129,7 +129,7 @@ struct BoneProperty : Reflection::IEnumProperty
 	const char* getEnumName(ComponentUID cmp, int index) const override
 	{
 		RenderScene* render_scene = static_cast<RenderScene*>(cmp.scene);
-		Entity model_instance = getModelInstance(render_scene, cmp.entity);
+		GameObject model_instance = getModelInstance(render_scene, cmp.gameobject);
 		if (!model_instance.isValid()) return "";
 
 		auto* model = render_scene->getModelInstanceModel(model_instance);
@@ -166,13 +166,13 @@ static void registerProperties(IAllocator& allocator)
 			property("Bounce", MALMY_PROP(RenderScene, ParticleEmitterPlaneBounce),
 				ClampAttribute(0, 1)),
 			array("Planes", &RenderScene::getParticleEmitterPlaneCount, &RenderScene::addParticleEmitterPlane, &RenderScene::removeParticleEmitterPlane, 
-				property("Entity", MALMY_PROP(RenderScene, ParticleEmitterPlaneEntity))
+				property("GameObject", MALMY_PROP(RenderScene, ParticleEmitterPlaneGameObject))
 			)
 		),
 		component("particle_emitter_attractor",
 			property("Force", MALMY_PROP(RenderScene, ParticleEmitterAttractorForce)),
 			array("Attractors", &RenderScene::getParticleEmitterAttractorCount, &RenderScene::addParticleEmitterAttractor, &RenderScene::removeParticleEmitterAttractor,
-				property("Entity", MALMY_PROP(RenderScene, ParticleEmitterAttractorEntity))
+				property("GameObject", MALMY_PROP(RenderScene, ParticleEmitterAttractorGameObject))
 			)
 		),
 		component("particle_emitter_alpha",

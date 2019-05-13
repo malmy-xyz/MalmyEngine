@@ -7,7 +7,7 @@
 namespace Malmy
 {
 
-	const Quat Quat::IDENTITY = { 0, 0, 0, 1 };
+	const Quat Quat::IDGAMEOBJECT = { 0, 0, 0, 1 };
 
 	Quat::AxisAngle Quat::getAxisAngle() const
 	{

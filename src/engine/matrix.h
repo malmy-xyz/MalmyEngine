@@ -294,7 +294,7 @@ namespace Malmy
 
 		void lookAt(const Vec3& eye, const Vec3& at, const Vec3& up)
 		{
-			*this = Matrix::IDENTITY;
+			*this = Matrix::IDGAMEOBJECT;
 			Vec3 f = eye - at;
 			f.normalize();
 			Vec3 r = crossProduct(up, f);
@@ -325,14 +325,14 @@ namespace Malmy
 		Vec3 transformPoint(const Vec3& pos) const;
 		Vec3 transformVector(const Vec3& pos) const;
 		void multiply3x3(float scale);
-		void setIdentity();
+		void setIdgameobject();
 
 		float m11, m12, m13, m14;
 		float m21, m22, m23, m24;
 		float m31, m32, m33, m34;
 		float m41, m42, m43, m44;
 
-		static const Matrix IDENTITY;
+		static const Matrix IDGAMEOBJECT;
 	} 
 	MALMY_ALIGN_END(16);
 

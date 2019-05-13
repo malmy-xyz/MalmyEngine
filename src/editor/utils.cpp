@@ -131,19 +131,19 @@ bool Action::isActive()
 }
 
 
-void getEntityListDisplayName(WorldEditor& editor, char* buf, int max_size, Entity entity)
+void getGameObjectListDisplayName(WorldEditor& editor, char* buf, int max_size, GameObject gameobject)
 {
-	if (!entity.isValid())
+	if (!gameobject.isValid())
 	{
 		*buf = '\0';
 		return;
 	}
-	const char* name = editor.getProject()->getEntityName(entity);
+	const char* name = editor.getProject()->getGameObjectName(gameobject);
 	static const auto MODEL_INSTANCE_TYPE = Reflection::getComponentType("renderable");
-	if (editor.getProject()->hasComponent(entity, MODEL_INSTANCE_TYPE))
+	if (editor.getProject()->hasComponent(gameobject, MODEL_INSTANCE_TYPE))
 	{
 		auto* render_interface = editor.getRenderInterface();
-		auto path = render_interface->getModelInstancePath(entity);
+		auto path = render_interface->getModelInstancePath(gameobject);
 		if (path.isValid())
 		{
 			char basename[MAX_PATH_LENGTH];
@@ -152,7 +152,7 @@ void getEntityListDisplayName(WorldEditor& editor, char* buf, int max_size, Enti
 			if (name && name[0] != '\0')
 				copyString(buf, max_size, name);
 			else
-				toCString(entity.index, buf, max_size);
+				toCString(gameobject.index, buf, max_size);
 
 			catString(buf, max_size, " - ");
 			catString(buf, max_size, basename);
@@ -166,7 +166,7 @@ void getEntityListDisplayName(WorldEditor& editor, char* buf, int max_size, Enti
 	}
 	else
 	{
-		toCString(entity.index, buf, max_size);
+		toCString(gameobject.index, buf, max_size);
 	}
 }
 

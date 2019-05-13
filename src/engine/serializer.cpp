@@ -15,14 +15,14 @@ namespace Malmy
 		return *(float*)&v;
 	}
 
-	EntityGUID TextSerializer::getGUID(Entity entity)
+	GameObjectGUID TextSerializer::getGUID(GameObject gameobject)
 	{
-		return entity_map.get(entity);
+		return gameobject_map.get(gameobject);
 	}
 
-	void TextSerializer::write(const char* label, Entity entity)
+	void TextSerializer::write(const char* label, GameObject gameobject)
 	{
-		EntityGUID guid = entity_map.get(entity);
+		GameObjectGUID guid = gameobject_map.get(gameobject);
 		blob << "#" << label << "\n\t" << guid.value << "\n";
 	}
 
@@ -111,16 +111,16 @@ namespace Malmy
 		blob << "#" << label << "\n\t" << value << "\n";
 	}
 
-	Entity TextDeserializer::getEntity(EntityGUID guid)
+	GameObject TextDeserializer::getGameObject(GameObjectGUID guid)
 	{
-		return entity_map.get(guid);
+		return gameobject_map.get(guid);
 	}
 
-	void TextDeserializer::read(Entity* entity)
+	void TextDeserializer::read(GameObject* gameobject)
 	{
-		EntityGUID guid;
+		GameObjectGUID guid;
 		read(&guid.value);
-		*entity = entity_map.get(guid);
+		*gameobject = gameobject_map.get(guid);
 	}
 
 	void TextDeserializer::read(RigidTransform* value)

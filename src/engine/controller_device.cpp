@@ -105,6 +105,7 @@ namespace Malmy
 		}
 	}
 
+	//
 	void ControllerDevice::frame(float dt)
 	{
 		if (!g_controllers.get_state) return;

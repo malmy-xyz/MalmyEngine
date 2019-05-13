@@ -93,20 +93,20 @@ struct EndGroupCommand MALMY_FINAL : public IEditorCommand
 };
 
 
-class SetEntityNameCommand MALMY_FINAL : public IEditorCommand
+class SetGameObjectNameCommand MALMY_FINAL : public IEditorCommand
 {
 public:
-	explicit SetEntityNameCommand(WorldEditor& editor)
+	explicit SetGameObjectNameCommand(WorldEditor& editor)
 		: m_new_name(m_editor.getAllocator())
 		, m_old_name(m_editor.getAllocator())
 		, m_editor(editor)
 	{
 	}
 
-	SetEntityNameCommand(WorldEditor& editor, Entity entity, const char* name)
-		: m_entity(entity)
+	SetGameObjectNameCommand(WorldEditor& editor, GameObject gameobject, const char* name)
+		: m_gameobject(gameobject)
 		, m_new_name(name, editor.getAllocator())
-		, m_old_name(editor.getProject()->getEntityName(entity),
+		, m_old_name(editor.getProject()->getGameObjectName(gameobject),
 					 editor.getAllocator())
 		, m_editor(editor)
 	{
@@ -116,7 +116,7 @@ public:
 	void serialize(JsonSerializer& serializer) override
 	{
 		serializer.serialize("name", m_new_name.c_str());
-		serializer.serialize("entity", m_entity);
+		serializer.serialize("gameobject", m_gameobject);
 	}
 
 
@@ -125,33 +125,33 @@ public:
 		char name[100];
 		serializer.deserialize("name", name, sizeof(name), "");
 		m_new_name = name;
-		serializer.deserialize("entity", m_entity, INVALID_ENTITY);
-		m_old_name = m_editor.getProject()->getEntityName(m_entity);
+		serializer.deserialize("gameobject", m_gameobject, INVALID_GAMEOBJECT);
+		m_old_name = m_editor.getProject()->getGameObjectName(m_gameobject);
 	}
 
 
 	bool execute() override
 	{
-		m_editor.getProject()->setEntityName(m_entity, m_new_name.c_str());
+		m_editor.getProject()->setGameObjectName(m_gameobject, m_new_name.c_str());
 		return true;
 	}
 
 
 	void undo() override
 	{
-		m_editor.getProject()->setEntityName(m_entity, m_old_name.c_str());
+		m_editor.getProject()->setGameObjectName(m_gameobject, m_old_name.c_str());
 	}
 
 
-	const char* getType() override { return "set_entity_name"; }
+	const char* getType() override { return "set_gameobject_name"; }
 
 
 	bool merge(IEditorCommand& command) override
 	{
 		ASSERT(command.getType() == getType());
-		if (static_cast<SetEntityNameCommand&>(command).m_entity == m_entity)
+		if (static_cast<SetGameObjectNameCommand&>(command).m_gameobject == m_gameobject)
 		{
-			static_cast<SetEntityNameCommand&>(command).m_new_name = m_new_name;
+			static_cast<SetGameObjectNameCommand&>(command).m_new_name = m_new_name;
 			return true;
 		}
 		else
@@ -162,16 +162,16 @@ public:
 
 private:
 	WorldEditor& m_editor;
-	Entity m_entity;
+	GameObject m_gameobject;
 	string m_new_name;
 	string m_old_name;
 };
 
 
-class MoveEntityCommand MALMY_FINAL : public IEditorCommand
+class MoveGameObjectCommand MALMY_FINAL : public IEditorCommand
 {
 public:
-	explicit MoveEntityCommand(WorldEditor& editor)
+	explicit MoveGameObjectCommand(WorldEditor& editor)
 		: m_new_positions(editor.getAllocator())
 		, m_new_rotations(editor.getAllocator())
 		, m_old_positions(editor.getAllocator())
@@ -182,8 +182,8 @@ public:
 	}
 
 
-	MoveEntityCommand(WorldEditor& editor,
-		const Entity* entities,
+	MoveGameObjectCommand(WorldEditor& editor,
+		const GameObject* entities,
 		const Vec3* new_positions,
 		const Quat* new_rotations,
 		int count,
@@ -206,12 +206,12 @@ public:
 		for (int i = count - 1; i >= 0; --i)
 		{
 			u64 prefab = prefab_system.getPrefab(entities[i]);
-			Entity parent = project->getParent(entities[i]);
+			GameObject parent = project->getParent(entities[i]);
 			if (prefab != 0 && parent.isValid() && (prefab_system.getPrefab(parent) & 0xffffFFFF) == (prefab & 0xffffFFFF))
 			{
 				float scale = project->getScale(entities[i]);
 				Transform new_local_tr = project->computeLocalTransform(parent, { new_positions[i], new_rotations[i], scale });
-				Entity instance = prefab_system.getFirstInstance(prefab);
+				GameObject instance = prefab_system.getFirstInstance(prefab);
 				while (instance.isValid())
 				{
 					m_entities.push(instance);
@@ -268,7 +268,7 @@ public:
 		serializer.deserializeArrayBegin("entities");
 		for (int i = 0; i < m_entities.size(); ++i)
 		{
-			serializer.deserializeArrayItem(m_entities[i], INVALID_ENTITY);
+			serializer.deserializeArrayItem(m_entities[i], INVALID_GAMEOBJECT);
 			serializer.deserializeArrayItem(m_new_positions[i].x, 0);
 			serializer.deserializeArrayItem(m_new_positions[i].y, 0);
 			serializer.deserializeArrayItem(m_new_positions[i].z, 0);
@@ -288,9 +288,9 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setPosition(entity, m_new_positions[i]);
-			project->setRotation(entity, m_new_rotations[i]);
+			GameObject gameobject = m_entities[i];
+			project->setPosition(gameobject, m_new_positions[i]);
+			project->setRotation(gameobject, m_new_rotations[i]);
 		}
 		return true;
 	}
@@ -301,20 +301,20 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setPosition(entity, m_old_positions[i]);
-			project->setRotation(entity, m_old_rotations[i]);
+			GameObject gameobject = m_entities[i];
+			project->setPosition(gameobject, m_old_positions[i]);
+			project->setRotation(gameobject, m_old_rotations[i]);
 		}
 	}
 
 
-	const char* getType() override { return "move_entity"; }
+	const char* getType() override { return "move_gameobject"; }
 
 
 	bool merge(IEditorCommand& command) override
 	{
 		ASSERT(command.getType() == getType());
-		MoveEntityCommand& my_command = static_cast<MoveEntityCommand&>(command);
+		MoveGameObjectCommand& my_command = static_cast<MoveGameObjectCommand&>(command);
 		if (my_command.m_entities.size() == m_entities.size())
 		{
 			for (int i = 0, c = m_entities.size(); i < c; ++i)
@@ -339,7 +339,7 @@ public:
 
 private:
 	WorldEditor& m_editor;
-	Array<Entity> m_entities;
+	Array<GameObject> m_entities;
 	Array<Vec3> m_new_positions;
 	Array<Quat> m_new_rotations;
 	Array<Vec3> m_old_positions;
@@ -347,10 +347,10 @@ private:
 };
 
 
-class LocalMoveEntityCommand MALMY_FINAL : public IEditorCommand
+class LocalMoveGameObjectCommand MALMY_FINAL : public IEditorCommand
 {
 public:
-	explicit LocalMoveEntityCommand(WorldEditor& editor)
+	explicit LocalMoveGameObjectCommand(WorldEditor& editor)
 		: m_new_positions(editor.getAllocator())
 		, m_old_positions(editor.getAllocator())
 		, m_entities(editor.getAllocator())
@@ -359,8 +359,8 @@ public:
 	}
 
 
-	LocalMoveEntityCommand(WorldEditor& editor,
-		const Entity* entities,
+	LocalMoveGameObjectCommand(WorldEditor& editor,
+		const GameObject* entities,
 		const Vec3* new_positions,
 		int count,
 		IAllocator& allocator)
@@ -378,10 +378,10 @@ public:
 		for (int i = count - 1; i >= 0; --i)
 		{
 			u64 prefab = prefab_system.getPrefab(entities[i]);
-			Entity parent = project->getParent(entities[i]);
+			GameObject parent = project->getParent(entities[i]);
 			if (prefab != 0 && parent.isValid() && (prefab_system.getPrefab(parent) & 0xffffFFFF) == (prefab & 0xffffFFFF))
 			{
-				Entity instance = prefab_system.getFirstInstance(prefab);
+				GameObject instance = prefab_system.getFirstInstance(prefab);
 				while (instance.isValid())
 				{
 					m_entities.push(instance);
@@ -426,7 +426,7 @@ public:
 		serializer.deserializeArrayBegin("entities");
 		for (int i = 0; i < m_entities.size(); ++i)
 		{
-			serializer.deserializeArrayItem(m_entities[i], INVALID_ENTITY);
+			serializer.deserializeArrayItem(m_entities[i], INVALID_GAMEOBJECT);
 			serializer.deserializeArrayItem(m_new_positions[i].x, 0);
 			serializer.deserializeArrayItem(m_new_positions[i].y, 0);
 			serializer.deserializeArrayItem(m_new_positions[i].z, 0);
@@ -441,8 +441,8 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setLocalPosition(entity, m_new_positions[i]);
+			GameObject gameobject = m_entities[i];
+			project->setLocalPosition(gameobject, m_new_positions[i]);
 		}
 		return true;
 	}
@@ -453,19 +453,19 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setLocalPosition(entity, m_old_positions[i]);
+			GameObject gameobject = m_entities[i];
+			project->setLocalPosition(gameobject, m_old_positions[i]);
 		}
 	}
 
 
-	const char* getType() override { return "local_move_entity"; }
+	const char* getType() override { return "local_move_gameobject"; }
 
 
 	bool merge(IEditorCommand& command) override
 	{
 		ASSERT(command.getType() == getType());
-		LocalMoveEntityCommand& my_command = static_cast<LocalMoveEntityCommand&>(command);
+		LocalMoveGameObjectCommand& my_command = static_cast<LocalMoveGameObjectCommand&>(command);
 		if (my_command.m_entities.size() == m_entities.size())
 		{
 			for (int i = 0, c = m_entities.size(); i < c; ++i)
@@ -489,16 +489,16 @@ public:
 
 private:
 	WorldEditor& m_editor;
-	Array<Entity> m_entities;
+	Array<GameObject> m_entities;
 	Array<Vec3> m_new_positions;
 	Array<Vec3> m_old_positions;
 };
 
 
-class ScaleEntityCommand MALMY_FINAL : public IEditorCommand
+class ScaleGameObjectCommand MALMY_FINAL : public IEditorCommand
 {
 public:
-	explicit ScaleEntityCommand(WorldEditor& editor)
+	explicit ScaleGameObjectCommand(WorldEditor& editor)
 		: m_old_scales(editor.getAllocator())
 		, m_new_scales(editor.getAllocator())
 		, m_entities(editor.getAllocator())
@@ -507,8 +507,8 @@ public:
 	}
 
 
-	ScaleEntityCommand(WorldEditor& editor,
-		const Entity* entities,
+	ScaleGameObjectCommand(WorldEditor& editor,
+		const GameObject* entities,
 		int count,
 		float scale,
 		IAllocator& allocator)
@@ -527,8 +527,8 @@ public:
 	}
 
 
-	ScaleEntityCommand(WorldEditor& editor,
-		const Entity* entities,
+	ScaleGameObjectCommand(WorldEditor& editor,
+		const GameObject* entities,
 		const float* scales,
 		int count,
 		IAllocator& allocator)
@@ -578,10 +578,10 @@ public:
 		serializer.deserializeArrayBegin("entities");
 		while (!serializer.isArrayEnd())
 		{
-			Entity entity;
-			serializer.deserializeArrayItem(entity, INVALID_ENTITY);
-			m_entities.push(entity);
-			m_old_scales.push(project->getScale(entity));
+			GameObject gameobject;
+			serializer.deserializeArrayItem(gameobject, INVALID_GAMEOBJECT);
+			m_entities.push(gameobject);
+			m_old_scales.push(project->getScale(gameobject));
 		}
 		serializer.deserializeArrayEnd();
 	}
@@ -592,8 +592,8 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setScale(entity, m_new_scales[i]);
+			GameObject gameobject = m_entities[i];
+			project->setScale(gameobject, m_new_scales[i]);
 		}
 		return true;
 	}
@@ -604,19 +604,19 @@ public:
 		Project* project = m_editor.getProject();
 		for (int i = 0, c = m_entities.size(); i < c; ++i)
 		{
-			Entity entity = m_entities[i];
-			project->setScale(entity, m_old_scales[i]);
+			GameObject gameobject = m_entities[i];
+			project->setScale(gameobject, m_old_scales[i]);
 		}
 	}
 
 
-	const char* getType() override { return "scale_entity"; }
+	const char* getType() override { return "scale_gameobject"; }
 
 
 	bool merge(IEditorCommand& command) override
 	{
 		ASSERT(command.getType() == getType());
-		auto& my_command = static_cast<ScaleEntityCommand&>(command);
+		auto& my_command = static_cast<ScaleGameObjectCommand&>(command);
 		if (my_command.m_entities.size() == m_entities.size())
 		{
 			for (int i = 0, c = m_entities.size(); i < c; ++i)
@@ -640,7 +640,7 @@ public:
 
 private:
 	WorldEditor& m_editor;
-	Array<Entity> m_entities;
+	Array<GameObject> m_entities;
 	Array<float> m_new_scales;
 	Array<float> m_old_scales;
 };
@@ -736,7 +736,7 @@ public:
 	void serialize(JsonSerializer& serializer) override
 	{
 		serializer.serialize("inedx", m_index);
-		serializer.serialize("entity_index", m_component.entity);
+		serializer.serialize("gameobject_index", m_component.gameobject);
 		serializer.serialize("component_type", Reflection::getComponentTypeHash(m_component.type));
 		serializer.serialize("property_name_hash", crc32(m_property->name));
 	}
@@ -745,7 +745,7 @@ public:
 	void deserialize(JsonDeserializer& serializer) override
 	{
 		serializer.deserialize("inedx", m_index, 0);
-		serializer.deserialize("entity_index", m_component.entity, INVALID_ENTITY);
+		serializer.deserialize("gameobject_index", m_component.gameobject, INVALID_GAMEOBJECT);
 		u32 hash;
 		serializer.deserialize("component_type", hash, 0);
 		m_component.type = Reflection::getComponentTypeFromHash(hash);
@@ -809,7 +809,7 @@ public:
 	void serialize(JsonSerializer& serializer) override
 	{
 		serializer.serialize("inedx", m_index);
-		serializer.serialize("entity_index", m_component.entity);
+		serializer.serialize("gameobject_index", m_component.gameobject);
 		serializer.serialize("component_type", Reflection::getComponentTypeHash(m_component.type));
 		serializer.serialize("property_name_hash", crc32(m_property->name));
 	}
@@ -818,7 +818,7 @@ public:
 	void deserialize(JsonDeserializer& serializer) override
 	{
 		serializer.deserialize("inedx", m_index, 0);
-		serializer.deserialize("entity_index", m_component.entity, INVALID_ENTITY);
+		serializer.deserialize("gameobject_index", m_component.gameobject, INVALID_GAMEOBJECT);
 		u32 hash;
 		serializer.deserialize("component_type", hash, 0);
 		m_component.type = Reflection::getComponentTypeFromHash(hash);
@@ -869,7 +869,7 @@ public:
 
 
 	SetPropertyCommand(WorldEditor& editor,
-		const Entity* entities,
+		const GameObject* entities,
 		int count,
 		ComponentType component_type,
 		int index,
@@ -898,7 +898,7 @@ public:
 			}
 			else
 			{
-				Entity instance = prefab_system.getFirstInstance(prefab);
+				GameObject instance = prefab_system.getFirstInstance(prefab);
 				while(instance.isValid())
 				{
 					ComponentUID component = m_editor.getProject()->getComponent(instance, component_type);
@@ -918,9 +918,9 @@ public:
 	{
 		serializer.serialize("index", m_index);
 		serializer.beginArray("entities");
-		for (Entity entity : m_entities)
+		for (GameObject gameobject : m_entities)
 		{
-			serializer.serializeArrayItem(entity);
+			serializer.serializeArrayItem(gameobject);
 		}
 		serializer.endArray();
 		serializer.serialize("component_type", Reflection::getComponentTypeHash(m_component_type));
@@ -940,9 +940,9 @@ public:
 		serializer.deserializeArrayBegin("entities");
 		while (!serializer.isArrayEnd())
 		{
-			Entity entity;
-			serializer.deserializeArrayItem(entity, INVALID_ENTITY);
-			m_entities.push(entity);
+			GameObject gameobject;
+			serializer.deserializeArrayItem(gameobject, INVALID_GAMEOBJECT);
+			m_entities.push(gameobject);
 		}
 		serializer.deserializeArrayEnd();
 		u32 hash;
@@ -966,14 +966,14 @@ public:
 	bool execute() override
 	{
 		InputBlob blob(m_new_value);
-		for (Entity entity : m_entities)
+		for (GameObject gameobject : m_entities)
 		{
-			if (m_editor.getEditCamera().entity == entity && m_component_type == CAMERA_TYPE &&
+			if (m_editor.getEditCamera().gameobject == gameobject && m_component_type == CAMERA_TYPE &&
 				equalStrings(m_property->name, "Slot"))
 			{
 				continue;
 			}
-			ComponentUID component = m_editor.getProject()->getComponent(entity, m_component_type);
+			ComponentUID component = m_editor.getProject()->getComponent(gameobject, m_component_type);
 			blob.rewind();
 			m_property->setValue(component, m_index, blob);
 		}
@@ -984,9 +984,9 @@ public:
 	void undo() override
 	{
 		InputBlob blob(m_old_value);
-		for (Entity entity : m_entities)
+		for (GameObject gameobject : m_entities)
 		{
-			ComponentUID component = m_editor.getProject()->getComponent(entity, m_component_type);
+			ComponentUID component = m_editor.getProject()->getComponent(gameobject, m_component_type);
 			m_property->setValue(component, m_index, blob);
 		}
 	}
@@ -1018,19 +1018,19 @@ public:
 private:
 	WorldEditor& m_editor;
 	ComponentType m_component_type;
-	Array<Entity> m_entities;
+	Array<GameObject> m_entities;
 	OutputBlob m_new_value;
 	OutputBlob m_old_value;
 	int m_index;
 	const Reflection::PropertyBase* m_property;
 };
 
-class PasteEntityCommand;
+class PasteGameObjectCommand;
 
 
 struct WorldEditorImpl MALMY_FINAL : public WorldEditor
 {
-	friend class PasteEntityCommand;
+	friend class PasteGameObjectCommand;
 private:
 	class AddComponentCommand MALMY_FINAL : public IEditorCommand
 	{
@@ -1042,7 +1042,7 @@ private:
 		}
 
 		AddComponentCommand(WorldEditorImpl& editor,
-							const Array<Entity>& entities,
+							const Array<GameObject>& entities,
 							ComponentType type)
 			: m_editor(editor)
 			, m_entities(editor.getAllocator())
@@ -1060,7 +1060,7 @@ private:
 					}
 					else
 					{
-						Entity instance = editor.getPrefabSystem().getFirstInstance(prefab);
+						GameObject instance = editor.getPrefabSystem().getFirstInstance(prefab);
 						while(instance.isValid())
 						{
 							m_entities.push(instance);
@@ -1093,8 +1093,8 @@ private:
 			serializer.deserializeArrayBegin("entities");
 			while (!serializer.isArrayEnd())
 			{
-				Entity& entity = m_entities.emplace();
-				serializer.deserializeArrayItem(entity, INVALID_ENTITY);
+				GameObject& gameobject = m_entities.emplace();
+				serializer.deserializeArrayItem(gameobject, INVALID_GAMEOBJECT);
 			}
 			serializer.deserializeArrayEnd();
 		}
@@ -1128,14 +1128,14 @@ private:
 			for (int i = 0; i < m_entities.size(); ++i)
 			{
 				const ComponentUID& cmp = m_editor.getProject()->getComponent(m_entities[i], m_type);
-				m_editor.getProject()->destroyComponent(cmp.entity, cmp.type);
+				m_editor.getProject()->destroyComponent(cmp.gameobject, cmp.type);
 			}
 		}
 
 
 	private:
 		ComponentType m_type;
-		Array<Entity> m_entities;
+		Array<GameObject> m_entities;
 		WorldEditorImpl& m_editor;
 	};
 
@@ -1149,7 +1149,7 @@ private:
 		}
 
 
-		MakeParentCommand(WorldEditorImpl& editor, Entity parent, Entity child)
+		MakeParentCommand(WorldEditorImpl& editor, GameObject parent, GameObject child)
 			: m_editor(static_cast<WorldEditorImpl&>(editor))
 			, m_parent(parent)
 			, m_child(child)
@@ -1166,8 +1166,8 @@ private:
 
 		void deserialize(JsonDeserializer& serializer) override
 		{
-			serializer.deserialize("parent", m_parent, INVALID_ENTITY);
-			serializer.deserialize("child", m_child, INVALID_ENTITY);
+			serializer.deserialize("parent", m_parent, INVALID_GAMEOBJECT);
+			serializer.deserialize("child", m_child, INVALID_GAMEOBJECT);
 		}
 
 
@@ -1198,9 +1198,9 @@ private:
 
 	private:
 		WorldEditor& m_editor;
-		Entity m_parent;
-		Entity m_old_parent;
-		Entity m_child;
+		GameObject m_parent;
+		GameObject m_old_parent;
+		GameObject m_child;
 	};
 
 
@@ -1217,7 +1217,7 @@ private:
 		}
 
 
-		DestroyEntitiesCommand(WorldEditorImpl& editor, const Entity* entities, int count)
+		DestroyEntitiesCommand(WorldEditorImpl& editor, const GameObject* entities, int count)
 			: m_editor(editor)
 			, m_entities(editor.getAllocator())
 			, m_transformations(editor.getAllocator())
@@ -1244,10 +1244,10 @@ private:
 		}
 
 
-		void pushChildren(Entity entity)
+		void pushChildren(GameObject gameobject)
 		{
 			Project* project = m_editor.getProject();
-			for (Entity e = project->getFirstChild(entity); e.isValid(); e = project->getNextSibling(e))
+			for (GameObject e = project->getFirstChild(gameobject); e.isValid(); e = project->getNextSibling(e))
 			{
 				m_entities.push(e);
 				pushChildren(e);
@@ -1284,7 +1284,7 @@ private:
 			m_transformations.resize(count);
 			for (int i = 0; i < count; ++i)
 			{
-				serializer.deserializeArrayItem(m_entities[i], INVALID_ENTITY);
+				serializer.deserializeArrayItem(m_entities[i], INVALID_GAMEOBJECT);
 				serializer.deserializeArrayItem(m_transformations[i].pos.x, 0);
 				serializer.deserializeArrayItem(m_transformations[i].pos.y, 0);
 				serializer.deserializeArrayItem(m_transformations[i].pos.z, 0);
@@ -1321,23 +1321,23 @@ private:
 				{
 					++count;
 				}
-				EntityGUID guid = m_editor.m_entity_map.get(m_entities[i]);
+				GameObjectGUID guid = m_editor.m_gameobject_map.get(m_entities[i]);
 				m_old_values.write(guid.value);
-				m_old_values.writeString(project->getEntityName(m_entities[i]));
-				Entity parent = project->getParent(m_entities[i]);
+				m_old_values.writeString(project->getGameObjectName(m_entities[i]));
+				GameObject parent = project->getParent(m_entities[i]);
 				m_old_values.write(parent);
 				if (parent.isValid())
 				{
 					Transform local_tr = project->getLocalTransform(m_entities[i]);
 					m_old_values.write(local_tr);
 				}
-				for (Entity child = project->getFirstChild(m_entities[i]); child.isValid(); child = project->getNextSibling(child))
+				for (GameObject child = project->getFirstChild(m_entities[i]); child.isValid(); child = project->getNextSibling(child))
 				{
 					m_old_values.write(child);
 					Transform local_tr = project->getLocalTransform(child);
 					m_old_values.write(local_tr);
 				}
-				m_old_values.write(INVALID_ENTITY);
+				m_old_values.write(INVALID_GAMEOBJECT);
 
 				m_old_values.write(count);
 				for (ComponentUID cmp = project->getFirstComponent(m_entities[i]);
@@ -1362,10 +1362,10 @@ private:
 				u64 prefab = m_editor.getPrefabSystem().getPrefab(m_entities[i]);
 				m_old_values.write(prefab);
 			}
-			for (Entity e : m_entities)
+			for (GameObject e : m_entities)
 			{
-				project->destroyEntity(e);
-				m_editor.m_entity_map.erase(e);
+				project->destroyGameObject(e);
+				m_editor.m_gameobject_map.erase(e);
 			}
 			return true;
 		}
@@ -1380,34 +1380,34 @@ private:
 			InputBlob blob(m_old_values);
 			for (int i = 0; i < m_entities.size(); ++i)
 			{
-				project->emplaceEntity(m_entities[i]);
+				project->emplaceGameObject(m_entities[i]);
 			}
 			for (int i = 0; i < m_entities.size(); ++i)
 			{
-				Entity new_entity = m_entities[i];
-				project->setTransform(new_entity, m_transformations[i]);
+				GameObject new_gameobject = m_entities[i];
+				project->setTransform(new_gameobject, m_transformations[i]);
 				int cmps_count;
-				EntityGUID guid;
+				GameObjectGUID guid;
 				blob.read(guid.value);
-				m_editor.m_entity_map.insert(guid, new_entity);
-				char name[Project::ENTITY_NAME_MAX_LENGTH];
+				m_editor.m_gameobject_map.insert(guid, new_gameobject);
+				char name[Project::GAMEOBJECT_NAME_MAX_LENGTH];
 				blob.readString(name, lengthOf(name));
-				project->setEntityName(new_entity, name);
-				Entity parent;
+				project->setGameObjectName(new_gameobject, name);
+				GameObject parent;
 				blob.read(parent);
 				if (parent.isValid())
 				{
 					Transform local_tr;
 					blob.read(local_tr);
-					project->setParent(parent, new_entity);
-					project->setLocalTransform(new_entity, local_tr);
+					project->setParent(parent, new_gameobject);
+					project->setLocalTransform(new_gameobject, local_tr);
 				}
-				Entity child;
+				GameObject child;
 				for(blob.read(child); child.isValid(); blob.read(child))
 				{
 					Transform local_tr;
 					blob.read(local_tr);
-					project->setParent(new_entity, child);
+					project->setParent(new_gameobject, child);
 					project->setLocalTransform(child, local_tr);
 				}
 
@@ -1419,8 +1419,8 @@ private:
 					ComponentUID new_component;
 					IScene* scene = project->getScene(cmp_type);
 					ASSERT(scene);
-					project->createComponent(cmp_type, new_entity);
-					new_component.entity = new_entity;
+					project->createComponent(cmp_type, new_gameobject);
+					new_component.gameobject = new_gameobject;
 					new_component.scene = scene;
 					new_component.type = cmp_type;
 					
@@ -1428,7 +1428,7 @@ private:
 				}
 				u64 tpl;
 				blob.read(tpl);
-				if (tpl) m_editor.getPrefabSystem().setPrefab(new_entity, tpl);
+				if (tpl) m_editor.getPrefabSystem().setPrefab(new_gameobject, tpl);
 			}
 		}
 
@@ -1438,7 +1438,7 @@ private:
 
 	private:
 		WorldEditorImpl& m_editor;
-		Array<Entity> m_entities;
+		Array<GameObject> m_entities;
 		Array<Transform> m_transformations;
 		OutputBlob m_old_values;
 		Array<Resource*> m_resources;
@@ -1458,7 +1458,7 @@ private:
 		}
 
 
-		DestroyComponentCommand(WorldEditorImpl& editor, const Entity* entities, int count, ComponentType cmp_type)
+		DestroyComponentCommand(WorldEditorImpl& editor, const GameObject* entities, int count, ComponentType cmp_type)
 			: m_cmp_type(cmp_type)
 			, m_editor(editor)
 			, m_old_values(editor.getAllocator())
@@ -1476,7 +1476,7 @@ private:
 				}
 				else
 				{
-					Entity instance = editor.getPrefabSystem().getFirstInstance(prefab);
+					GameObject instance = editor.getPrefabSystem().getFirstInstance(prefab);
 					while(instance.isValid())
 					{
 						m_entities.push(instance);
@@ -1499,9 +1499,9 @@ private:
 		void serialize(JsonSerializer& serializer) override 
 		{
 			serializer.beginArray("entities");
-			for (Entity entity : m_entities)
+			for (GameObject gameobject : m_entities)
 			{
-				serializer.serializeArrayItem(entity);
+				serializer.serializeArrayItem(gameobject);
 			}
 			serializer.endArray();
 			serializer.serialize("component_type", Reflection::getComponentTypeHash(m_cmp_type));
@@ -1513,9 +1513,9 @@ private:
 			serializer.deserializeArrayBegin("entities");
 			while (!serializer.isArrayEnd())
 			{
-				Entity entity;
-				serializer.deserializeArrayItem(entity, INVALID_ENTITY);
-				m_entities.push(entity);
+				GameObject gameobject;
+				serializer.deserializeArrayItem(gameobject, INVALID_GAMEOBJECT);
+				m_entities.push(gameobject);
 			}
 			serializer.deserializeArrayEnd();
 
@@ -1533,10 +1533,10 @@ private:
 			cmp.type = m_cmp_type;
 			ASSERT(cmp.scene);
 			InputBlob blob(m_old_values);
-			for (Entity entity : m_entities)
+			for (GameObject gameobject : m_entities)
 			{
-				cmp.entity = entity;
-				project->createComponent(cmp.type, cmp.entity);
+				cmp.gameobject = gameobject;
+				project->createComponent(cmp.type, cmp.gameobject);
 				::Malmy::load(cmp, -1, blob);
 			}
 		}
@@ -1558,9 +1558,9 @@ private:
 			if (!cmp.scene) return false;
 			ResourceManager& resource_manager = m_editor.getEngine().getResourceManager();
 
-			for (Entity entity : m_entities)
+			for (GameObject gameobject : m_entities)
 			{
-				cmp.entity = entity;
+				cmp.gameobject = gameobject;
 				SaveVisitor save;
 				save.cmp = cmp;
 				save.stream = &m_old_values;
@@ -1573,13 +1573,13 @@ private:
 				gather.resource_manager = &resource_manager;
 				cmp_desc->visit(gather);
 
-				m_editor.getProject()->destroyComponent(cmp.entity, m_cmp_type);
+				m_editor.getProject()->destroyComponent(cmp.gameobject, m_cmp_type);
 			}
 			return true;
 		}
 
 	private:
-		Array<Entity> m_entities;
+		Array<GameObject> m_entities;
 		ComponentType m_cmp_type;
 		WorldEditorImpl& m_editor;
 		OutputBlob m_old_values;
@@ -1587,37 +1587,37 @@ private:
 	};
 
 
-	class AddEntityCommand MALMY_FINAL : public IEditorCommand
+	class AddGameObjectCommand MALMY_FINAL : public IEditorCommand
 	{
 	public:
-		explicit AddEntityCommand(WorldEditor& editor)
+		explicit AddGameObjectCommand(WorldEditor& editor)
 			: m_editor(static_cast<WorldEditorImpl&>(editor))
 		{
-			m_entity = INVALID_ENTITY;
+			m_gameobject = INVALID_GAMEOBJECT;
 		}
 
 
-		AddEntityCommand(WorldEditorImpl& editor, const Vec3& position)
+		AddGameObjectCommand(WorldEditorImpl& editor, const Vec3& position)
 			: m_editor(editor)
 			, m_position(position)
 		{
-			m_entity = INVALID_ENTITY;
+			m_gameobject = INVALID_GAMEOBJECT;
 		}
 
 
 		bool execute() override
 		{
-			if (!m_entity.isValid())
+			if (!m_gameobject.isValid())
 			{
-				m_entity = m_editor.getProject()->createEntity(m_position, Quat(0, 0, 0, 1));
+				m_gameobject = m_editor.getProject()->createGameObject(m_position, Quat(0, 0, 0, 1));
 			}
 			else
 			{
-				m_editor.getProject()->emplaceEntity(m_entity);
-				m_editor.getProject()->setPosition(m_entity, m_position);
+				m_editor.getProject()->emplaceGameObject(m_gameobject);
+				m_editor.getProject()->setPosition(m_gameobject, m_position);
 			}
-			((WorldEditorImpl&)m_editor).m_entity_map.create(m_entity);
-			m_editor.selectEntities(&m_entity, 1, false);
+			((WorldEditorImpl&)m_editor).m_gameobject_map.create(m_gameobject);
+			m_editor.selectEntities(&m_gameobject, 1, false);
 			return true;
 		}
 
@@ -1640,23 +1640,23 @@ private:
 
 		void undo() override
 		{
-			m_editor.getProject()->destroyEntity(m_entity);
-			m_editor.m_entity_map.erase(m_entity);
+			m_editor.getProject()->destroyGameObject(m_gameobject);
+			m_editor.m_gameobject_map.erase(m_gameobject);
 		}
 
 
 		bool merge(IEditorCommand&) override { return false; }
 
 
-		const char* getType() override { return "add_entity"; }
+		const char* getType() override { return "add_gameobject"; }
 
 
-		Entity getEntity() const { return m_entity; }
+		GameObject getGameObject() const { return m_gameobject; }
 
 
 	private:
 		WorldEditorImpl& m_editor;
-		Entity m_entity;
+		GameObject m_gameobject;
 		Vec3 m_position;
 	};
 
@@ -1681,11 +1681,11 @@ public:
 
 		if (m_selected_entities.size() > 1)
 		{
-			AABB aabb = m_render_interface->getEntityAABB(*project, m_selected_entities[0]);
+			AABB aabb = m_render_interface->getGameObjectAABB(*project, m_selected_entities[0]);
 			for (int i = 1; i < m_selected_entities.size(); ++i)
 			{
-				AABB entity_aabb = m_render_interface->getEntityAABB(*project, m_selected_entities[i]);
-				aabb.merge(entity_aabb);
+				AABB gameobject_aabb = m_render_interface->getGameObjectAABB(*project, m_selected_entities[i]);
+				aabb.merge(gameobject_aabb);
 			}
 
 			m_render_interface->addDebugCube(aabb.min, aabb.max, 0xffffff00, 0);
@@ -1717,15 +1717,21 @@ public:
 		if (!m_camera.isValid() || !m_go_to_parameters.m_is_active) return;
 
 		float t = Math::easeInOut(m_go_to_parameters.m_t);
+
 		m_go_to_parameters.m_t += m_engine->getLastTimeDelta() * m_go_to_parameters.m_speed;
+
 		Vec3 pos = m_go_to_parameters.m_from * (1 - t) + m_go_to_parameters.m_to * t;
+
 		Quat rot;
+
 		nlerp(m_go_to_parameters.m_from_rot, m_go_to_parameters.m_to_rot, &rot, t);
+
 		if (m_go_to_parameters.m_t >= 1)
 		{
 			pos = m_go_to_parameters.m_to;
 			m_go_to_parameters.m_is_active = false;
 		}
+
 		getProject()->setPosition(m_camera, pos);
 		getProject()->setRotation(m_camera, rot);
 	}
@@ -1746,8 +1752,8 @@ public:
 		ComponentUID camera_cmp = getProject()->getComponent(m_camera, CAMERA_TYPE);
 		if (!camera_cmp.isValid()) return;
 
-		m_render_interface->getRay(camera_cmp.entity, m_mouse_pos, origin, dir);
-		auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
+		m_render_interface->getRay(camera_cmp.gameobject, m_mouse_pos, origin, dir);
+		auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
 		//if (m_gizmo->isActive()) return;
 		if (!hit.is_hit) return;
 
@@ -1756,11 +1762,12 @@ public:
 		// TODO
 	}
 
-
+	//her farmede calsiiyor
 	void update() override
 	{
 		PROFILE_FUNCTION();
 		updateGoTo();
+
 		previewSnapVertex();
 
 		if (!m_selected_entities.empty())
@@ -1768,6 +1775,7 @@ public:
 			m_gizmo->add(m_selected_entities[0]);
 		}
 
+		//secme modeu burda
 		if (m_is_mouse_down[MouseButton::LEFT] && m_mouse_mode == MouseMode::SELECT)
 		{
 			m_render_interface->addRect2D(m_rect_selection_start, m_mouse_pos, 0xfffffFFF);
@@ -1775,6 +1783,7 @@ public:
 		}
 
 		createEditorLines();
+
 	}
 
 
@@ -1834,7 +1843,7 @@ public:
 				auto pos = m_project->getPosition(e);
 				auto dir = pos - hit_pos;
 				dir.normalize();
-				Matrix mtx = Matrix::IDENTITY;
+				Matrix mtx = Matrix::IDGAMEOBJECT;
 				Vec3 y(0, 1, 0);
 				if(dotProduct(y, dir) > 0.99f)
 				{
@@ -1852,7 +1861,7 @@ public:
 				rotations.emplace(mtx.getRotation());
 			}
 		}
-		MoveEntityCommand* cmd = MALMY_NEW(m_allocator, MoveEntityCommand)(*this,
+		MoveGameObjectCommand* cmd = MALMY_NEW(m_allocator, MoveGameObjectCommand)(*this,
 			&m_selected_entities[0],
 			&positions[0],
 			&rotations[0],
@@ -1865,7 +1874,7 @@ public:
 	Vec3 getClosestVertex(const RayHit& hit)
 	{
 		ASSERT(hit.is_hit);
-		return m_render_interface->getClosestVertex(m_project, hit.entity, hit.pos);
+		return m_render_interface->getClosestVertex(m_project, hit.gameobject, hit.pos);
 	}
 
 
@@ -1887,8 +1896,8 @@ public:
 			ComponentUID camera_cmp = getProject()->getComponent(m_camera, CAMERA_TYPE);
 			if (!camera_cmp.isValid()) return;
 
-			m_render_interface->getRay(camera_cmp.entity, {(float)x, (float)y}, origin, dir);
-			auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
+			m_render_interface->getRay(camera_cmp.gameobject, {(float)x, (float)y}, origin, dir);
+			auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
 			if (m_gizmo->isActive()) return;
 
 			for (int i = 0; i < m_plugins.size(); ++i)
@@ -1946,19 +1955,19 @@ public:
 
 	void rectSelect()
 	{
-		Array<Entity> entities(m_allocator);
+		Array<GameObject> entities(m_allocator);
 		
 		ComponentUID camera_cmp = getProject()->getComponent(m_camera, CAMERA_TYPE);
 		if (!camera_cmp.isValid()) return;
 
-		Entity camera_entity = camera_cmp.entity;
-		Vec3 camera_pos = m_project->getPosition(camera_entity);
+		GameObject camera_gameobject = camera_cmp.gameobject;
+		Vec3 camera_pos = m_project->getPosition(camera_gameobject);
 		Vec2 min = m_rect_selection_start;
 		Vec2 max = m_mouse_pos;
 		if (min.x > max.x) Math::swap(min.x, max.x);
 		if (min.y > max.y) Math::swap(min.y, max.y);
-		Frustum frustum = m_render_interface->getFrustum(camera_entity, min, max);
-		m_render_interface->getModelInstaces(entities, frustum, camera_pos, camera_entity);
+		Frustum frustum = m_render_interface->getFrustum(camera_gameobject, min, max);
+		m_render_interface->getModelInstaces(entities, frustum, camera_pos, camera_gameobject);
 		selectEntities(entities.empty() ? nullptr : &entities[0], entities.size(), false);
 	}
 
@@ -1978,8 +1987,8 @@ public:
 				ComponentUID camera_cmp = getProject()->getComponent(m_camera, CAMERA_TYPE);
 				if (!camera_cmp.isValid()) return;
 
-				m_render_interface->getRay(camera_cmp.entity, m_mouse_pos, origin, dir);
-				auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
+				m_render_interface->getRay(camera_cmp.gameobject, m_mouse_pos, origin, dir);
+				auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
 
 				if (m_snap_mode != SnapMode::NONE && !m_selected_entities.empty() && hit.is_hit)
 				{
@@ -1993,15 +2002,15 @@ public:
 				else
 				{
 					auto icon_hit = m_editor_icons->raycast(origin, dir);
-					if (icon_hit.entity != INVALID_ENTITY)
+					if (icon_hit.gameobject != INVALID_GAMEOBJECT)
 					{
-						Entity e = icon_hit.entity;
+						GameObject e = icon_hit.gameobject;
 						selectEntities(&e, 1, true);
 					}
 					else if (hit.is_hit)
 					{
-						Entity entity = hit.entity;
-						selectEntities(&entity, 1, true);
+						GameObject gameobject = hit.gameobject;
+						selectEntities(&gameobject, 1, true);
 					}
 				}
 			}
@@ -2045,11 +2054,11 @@ public:
 
 
 	// TODO split
-	struct EntityGUIDMap : public ILoadEntityGUIDMap, public ISaveEntityGUIDMap
+	struct GameObjectGUIDMap : public ILoadGameObjectGUIDMap, public ISaveGameObjectGUIDMap
 	{
-		explicit EntityGUIDMap(IAllocator& allocator)
-			: guid_to_entity(allocator)
-			, entity_to_guid(allocator)
+		explicit GameObjectGUIDMap(IAllocator& allocator)
+			: guid_to_gameobject(allocator)
+			, gameobject_to_guid(allocator)
 			, is_random(true)
 		{
 		}
@@ -2058,64 +2067,64 @@ public:
 		void clear()
 		{
 			nonrandom_guid = 0;
-			entity_to_guid.clear();
-			guid_to_entity.clear();
+			gameobject_to_guid.clear();
+			guid_to_gameobject.clear();
 		}
 
 
-		void create(Entity entity)
+		void create(GameObject gameobject)
 		{
-			ASSERT(entity.isValid());
-			EntityGUID guid = { is_random ? Math::randGUID() : ++nonrandom_guid };
-			insert(guid, entity);
+			ASSERT(gameobject.isValid());
+			GameObjectGUID guid = { is_random ? Math::randGUID() : ++nonrandom_guid };
+			insert(guid, gameobject);
 		}
 
 
-		void erase(Entity entity)
+		void erase(GameObject gameobject)
 		{
-			EntityGUID guid = entity_to_guid[entity.index];
+			GameObjectGUID guid = gameobject_to_guid[gameobject.index];
 			if (!isValid(guid)) return;
-			entity_to_guid[entity.index] = INVALID_ENTITY_GUID;
-			guid_to_entity.erase(guid.value);
+			gameobject_to_guid[gameobject.index] = INVALID_GAMEOBJECT_GUID;
+			guid_to_gameobject.erase(guid.value);
 		}
 
 
-		void insert(EntityGUID guid, Entity entity)
+		void insert(GameObjectGUID guid, GameObject gameobject)
 		{
-			guid_to_entity.insert(guid.value, entity);
-			while (entity.index >= entity_to_guid.size())
+			guid_to_gameobject.insert(guid.value, gameobject);
+			while (gameobject.index >= gameobject_to_guid.size())
 			{
-				entity_to_guid.push(INVALID_ENTITY_GUID);
+				gameobject_to_guid.push(INVALID_GAMEOBJECT_GUID);
 			}
-			entity_to_guid[entity.index] = guid;
+			gameobject_to_guid[gameobject.index] = guid;
 		}
 
 
-		Entity get(EntityGUID guid) override
+		GameObject get(GameObjectGUID guid) override
 		{
-			auto iter = guid_to_entity.find(guid.value);
+			auto iter = guid_to_gameobject.find(guid.value);
 			if (iter.isValid()) return iter.value();
-			return INVALID_ENTITY;
+			return INVALID_GAMEOBJECT;
 		}
 
 
-		EntityGUID get(Entity entity) override
+		GameObjectGUID get(GameObject gameobject) override
 		{
-			if (!entity.isValid()) return INVALID_ENTITY_GUID;
-			if (entity.index >= entity_to_guid.size()) return INVALID_ENTITY_GUID;
-			return entity_to_guid[entity.index];
+			if (!gameobject.isValid()) return INVALID_GAMEOBJECT_GUID;
+			if (gameobject.index >= gameobject_to_guid.size()) return INVALID_GAMEOBJECT_GUID;
+			return gameobject_to_guid[gameobject.index];
 		}
 
 
-		bool has(EntityGUID guid) const
+		bool has(GameObjectGUID guid) const
 		{
-			auto iter = guid_to_entity.find(guid.value);
+			auto iter = guid_to_gameobject.find(guid.value);
 			return iter.isValid();
 		}
 
 
-		HashMap<u64, Entity> guid_to_entity;
-		Array<EntityGUID> entity_to_guid;
+		HashMap<u64, GameObject> guid_to_gameobject;
+		Array<GameObjectGUID> gameobject_to_guid;
 		u64 nonrandom_guid = 0;
 		bool is_random = true;
 	};
@@ -2125,17 +2134,17 @@ public:
 		, const char* basedir
 		, const char* basename
 		, PrefabSystem& prefab_system
-		, EntityGUIDMap& entity_map
+		, GameObjectGUIDMap& gameobject_map
 		, IAllocator& allocator)
 	{
 		PROFILE_FUNCTION();
 		
-		entity_map.clear();
+		gameobject_map.clear();
 		StaticString<MAX_PATH_LENGTH> scn_dir(basedir, "/", basename, "/scenes/");
 		auto scn_file_iter = PlatformInterface::createFileIterator(scn_dir, allocator);
 		Array<u8> data(allocator);
 		FS::OsFile file;
-		auto loadFile = [&file, &data, &entity_map](const char* filepath, auto callback) {
+		auto loadFile = [&file, &data, &gameobject_map](const char* filepath, auto callback) {
 			if (file.open(filepath, FS::Mode::OPEN_AND_READ))
 			{
 				if (file.size() > 0)
@@ -2143,7 +2152,7 @@ public:
 					data.resize((int)file.size());
 					file.read(&data[0], data.size());
 					InputBlob blob(&data[0], data.size());
-					TextDeserializer deserializer(blob, entity_map);
+					TextDeserializer deserializer(blob, gameobject_map);
 					callback(deserializer);
 				}
 				file.close();
@@ -2193,10 +2202,10 @@ public:
 			StaticString<MAX_PATH_LENGTH> filepath(dir, info.filename);
 			char tmp[32];
 			PathUtils::getBasename(tmp, lengthOf(tmp), filepath);
-			EntityGUID guid;
+			GameObjectGUID guid;
 			fromCString(tmp, lengthOf(tmp), &guid.value);
-			Entity entity = project.createEntity({0, 0, 0}, {0, 0, 0, 1});
-			entity_map.insert(guid, entity);
+			GameObject gameobject = project.createGameObject({0, 0, 0}, {0, 0, 0, 1});
+			gameobject_map.insert(guid, gameobject);
 		}
 		PlatformInterface::destroyFileIterator(file_iter);
 		
@@ -2210,9 +2219,9 @@ public:
 			StaticString<MAX_PATH_LENGTH> filepath(dir, info.filename);
 			char tmp[32];
 			PathUtils::getBasename(tmp, lengthOf(tmp), filepath);
-			EntityGUID guid;
+			GameObjectGUID guid;
 			fromCString(tmp, lengthOf(tmp), &guid.value);
-			loadFile(filepath, [&versions, &entity_map, &project, guid](TextDeserializer& deserializer) {
+			loadFile(filepath, [&versions, &gameobject_map, &project, guid](TextDeserializer& deserializer) {
 				char name[64];
 				deserializer.read(name, lengthOf(name));
 				RigidTransform tr;
@@ -2220,20 +2229,20 @@ public:
 				float scale;
 				deserializer.read(&scale);
 
-				Entity entity = entity_map.get(guid);
+				GameObject gameobject = gameobject_map.get(guid);
 
-				Entity parent;
+				GameObject parent;
 				deserializer.read(&parent);
-				if (parent.isValid()) project.setParent(parent, entity);
+				if (parent.isValid()) project.setParent(parent, gameobject);
 
-				if(name[0]) project.setEntityName(entity, name);
-				project.setTransformKeepChildren(entity, {tr.pos, tr.rot, scale});
+				if(name[0]) project.setGameObjectName(gameobject, name);
+				project.setTransformKeepChildren(gameobject, {tr.pos, tr.rot, scale});
 				u32 cmp_type_hash;
 				deserializer.read(&cmp_type_hash);
 				while (cmp_type_hash != 0)
 				{
 					ComponentType cmp_type = Reflection::getComponentTypeFromHash(cmp_type_hash);
-					project.deserializeComponent(deserializer, entity, cmp_type, versions[cmp_type.index]);
+					project.deserializeComponent(deserializer, gameobject, cmp_type, versions[cmp_type.index]);
 					deserializer.read(&cmp_type_hash);
 				}
 			});
@@ -2243,10 +2252,10 @@ public:
 		StaticString<MAX_PATH_LENGTH> filepath(basedir, "/", basename, "/systems/templates.sys");
 		loadFile(filepath, [&](TextDeserializer& deserializer) {
 			prefab_system.deserialize(deserializer);
-			for (int i = 0, c = prefab_system.getMaxEntityIndex(); i < c; ++i)
+			for (int i = 0, c = prefab_system.getMaxGameObjectIndex(); i < c; ++i)
 			{
 				u64 prefab = prefab_system.getPrefab({i});
-				if (prefab != 0) entity_map.create({i});
+				if (prefab != 0) gameobject_map.create({i});
 			}
 		});
 		return &project;
@@ -2263,7 +2272,7 @@ public:
 
 		FS::OsFile file;
 		OutputBlob blob(m_allocator);
-		TextSerializer serializer(blob, m_entity_map);
+		TextSerializer serializer(blob, m_gameobject_map);
 		auto saveFile = [&file, &blob](const char* path) {
 			if (file.open(path, FS::Mode::CREATE_AND_WRITE))
 			{
@@ -2285,27 +2294,27 @@ public:
 		StaticString<MAX_PATH_LENGTH> system_file_path(dir, "systems/templates.sys");
 		saveFile(system_file_path);
 
-		for (Entity entity = m_project->getFirstEntity(); entity.isValid(); entity = m_project->getNextEntity(entity))
+		for (GameObject gameobject = m_project->getFirstGameObject(); gameobject.isValid(); gameobject = m_project->getNextGameObject(gameobject))
 		{
-			if (m_prefab_system->getPrefab(entity) != 0) continue;
+			if (m_prefab_system->getPrefab(gameobject) != 0) continue;
 			blob.clear();
-			serializer.write("name", m_project->getEntityName(entity));
-			serializer.write("transform", m_project->getTransform(entity).getRigidPart());
-			serializer.write("scale", m_project->getScale(entity));
-			Entity parent = m_project->getParent(entity);
+			serializer.write("name", m_project->getGameObjectName(gameobject));
+			serializer.write("transform", m_project->getTransform(gameobject).getRigidPart());
+			serializer.write("scale", m_project->getScale(gameobject));
+			GameObject parent = m_project->getParent(gameobject);
 			serializer.write("parent", parent);
-			EntityGUID guid = m_entity_map.get(entity);
-			StaticString<MAX_PATH_LENGTH> entity_file_path(dir, guid.value, ".ent");
-			for (ComponentUID cmp = m_project->getFirstComponent(entity); cmp.entity.isValid();
+			GameObjectGUID guid = m_gameobject_map.get(gameobject);
+			StaticString<MAX_PATH_LENGTH> gameobject_file_path(dir, guid.value, ".ent");
+			for (ComponentUID cmp = m_project->getFirstComponent(gameobject); cmp.gameobject.isValid();
 				 cmp = m_project->getNextComponent(cmp))
 			{
 				const char* cmp_name = Reflection::getComponentTypeID(cmp.type.index);
 				u32 type_hash = Reflection::getComponentTypeHash(cmp.type);
 				serializer.write(cmp_name, type_hash);
-				m_project->serializeComponent(serializer, cmp.type, cmp.entity);
+				m_project->serializeComponent(serializer, cmp.type, cmp.gameobject);
 			}
 			serializer.write("cmp_end", (u32)0);
-			saveFile(entity_file_path);
+			saveFile(gameobject_file_path);
 		}
 		clearProjectDir(dir);
 	}
@@ -2322,9 +2331,9 @@ public:
 
 			char basename[64];
 			PathUtils::getBasename(basename, lengthOf(basename), info.filename);
-			EntityGUID guid;
+			GameObjectGUID guid;
 			fromCString(basename, lengthOf(basename), &guid.value);
-			if (!m_entity_map.has(guid))
+			if (!m_gameobject_map.has(guid))
 			{
 				StaticString<MAX_PATH_LENGTH> filepath(dir, info.filename);
 				PlatformInterface::deleteFile(filepath);
@@ -2379,9 +2388,9 @@ public:
 		ComponentUID camera_cmp = getProject()->getComponent(m_camera, CAMERA_TYPE);
 		if (!camera_cmp.isValid()) return;
 
-		m_render_interface->getRay(camera_cmp.entity, m_mouse_pos, origin, dir);
-		auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
-		if (!hit.is_hit || hit.entity != m_selected_entities[0]) return;
+		m_render_interface->getRay(camera_cmp.gameobject, m_mouse_pos, origin, dir);
+		auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
+		if (!hit.is_hit || hit.gameobject != m_selected_entities[0]) return;
 
 		Vec3 snap_pos = getClosestVertex(hit);
 
@@ -2400,9 +2409,9 @@ public:
 
 		for (int i = 0; i < m_selected_entities.size(); ++i)
 		{
-			Entity entity = m_selected_entities[i];
+			GameObject gameobject = m_selected_entities[i];
 
-			Vec3 origin = project->getPosition(entity);
+			Vec3 origin = project->getPosition(gameobject);
 			auto hit = m_render_interface->castRay(origin, Vec3(0, -1, 0), m_selected_entities[i]);
 			if (hit.is_hit)
 			{
@@ -2425,14 +2434,14 @@ public:
 	}
 
 
-	void makeParent(Entity parent, Entity child) override
+	void makeParent(GameObject parent, GameObject child) override
 	{
 		MakeParentCommand* command = MALMY_NEW(m_allocator, MakeParentCommand)(*this, parent, child);
 		executeCommand(command);
 	}
 
 
-	void destroyEntities(const Entity* entities, int count) override
+	void destroyEntities(const GameObject* entities, int count) override
 	{
 		for (int i = 0; i < count; ++i)
 		{
@@ -2448,21 +2457,21 @@ public:
 	}
 
 
-	void createEntityGUID(Entity entity) override
+	void createGameObjectGUID(GameObject gameobject) override
 	{
-		m_entity_map.create(entity);
+		m_gameobject_map.create(gameobject);
 	}
 
 
-	void destroyEntityGUID(Entity entity) override
+	void destroyGameObjectGUID(GameObject gameobject) override
 	{
-		m_entity_map.erase(entity);
+		m_gameobject_map.erase(gameobject);
 	}
 
 
-	EntityGUID getEntityGUID(Entity entity) override
+	GameObjectGUID getGameObjectGUID(GameObject gameobject) override
 	{
-		return m_entity_map.get(entity);
+		return m_gameobject_map.get(gameobject);
 	}
 
 
@@ -2507,21 +2516,21 @@ public:
 	}
 
 
-	Entity addEntity() override
+	GameObject addGameObject() override
 	{
 		Vec2 size = m_render_interface->getCameraScreenSize(m_camera);
-		return addEntityAt((int)size.x >> 1, (int)size.y >> 1);
+		return addGameObjectAt((int)size.x >> 1, (int)size.y >> 1);
 	}
 
 
-	Entity addEntityAt(int camera_x, int camera_y) override
+	GameObject addGameObjectAt(int camera_x, int camera_y) override
 	{
 		Project* project = getProject();
 		Vec3 origin;
 		Vec3 dir;
 
 		m_render_interface->getRay(m_camera, {(float)camera_x, (float)camera_y}, origin, dir);
-		auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
+		auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
 		Vec3 pos;
 		if (hit.is_hit)
 		{
@@ -2531,10 +2540,10 @@ public:
 		{
 			pos = project->getPosition(m_camera) + project->getRotation(m_camera).rotate(Vec3(0, 0, -2));
 		}
-		AddEntityCommand* command = MALMY_NEW(m_allocator, AddEntityCommand)(*this, pos);
+		AddGameObjectCommand* command = MALMY_NEW(m_allocator, AddGameObjectCommand)(*this, pos);
 		executeCommand(command);
 
-		return command->getEntity();
+		return command->getGameObject();
 	}
 
 
@@ -2547,7 +2556,7 @@ public:
 		Vec3 origin;
 		Vec3 dir;
 		m_render_interface->getRay(m_camera, {(float)screen_size.x, (float)screen_size.y}, origin, dir);
-		auto hit = m_render_interface->castRay(origin, dir, INVALID_ENTITY);
+		auto hit = m_render_interface->castRay(origin, dir, INVALID_GAMEOBJECT);
 		Vec3 pos;
 		if (hit.is_hit)
 		{
@@ -2562,27 +2571,27 @@ public:
 
 
 
-	void setEntitiesScales(const Entity* entities, const float* scales, int count) override
+	void setEntitiesScales(const GameObject* entities, const float* scales, int count) override
 	{
 		if (count <= 0) return;
 
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, ScaleEntityCommand)(*this, entities, scales, count, m_allocator);
+			MALMY_NEW(m_allocator, ScaleGameObjectCommand)(*this, entities, scales, count, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntitiesScale(const Entity* entities, int count, float scale) override
+	void setEntitiesScale(const GameObject* entities, int count, float scale) override
 	{
 		if (count <= 0) return;
 
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, ScaleEntityCommand)(*this, entities, count, scale, m_allocator);
+			MALMY_NEW(m_allocator, ScaleGameObjectCommand)(*this, entities, count, scale, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntitiesRotations(const Entity* entities, const Quat* rotations, int count) override
+	void setEntitiesRotations(const GameObject* entities, const Quat* rotations, int count) override
 	{
 		ASSERT(entities && rotations);
 		if (count <= 0) return;
@@ -2594,12 +2603,12 @@ public:
 			positions.push(project->getPosition(entities[i]));
 		}
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, MoveEntityCommand)(*this, entities, &positions[0], rotations, count, m_allocator);
+			MALMY_NEW(m_allocator, MoveGameObjectCommand)(*this, entities, &positions[0], rotations, count, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntitiesCoordinate(const Entity* entities, int count, float value, Coordinate coord) override
+	void setEntitiesCoordinate(const GameObject* entities, int count, float value, Coordinate coord) override
 	{
 		ASSERT(entities);
 		if (count <= 0) return;
@@ -2616,12 +2625,12 @@ public:
 			(&poss[i].x)[(int)coord] = value;
 		}
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, MoveEntityCommand)(*this, entities, &poss[0], &rots[0], count, m_allocator);
+			MALMY_NEW(m_allocator, MoveGameObjectCommand)(*this, entities, &poss[0], &rots[0], count, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntitiesLocalCoordinate(const Entity* entities, int count, float value, Coordinate coord) override
+	void setEntitiesLocalCoordinate(const GameObject* entities, int count, float value, Coordinate coord) override
 	{
 		ASSERT(entities);
 		if (count <= 0) return;
@@ -2635,12 +2644,12 @@ public:
 			(&poss[i].x)[(int)coord] = value;
 		}
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, LocalMoveEntityCommand)(*this, entities, &poss[0], count, m_allocator);
+			MALMY_NEW(m_allocator, LocalMoveGameObjectCommand)(*this, entities, &poss[0], count, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntitiesPositions(const Entity* entities, const Vec3* positions, int count) override
+	void setEntitiesPositions(const GameObject* entities, const Vec3* positions, int count) override
 	{
 		ASSERT(entities && positions);
 		if (count <= 0) return;
@@ -2652,27 +2661,27 @@ public:
 			rots.push(project->getRotation(entities[i]));
 		}
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, MoveEntityCommand)(*this, entities, positions, &rots[0], count, m_allocator);
+			MALMY_NEW(m_allocator, MoveGameObjectCommand)(*this, entities, positions, &rots[0], count, m_allocator);
 		executeCommand(command);
 	}
 
-	void setEntitiesPositionsAndRotations(const Entity* entities,
+	void setEntitiesPositionsAndRotations(const GameObject* entities,
 		const Vec3* positions,
 		const Quat* rotations,
 		int count) override
 	{
 		if (count <= 0) return;
 		IEditorCommand* command =
-			MALMY_NEW(m_allocator, MoveEntityCommand)(*this, entities, positions, rotations, count, m_allocator);
+			MALMY_NEW(m_allocator, MoveGameObjectCommand)(*this, entities, positions, rotations, count, m_allocator);
 		executeCommand(command);
 	}
 
 
-	void setEntityName(Entity entity, const char* name) override
+	void setGameObjectName(GameObject gameobject, const char* name) override
 	{
-		if (entity.isValid())
+		if (gameobject.isValid())
 		{
-			IEditorCommand* command = MALMY_NEW(m_allocator, SetEntityNameCommand)(*this, entity, name);
+			IEditorCommand* command = MALMY_NEW(m_allocator, SetGameObjectNameCommand)(*this, gameobject, name);
 			executeCommand(command);
 		}
 	}
@@ -2773,7 +2782,7 @@ public:
 		}
 		else
 		{
-			m_selected_entity_on_game_mode = m_selected_entities.empty() ? INVALID_ENTITY : m_selected_entities[0];
+			m_selected_gameobject_on_game_mode = m_selected_entities.empty() ? INVALID_GAMEOBJECT : m_selected_entities[0];
 			auto& fs = m_engine->getFileSystem();
 			m_game_mode_file = fs.open(fs.getMemoryDevice(), Path(""), FS::Mode::WRITE);
 			save(*m_game_mode_file);
@@ -2812,14 +2821,14 @@ public:
 			m_project = &m_engine->createProject(true);
 			m_project_created.invoke();
 			m_project->setName(name);
-			m_project->entityDestroyed().bind<WorldEditorImpl, &WorldEditorImpl::onEntityDestroyed>(this);
+			m_project->gameobjectDestroyed().bind<WorldEditorImpl, &WorldEditorImpl::onGameObjectDestroyed>(this);
 			m_selected_entities.clear();
-			m_camera = INVALID_ENTITY;
+			m_camera = INVALID_GAMEOBJECT;
 			load(*m_game_mode_file);
 		}
 		m_engine->getFileSystem().close(*m_game_mode_file);
 		m_game_mode_file = nullptr;
-		if(m_selected_entity_on_game_mode.isValid()) selectEntities(&m_selected_entity_on_game_mode, 1, false);
+		if(m_selected_gameobject_on_game_mode.isValid()) selectEntities(&m_selected_gameobject_on_game_mode, 1, false);
 		m_engine->getResourceManager().enableUnload(true);
 	}
 
@@ -2830,25 +2839,25 @@ public:
 	}
 
 
-	void copyEntities(const Entity* entities, int count, ISerializer& serializer) override
+	void copyEntities(const GameObject* entities, int count, ISerializer& serializer) override
 	{
 		serializer.write("count", count);
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity = entities[i];
-			Transform tr = m_project->getTransform(entity);
+			GameObject gameobject = entities[i];
+			Transform tr = m_project->getTransform(gameobject);
 			serializer.write("transform", tr);
-			serializer.write("parent", m_project->getParent(entity));
+			serializer.write("parent", m_project->getParent(gameobject));
 
 			i32 cmp_count = 0;
-			for (ComponentUID cmp = m_project->getFirstComponent(entity); cmp.isValid();
+			for (ComponentUID cmp = m_project->getFirstComponent(gameobject); cmp.isValid();
 				 cmp = m_project->getNextComponent(cmp))
 			{
 				++cmp_count;
 			}
 
 			serializer.write("cmp_count", cmp_count);
-			for (ComponentUID cmp = m_project->getFirstComponent(entity);
+			for (ComponentUID cmp = m_project->getFirstComponent(gameobject);
 				cmp.isValid();
 				cmp = m_project->getNextComponent(cmp))
 			{
@@ -2856,7 +2865,7 @@ public:
 				serializer.write("cmp_type", cmp_type);
 				const Reflection::ComponentBase* cmp_desc = Reflection::getComponent(cmp.type);
 				
-				m_project->serializeComponent(serializer, cmp.type, cmp.entity);
+				m_project->serializeComponent(serializer, cmp.type, cmp.gameobject);
 			}
 		}
 	}
@@ -2868,15 +2877,15 @@ public:
 
 		m_copy_buffer.clear();
 
-		struct : ISaveEntityGUIDMap {
-			EntityGUID get(Entity entity) override {
-				if (!entity.isValid()) return INVALID_ENTITY_GUID;
+		struct : ISaveGameObjectGUIDMap {
+			GameObjectGUID get(GameObject gameobject) override {
+				if (!gameobject.isValid()) return INVALID_GAMEOBJECT_GUID;
 				
-				int idx = editor->m_selected_entities.indexOf(entity);
+				int idx = editor->m_selected_entities.indexOf(gameobject);
 				if (idx >= 0) {
 					return { (u64)idx };
 				}
-				return { ((u64)1 << 32) | (u64)entity.index };
+				return { ((u64)1 << 32) | (u64)gameobject.index };
 			}
 
 			WorldEditorImpl* editor;
@@ -2885,14 +2894,14 @@ public:
 
 		TextSerializer serializer(m_copy_buffer, map);
 
-		Array<Entity> entities(m_allocator);
+		Array<GameObject> entities(m_allocator);
 		entities.reserve(m_selected_entities.size());
-		for (Entity e : m_selected_entities) {
+		for (GameObject e : m_selected_entities) {
 			entities.push(e);
 		}
 		for (int i = 0; i < entities.size(); ++i) {
-			Entity e = entities[i];
-			for (Entity child = m_project->getFirstChild(e); child.isValid(); child = m_project->getNextSibling(child)) {
+			GameObject e = entities[i];
+			for (GameObject child = m_project->getFirstChild(e); child.isValid(); child = m_project->getNextSibling(child)) {
 				if(entities.indexOf(child) < 0) entities.push(child);
 			}
 		}
@@ -2910,11 +2919,11 @@ public:
 	void duplicateEntities() override;
 
 
-	void cloneComponent(const ComponentUID& src, Entity entity) override
+	void cloneComponent(const ComponentUID& src, GameObject gameobject) override
 	{
 		IScene* scene = m_project->getScene(src.type);
-		m_project->createComponent(src.type, entity);
-		ComponentUID clone(entity, src.type, scene);
+		m_project->createComponent(src.type, gameobject);
+		ComponentUID clone(gameobject, src.type, scene);
 
 		const Reflection::ComponentBase* cmp_desc = Reflection::getComponent(src.type);
 		OutputBlob stream(m_allocator);
@@ -2929,7 +2938,7 @@ public:
 	}
 
 
-	void destroyComponent(const Entity* entities, int count, ComponentType cmp_type) override
+	void destroyComponent(const GameObject* entities, int count, ComponentType cmp_type) override
 	{
 		ASSERT(count > 0);
 		if (entities[0] == m_camera && cmp_type == CAMERA_TYPE)
@@ -2977,8 +2986,8 @@ public:
 		createProject();
 		m_project->setName(basename);
 		g_log_info.log("Editor") << "Loading project " << basename << "...";
-		if (m_camera.isValid()) m_project->destroyEntity(m_camera);
-		if (!deserialize(*m_project, "projects/", basename, *m_prefab_system, m_entity_map, m_allocator)) newProject();
+		if (m_camera.isValid()) m_project->destroyGameObject(m_camera);
+		if (!deserialize(*m_project, "projects/", basename, *m_prefab_system, m_gameobject_map, m_allocator)) newProject();
 		m_camera = m_render_interface->getCameraInSlot("editor");
 		m_editor_icons->refresh();
 	}
@@ -3051,7 +3060,7 @@ public:
 			return;
 		}
 
-		if (m_camera.isValid()) m_project->destroyEntity(m_camera);
+		if (m_camera.isValid()) m_project->destroyGameObject(m_camera);
 
 		if (m_engine->deserialize(*m_project, blob))
 		{
@@ -3094,7 +3103,7 @@ public:
 
 	WorldEditorImpl(const char* base_path, Engine& engine, IAllocator& allocator)
 		: m_allocator(allocator)
-		, m_entity_selected(m_allocator)
+		, m_gameobject_selected(m_allocator)
 		, m_project_destroyed(m_allocator)
 		, m_project_created(m_allocator)
 		, m_selected_entities(m_allocator)
@@ -3102,7 +3111,7 @@ public:
 		, m_plugins(m_allocator)
 		, m_undo_stack(m_allocator)
 		, m_copy_buffer(m_allocator)
-		, m_camera(INVALID_ENTITY)
+		, m_camera(INVALID_GAMEOBJECT)
 		, m_editor_command_creators(m_allocator)
 		, m_is_loading(false)
 		, m_project(nullptr)
@@ -3110,13 +3119,13 @@ public:
 		, m_is_toggle_selection(false)
 		, m_mouse_sensitivity(200, 200)
 		, m_render_interface(nullptr)
-		, m_selected_entity_on_game_mode(INVALID_ENTITY)
+		, m_selected_gameobject_on_game_mode(INVALID_GAMEOBJECT)
 		, m_mouse_handling_plugin(nullptr)
 		, m_is_game_mode(false)
 		, m_snap_mode(SnapMode::NONE)
 		, m_undo_index(-1)
 		, m_engine(&engine)
-		, m_entity_map(m_allocator)
+		, m_gameobject_map(m_allocator)
 		, m_is_guid_pseudorandom(false)
 	{
 		for (auto& i : m_is_mouse_down) i = false;
@@ -3148,13 +3157,13 @@ public:
 		m_editor_command_creators.insert(
 			crc32("end_group"), &WorldEditorImpl::constructEditorCommand<EndGroupCommand>);
 		m_editor_command_creators.insert(
-			crc32("scale_entity"), &WorldEditorImpl::constructEditorCommand<ScaleEntityCommand>);
+			crc32("scale_gameobject"), &WorldEditorImpl::constructEditorCommand<ScaleGameObjectCommand>);
 		m_editor_command_creators.insert(
-			crc32("move_entity"), &WorldEditorImpl::constructEditorCommand<MoveEntityCommand>);
+			crc32("move_gameobject"), &WorldEditorImpl::constructEditorCommand<MoveGameObjectCommand>);
 		m_editor_command_creators.insert(
-			crc32("set_entity_name"), &WorldEditorImpl::constructEditorCommand<SetEntityNameCommand>);
+			crc32("set_gameobject_name"), &WorldEditorImpl::constructEditorCommand<SetGameObjectNameCommand>);
 		m_editor_command_creators.insert(
-			crc32("paste_entity"), &WorldEditorImpl::constructEditorCommand<PasteEntityCommand>);
+			crc32("paste_gameobject"), &WorldEditorImpl::constructEditorCommand<PasteGameObjectCommand>);
 		m_editor_command_creators.insert(crc32("remove_array_property_item"),
 			&WorldEditorImpl::constructEditorCommand<RemoveArrayPropertyItemCommand>);
 		m_editor_command_creators.insert(
@@ -3168,7 +3177,7 @@ public:
 		m_editor_command_creators.insert(
 			crc32("destroy_components"), &WorldEditorImpl::constructEditorCommand<DestroyComponentCommand>);
 		m_editor_command_creators.insert(
-			crc32("add_entity"), &WorldEditorImpl::constructEditorCommand<AddEntityCommand>);
+			crc32("add_gameobject"), &WorldEditorImpl::constructEditorCommand<AddGameObjectCommand>);
 
 		m_gizmo = Gizmo::create(*this);
 		m_editor_icons = EditorIcons::create(*this);
@@ -3202,13 +3211,13 @@ public:
 	}
 
 
-	bool isEntitySelected(Entity entity) const override
+	bool isGameObjectSelected(GameObject gameobject) const override
 	{
-		return m_selected_entities.indexOf(entity) >= 0;
+		return m_selected_entities.indexOf(gameobject) >= 0;
 	}
 
 
-	const Array<Entity>& getSelectedEntities() const override
+	const Array<GameObject>& getSelectedEntities() const override
 	{
 		return m_selected_entities;
 	}
@@ -3248,7 +3257,7 @@ public:
 	void setProperty(ComponentType component_type,
 		int index,
 		const Reflection::PropertyBase& property,
-		const Entity* entities,
+		const GameObject* entities,
 		int count,
 		const void* data,
 		int size) override
@@ -3322,14 +3331,14 @@ public:
 		if (m_is_orbit && !m_selected_entities.empty())
 		{
 			Vec3 dir = rot.rotate(Vec3(0, 0, 1));
-			Vec3 entity_pos = project->getPosition(m_selected_entities[0]);
+			Vec3 gameobject_pos = project->getPosition(m_selected_entities[0]);
 			Vec3 nondelta_pos = pos;
 
 			nondelta_pos -= old_rot.rotate(Vec3(0, -1, 0)) * m_orbit_delta.y;
 			nondelta_pos -= old_rot.rotate(Vec3(1, 0, 0)) * m_orbit_delta.x;
 
-			float dist = (entity_pos - nondelta_pos).length();
-			pos = entity_pos + dir * dist;
+			float dist = (gameobject_pos - nondelta_pos).length();
+			pos = gameobject_pos + dir * dist;
 			pos += rot.rotate(Vec3(1, 0, 0)) * m_orbit_delta.x;
 			pos += rot.rotate(Vec3(0, -1, 0)) * m_orbit_delta.y;
 		}
@@ -3339,7 +3348,7 @@ public:
 	}
 
 
-	void selectEntities(const Entity* entities, int count, bool toggle) override
+	void selectEntities(const GameObject* entities, int count, bool toggle) override
 	{
 		if (!toggle || !m_is_toggle_selection)
 		{
@@ -3367,13 +3376,13 @@ public:
 		}
 
 		m_selected_entities.removeDuplicates();
-		m_entity_selected.invoke(m_selected_entities);
+		m_gameobject_selected.invoke(m_selected_entities);
 	}
 
 
-	void onEntityDestroyed(Entity entity)
+	void onGameObjectDestroyed(GameObject gameobject)
 	{
-		m_selected_entities.eraseItemFast(entity);
+		m_selected_entities.eraseItemFast(gameobject);
 	}
 
 
@@ -3387,7 +3396,7 @@ public:
 		m_editor_icons->clear();
 		m_gizmo->clearEntities();
 		selectEntities(nullptr, 0, false);
-		m_camera = INVALID_ENTITY;
+		m_camera = INVALID_GAMEOBJECT;
 		m_engine->destroyProject(*m_project);
 		m_project = nullptr;
 	}
@@ -3399,9 +3408,9 @@ public:
 	}
 
 
-	DelegateList<void(const Array<Entity>&)>& entitySelected() override
+	DelegateList<void(const Array<GameObject>&)>& gameobjectSelected() override
 	{
-		return m_entity_selected;
+		return m_gameobject_selected;
 	}
 
 
@@ -3431,21 +3440,21 @@ public:
 		m_project = &m_engine->createProject(true);
 		Project* project = m_project;
 
-		project->entityDestroyed().bind<WorldEditorImpl, &WorldEditorImpl::onEntityDestroyed>(this);
+		project->gameobjectDestroyed().bind<WorldEditorImpl, &WorldEditorImpl::onGameObjectDestroyed>(this);
 
 		m_is_orbit = false;
 		m_selected_entities.clear();
 		m_project_created.invoke();
 
-		m_camera = project->createEntity(Vec3(0, 0, -5), Quat(Vec3(0, 1, 0), -Math::PI));
-		m_entity_map.is_random = !m_is_guid_pseudorandom;
-		m_entity_map.clear();
-		m_entity_map.create(m_camera);
+		m_camera = project->createGameObject(Vec3(0, 0, -5), Quat(Vec3(0, 1, 0), -Math::PI));
+		m_gameobject_map.is_random = !m_is_guid_pseudorandom;
+		m_gameobject_map.clear();
+		m_gameobject_map.create(m_camera);
 
-		project->setEntityName(m_camera, "editor_camera");
+		project->setGameObjectName(m_camera, "editor_camera");
 		ComponentUID cmp = m_engine->createComponent(*project, m_camera, CAMERA_TYPE);
 		ASSERT(cmp.isValid());
-		m_render_interface->setCameraSlot(cmp.entity, "editor");
+		m_render_interface->setCameraSlot(cmp.gameobject, "editor");
 	}
 
 
@@ -3680,7 +3689,7 @@ public:
 	static int getEntitiesCount(Project& project)
 	{
 		int count = 0;
-		for (Entity e = project.getFirstEntity(); e.isValid(); e = project.getNextEntity(e)) ++count;
+		for (GameObject e = project.getFirstGameObject(); e.isValid(); e = project.getNextGameObject(e)) ++count;
 		return count;
 	}
 
@@ -3697,8 +3706,8 @@ public:
 		OutputBlob blob1(m_allocator);
 		Project& tpl_project = m_engine->createProject(true);
 		PrefabSystem* prefab_system = PrefabSystem::create(*this);
-		EntityGUIDMap entity_guid_map(m_allocator);
-		bool is_same = deserialize(tpl_project, "unit_tests/editor", name, *prefab_system, entity_guid_map, m_allocator);
+		GameObjectGUIDMap gameobject_guid_map(m_allocator);
+		bool is_same = deserialize(tpl_project, "unit_tests/editor", name, *prefab_system, gameobject_guid_map, m_allocator);
 		if (!is_same) goto end;
 		if (getEntitiesCount(tpl_project) != getEntitiesCount(*m_project))
 		{
@@ -3706,11 +3715,11 @@ public:
 			goto end;
 		}
 
-		for (Entity e = tpl_project.getFirstEntity(); e.isValid(); e = tpl_project.getNextEntity(e))
+		for (GameObject e = tpl_project.getFirstGameObject(); e.isValid(); e = tpl_project.getNextGameObject(e))
 		{
-			EntityGUID guid = entity_guid_map.get(e);
-			Entity other_entity = m_entity_map.get(guid);
-			if (!other_entity.isValid())
+			GameObjectGUID guid = gameobject_guid_map.get(e);
+			GameObject other_gameobject = m_gameobject_map.get(guid);
+			if (!other_gameobject.isValid())
 			{
 				is_same = false;
 				goto end;
@@ -3718,13 +3727,13 @@ public:
 
 			for (ComponentUID cmp = tpl_project.getFirstComponent(e); cmp.isValid(); cmp = tpl_project.getNextComponent(cmp))
 			{
-				if (!m_project->hasComponent(other_entity, cmp.type))
+				if (!m_project->hasComponent(other_gameobject, cmp.type))
 				{
 					is_same = false;
 					goto end;
 				}
 
-				ComponentUID other_cmp = m_project->getComponent(other_entity, cmp.type);
+				ComponentUID other_cmp = m_project->getComponent(other_gameobject, cmp.type);
 
 				const Reflection::ComponentBase* base = Reflection::getComponent(cmp.type);
 				struct : Reflection::ISimpleComponentVisitor
@@ -3797,7 +3806,7 @@ private:
 	IAllocator& m_allocator;
 	GoToParameters m_go_to_parameters;
 	Gizmo* m_gizmo;
-	Array<Entity> m_selected_entities;
+	Array<GameObject> m_selected_entities;
 	MouseMode m_mouse_mode;
 	Vec2 m_rect_selection_start;
 	EditorIcons* m_editor_icons;
@@ -3813,11 +3822,11 @@ private:
 	SnapMode m_snap_mode;
 	FS::IFile* m_game_mode_file;
 	Engine* m_engine;
-	Entity m_camera;
-	Entity m_selected_entity_on_game_mode;
+	GameObject m_camera;
+	GameObject m_selected_gameobject_on_game_mode;
 	DelegateList<void()> m_project_destroyed;
 	DelegateList<void()> m_project_created;
-	DelegateList<void(const Array<Entity>&)> m_entity_selected;
+	DelegateList<void(const Array<GameObject>&)> m_gameobject_selected;
 	bool m_is_mouse_down[MouseButton::RIGHT + 1];
 	bool m_is_mouse_click[3];
 
@@ -3831,7 +3840,7 @@ private:
 	OutputBlob m_copy_buffer;
 	bool m_is_loading;
 	Project* m_project;
-	EntityGUIDMap m_entity_map;
+	GameObjectGUIDMap m_gameobject_map;
 	RenderInterface* m_render_interface;
 	u32 m_current_group_type;
 	bool m_is_project_changed;
@@ -3839,34 +3848,34 @@ private:
 };
 
 
-class PasteEntityCommand MALMY_FINAL : public IEditorCommand
+class PasteGameObjectCommand MALMY_FINAL : public IEditorCommand
 {
 public:
-	explicit PasteEntityCommand(WorldEditor& editor)
+	explicit PasteGameObjectCommand(WorldEditor& editor)
 		: m_copy_buffer(editor.getAllocator())
 		, m_editor(editor)
 		, m_entities(editor.getAllocator())
-		, m_identity(false)
+		, m_idgameobject(false)
 	{
 	}
 
 
-	PasteEntityCommand(WorldEditor& editor, const OutputBlob& copy_buffer, bool identity = false)
+	PasteGameObjectCommand(WorldEditor& editor, const OutputBlob& copy_buffer, bool idgameobject = false)
 		: m_copy_buffer(copy_buffer)
 		, m_editor(editor)
 		, m_position(editor.getCameraRaycastHit())
 		, m_entities(editor.getAllocator())
-		, m_identity(identity)
+		, m_idgameobject(idgameobject)
 	{
 	}
 
 
-	PasteEntityCommand(WorldEditor& editor, const Vec3& pos, const OutputBlob& copy_buffer, bool identity = false)
+	PasteGameObjectCommand(WorldEditor& editor, const Vec3& pos, const OutputBlob& copy_buffer, bool idgameobject = false)
 		: m_copy_buffer(copy_buffer)
 		, m_editor(editor)
 		, m_position(pos)
 		, m_entities(editor.getAllocator())
-		, m_identity(identity)
+		, m_idgameobject(idgameobject)
 	{
 	}
 
@@ -3876,7 +3885,7 @@ public:
 		serializer.serialize("pos_x", m_position.x);
 		serializer.serialize("pos_y", m_position.y);
 		serializer.serialize("pos_z", m_position.z);
-		serializer.serialize("identity", m_identity);
+		serializer.serialize("idgameobject", m_idgameobject);
 		serializer.serialize("size", m_copy_buffer.getPos());
 		serializer.beginArray("data");
 		for (int i = 0; i < m_copy_buffer.getPos(); ++i)
@@ -3892,7 +3901,7 @@ public:
 		serializer.deserialize("pos_x", m_position.x, 0);
 		serializer.deserialize("pos_y", m_position.y, 0);
 		serializer.deserialize("pos_z", m_position.z, 0);
-		serializer.deserialize("identity", m_identity, false);
+		serializer.deserialize("idgameobject", m_idgameobject, false);
 		int size;
 		serializer.deserialize("size", size, 0);
 		serializer.deserializeArrayBegin("data");
@@ -3910,54 +3919,54 @@ public:
 
 	bool execute() override
 	{
-		struct Map : ILoadEntityGUIDMap {
+		struct Map : ILoadGameObjectGUIDMap {
 			Map(IAllocator& allocator) : entities(allocator) {}
 
-			Entity get(EntityGUID guid) override 
+			GameObject get(GameObjectGUID guid) override 
 			{
-				if (guid == INVALID_ENTITY_GUID) return INVALID_ENTITY;
+				if (guid == INVALID_GAMEOBJECT_GUID) return INVALID_GAMEOBJECT;
 
 				if (guid.value > 0xffFFffFF) return { (int)guid.value }; ;
 				
 				return entities[(int)guid.value];
 			}
 
-			Array<Entity> entities;
+			Array<GameObject> entities;
 		} map(m_editor.getAllocator());
 		InputBlob input_blob(m_copy_buffer);
 		TextDeserializer deserializer(input_blob, map);
 
 		Project& project = *m_editor.getProject();
-		int entity_count;
-		deserializer.read(&entity_count);
-		map.entities.resize(entity_count);
+		int gameobject_count;
+		deserializer.read(&gameobject_count);
+		map.entities.resize(gameobject_count);
 		bool is_redo = !m_entities.empty();
-		for (int i = 0; i < entity_count; ++i)
+		for (int i = 0; i < gameobject_count; ++i)
 		{
 			if (is_redo)
 			{
 				map.entities[i] = m_entities[i];
-				project.emplaceEntity(m_entities[i]);
+				project.emplaceGameObject(m_entities[i]);
 			}
 			else
 			{
-				map.entities[i] = project.createEntity(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
+				map.entities[i] = project.createGameObject(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
 			}
 		}
 
-		m_entities.reserve(entity_count);
+		m_entities.reserve(gameobject_count);
 
-		Matrix base_matrix = Matrix::IDENTITY;
+		Matrix base_matrix = Matrix::IDGAMEOBJECT;
 		base_matrix.setTranslation(m_position);
-		for (int i = 0; i < entity_count; ++i)
+		for (int i = 0; i < gameobject_count; ++i)
 		{
 			Transform tr;
 			deserializer.read(&tr);
 			Matrix mtx = tr.toMatrix();
-			Entity parent;
+			GameObject parent;
 			deserializer.read(&parent);
 
-			if (!m_identity)
+			if (!m_idgameobject)
 			{
 				if (i == 0)
 				{
@@ -3973,11 +3982,11 @@ public:
 				}
 			}
 
-			const Entity new_entity = map.entities[i];
-			((WorldEditorImpl&)m_editor).m_entity_map.create(new_entity);
-			if (!is_redo) m_entities.push(new_entity);
-			project.setMatrix(new_entity, mtx);
-			project.setParent(parent, new_entity);
+			const GameObject new_gameobject = map.entities[i];
+			((WorldEditorImpl&)m_editor).m_gameobject_map.create(new_gameobject);
+			if (!is_redo) m_entities.push(new_gameobject);
+			project.setMatrix(new_gameobject, mtx);
+			project.setParent(parent, new_gameobject);
 			i32 count;
 			deserializer.read(&count);
 			for (int j = 0; j < count; ++j)
@@ -3986,7 +3995,7 @@ public:
 				deserializer.read(&hash);
 				ComponentType type = Reflection::getComponentTypeFromHash(hash);
 				const int scene_version = project.getScene(type)->getVersion();
-				project.deserializeComponent(deserializer, new_entity, type, scene_version);
+				project.deserializeComponent(deserializer, new_gameobject, type, scene_version);
 			}
 		}
 		return true;
@@ -3995,15 +4004,15 @@ public:
 
 	void undo() override
 	{
-		for (auto entity : m_entities)
+		for (auto gameobject : m_entities)
 		{
-			m_editor.getProject()->destroyEntity(entity);
-			((WorldEditorImpl&)m_editor).m_entity_map.erase(entity);
+			m_editor.getProject()->destroyGameObject(gameobject);
+			((WorldEditorImpl&)m_editor).m_gameobject_map.erase(gameobject);
 		}
 	}
 
 
-	const char* getType() override { return "paste_entity"; }
+	const char* getType() override { return "paste_gameobject"; }
 
 
 	bool merge(IEditorCommand& command) override
@@ -4013,21 +4022,21 @@ public:
 	}
 
 
-	const Array<Entity>& getEntities() { return m_entities; }
+	const Array<GameObject>& getEntities() { return m_entities; }
 
 
 private:
 	OutputBlob m_copy_buffer;
 	WorldEditor& m_editor;
 	Vec3 m_position;
-	Array<Entity> m_entities;
-	bool m_identity;
+	Array<GameObject> m_entities;
+	bool m_idgameobject;
 };
 
 
 void WorldEditorImpl::pasteEntities()
 {
-	PasteEntityCommand* command = MALMY_NEW(m_allocator, PasteEntityCommand)(*this, m_copy_buffer);
+	PasteGameObjectCommand* command = MALMY_NEW(m_allocator, PasteGameObjectCommand)(*this, m_copy_buffer);
 	executeCommand(command);
 }
 
@@ -4036,7 +4045,7 @@ void WorldEditorImpl::duplicateEntities()
 {
 	copyEntities();
 
-	PasteEntityCommand* command = MALMY_NEW(m_allocator, PasteEntityCommand)(*this, m_copy_buffer, true);
+	PasteGameObjectCommand* command = MALMY_NEW(m_allocator, PasteGameObjectCommand)(*this, m_copy_buffer, true);
 	executeCommand(command);
 }
 

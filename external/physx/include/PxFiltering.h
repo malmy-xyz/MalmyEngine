@@ -84,7 +84,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
+		@see PxSimulationEventCallback.onCollision() PxSimulationEventCallback.onTrigger()
 		*/
 		eNOTIFY_TOUCH_FOUND					= (1<<2),
 
@@ -104,7 +104,7 @@ struct PxPairFlag
 
 		\note If this flag gets enabled while a pair is in touch already, there will be no eNOTIFY_TOUCH_PERSISTS events until the pair loses and regains touch.
 
-		@see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
+		@see PxSimulationEventCallback.onCollision() PxSimulationEventCallback.onTrigger()
 		*/
 		eNOTIFY_TOUCH_PERSISTS				= (1<<3),
 
@@ -122,7 +122,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
+		@see PxSimulationEventCallback.onCollision() PxSimulationEventCallback.onTrigger()
 		*/
 		eNOTIFY_TOUCH_LOST					= (1<<4),
 
@@ -142,7 +142,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
+		@see PxSimulationEventCallback.onCollision() PxSimulationEventCallback.onTrigger()
 		*/
 		eNOTIFY_TOUCH_CCD					= (1<<5),
 
@@ -153,7 +153,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact()
+		@see PxSimulationEventCallback.onCollision()
 		*/
 		eNOTIFY_THRESHOLD_FORCE_FOUND		= (1<<6),
 
@@ -167,7 +167,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact()
+		@see PxSimulationEventCallback.onCollision()
 		*/
 		eNOTIFY_THRESHOLD_FORCE_PERSISTS	= (1<<7),
 
@@ -181,7 +181,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact()
+		@see PxSimulationEventCallback.onCollision()
 		*/
 		eNOTIFY_THRESHOLD_FORCE_LOST		= (1<<8),
 
@@ -192,7 +192,7 @@ struct PxPairFlag
 
 		\note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
 
-		@see PxSimulationEventCallback.onContact() PxContactPair PxContactPair.extractContacts()
+		@see PxSimulationEventCallback.onCollision() PxContactPair PxContactPair.extractContacts()
 		*/
 		eNOTIFY_CONTACT_POINTS				= (1<<9),
 
@@ -227,7 +227,7 @@ struct PxPairFlag
 		PxRigidActor object directly. However, it might be the case that the velocity of a rigid body gets set while the simulation is running
 		in which case the PxRigidActor would return this new velocity in the contact report callback and not the velocity the simulation used.
 		
-		@see PxSimulationEventCallback.onContact(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
+		@see PxSimulationEventCallback.onCollision(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
 		*/
 		ePRE_SOLVER_VELOCITY				= (1<<12),
 		
@@ -237,7 +237,7 @@ struct PxPairFlag
 		If the collision pair has contact reports enabled, the velocities of the rigid bodies after contacts have been solved
 		will be provided in the contact report callback unless the pair lost touch in which case no data will be provided.
 		
-		@see PxSimulationEventCallback.onContact(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
+		@see PxSimulationEventCallback.onCollision(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
 		*/
 		ePOST_SOLVER_VELOCITY				= (1<<13),
 		
@@ -253,7 +253,7 @@ struct PxPairFlag
 		Another use case is related to CCD with multiple passes enabled, A fast moving object might bounce on and off the same 
 		object multiple times. This flag can be used to request the rigid body poses at the time of impact for each such collision event.
 		
-		@see PxSimulationEventCallback.onContact(), PxContactPairPose, PxContactPairHeader.extraDataStream
+		@see PxSimulationEventCallback.onCollision(), PxContactPairPose, PxContactPairHeader.extraDataStream
 		*/
 		eCONTACT_EVENT_POSE					= (1<<14),
 

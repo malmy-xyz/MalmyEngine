@@ -13,32 +13,32 @@ namespace Malmy
 	struct Vec3;
 	struct Vec4;
 
-	struct EntityGUID
+	struct GameObjectGUID
 	{
 		u64 value;
-		bool operator ==(const EntityGUID& rhs) const { return value == rhs.value; }
+		bool operator ==(const GameObjectGUID& rhs) const { return value == rhs.value; }
 	};
 
-	const EntityGUID INVALID_ENTITY_GUID = { 0xffffFFFFffffFFFF };
-	inline bool isValid(EntityGUID guid) { return guid.value != INVALID_ENTITY_GUID.value; }
+	const GameObjectGUID INVALID_GAMEOBJECT_GUID = { 0xffffFFFFffffFFFF };
+	inline bool isValid(GameObjectGUID guid) { return guid.value != INVALID_GAMEOBJECT_GUID.value; }
 
-	struct ISaveEntityGUIDMap
+	struct ISaveGameObjectGUIDMap
 	{
-		virtual ~ISaveEntityGUIDMap() {}
-		virtual EntityGUID get(Entity entity) = 0;
+		virtual ~ISaveGameObjectGUIDMap() {}
+		virtual GameObjectGUID get(GameObject gameobject) = 0;
 	};
 
-	struct ILoadEntityGUIDMap
+	struct ILoadGameObjectGUIDMap
 	{
-		virtual ~ILoadEntityGUIDMap() {}
-		virtual Entity get(EntityGUID guid) = 0;
+		virtual ~ILoadGameObjectGUIDMap() {}
+		virtual GameObject get(GameObjectGUID guid) = 0;
 	};
 
 	struct MALMY_ENGINE_API ISerializer
 	{
 		virtual ~ISerializer() {}
 
-		virtual void write(const char* label, Entity entity) = 0;
+		virtual void write(const char* label, GameObject gameobject) = 0;
 		virtual void write(const char* label, const Transform& value) = 0;
 		virtual void write(const char* label, const RigidTransform& value) = 0;
 		virtual void write(const char* label, const Vec4& value) = 0;
@@ -54,14 +54,14 @@ namespace Malmy
 		virtual void write(const char* label, i8 value) = 0;
 		virtual void write(const char* label, u8 value) = 0;
 		virtual void write(const char* label, const char* value) = 0;
-		virtual EntityGUID getGUID(Entity entity) = 0;
+		virtual GameObjectGUID getGUID(GameObject gameobject) = 0;
 	};
 
 	struct MALMY_ENGINE_API IDeserializer
 	{
 		virtual ~IDeserializer() {}
 
-		virtual void read(Entity* entity) = 0;
+		virtual void read(GameObject* gameobject) = 0;
 		virtual void read(Transform* value) = 0;
 		virtual void read(RigidTransform* value) = 0;
 		virtual void read(Vec4* value) = 0;
@@ -78,19 +78,19 @@ namespace Malmy
 		virtual void read(i8* value) = 0;
 		virtual void read(char* value, int max_size) = 0;
 		virtual void read(string* value) = 0;
-		virtual Entity getEntity(EntityGUID guid) = 0;
+		virtual GameObject getGameObject(GameObjectGUID guid) = 0;
 	};
 
 	struct MALMY_ENGINE_API TextSerializer MALMY_FINAL : public ISerializer
 	{
-		TextSerializer(OutputBlob& _blob, ISaveEntityGUIDMap& _entity_map)
+		TextSerializer(OutputBlob& _blob, ISaveGameObjectGUIDMap& _gameobject_map)
 			: blob(_blob)
-			, entity_map(_entity_map)
+			, gameobject_map(_gameobject_map)
 		{
 			//
 		}
 
-		void write(const char* label, Entity entity)  override;
+		void write(const char* label, GameObject gameobject)  override;
 		void write(const char* label, const RigidTransform& value)  override;
 		void write(const char* label, const Transform& value)  override;
 		void write(const char* label, const Vec4& value)  override;
@@ -106,21 +106,21 @@ namespace Malmy
 		void write(const char* label, i8 value)  override;
 		void write(const char* label, u8 value)  override;
 		void write(const char* label, const char* value)  override;
-		EntityGUID getGUID(Entity entity) override;
+		GameObjectGUID getGUID(GameObject gameobject) override;
 
 		OutputBlob& blob;
-		ISaveEntityGUIDMap& entity_map;
+		ISaveGameObjectGUIDMap& gameobject_map;
 	};
 
 	struct MALMY_ENGINE_API TextDeserializer MALMY_FINAL : public IDeserializer
 	{
-		TextDeserializer(InputBlob& _blob, ILoadEntityGUIDMap& _entity_map)
+		TextDeserializer(InputBlob& _blob, ILoadGameObjectGUIDMap& _gameobject_map)
 			: blob(_blob)
-			, entity_map(_entity_map)
+			, gameobject_map(_gameobject_map)
 		{
 		}
 
-		void read(Entity* entity)  override;
+		void read(GameObject* gameobject)  override;
 		void read(RigidTransform* value)  override;
 		void read(Transform* value)  override;
 		void read(Vec4* value)  override;
@@ -137,13 +137,13 @@ namespace Malmy
 		void read(i8* value)  override;
 		void read(char* value, int max_size)  override;
 		void read(string* value)  override;
-		Entity getEntity(EntityGUID guid) override;
+		GameObject getGameObject(GameObjectGUID guid) override;
 
 		void skip();
 		u32 readU32();
 
 		InputBlob& blob;
-		ILoadEntityGUIDMap& entity_map;
+		ILoadGameObjectGUIDMap& gameobject_map;
 	};
 
 }

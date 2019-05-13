@@ -82,7 +82,7 @@ struct RagdollBone
 
 struct Ragdoll
 {
-	Entity entity;
+	GameObject gameobject;
 	RagdollBone* root = nullptr;
 	RigidTransform root_transform;
 	int layer;
@@ -186,7 +186,7 @@ static PxTransform toPhysx(const RigidTransform& v)
 
 struct Joint
 {
-	Entity connected_body;
+	GameObject connected_body;
 	PxJoint* physx;
 	PxTransform local_frame0;
 };
@@ -199,7 +199,7 @@ struct Heightfield
 	void heightmapLoaded(Resource::State, Resource::State new_state, Resource&);
 
 	struct PhysicsSceneImpl* m_scene;
-	Entity m_entity;
+	GameObject m_gameobject;
 	PxRigidActor* m_actor;
 	Texture* m_heightmap;
 	float m_xz_scale;
@@ -238,7 +238,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 
 
-		void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
+		void onCollision(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) override
 		{
 			for (PxU32 i = 0; i < nbPairs; i++)
 			{
@@ -254,7 +254,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				contact_data.e1 = {(int)(intptr_t)(pairHeader.actors[0]->userData)};
 				contact_data.e2 = {(int)(intptr_t)(pairHeader.actors[1]->userData)};
 
-				m_scene.onContact(contact_data);
+				m_scene.onCollision(contact_data);
 			}
 		}
 
@@ -267,8 +267,8 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 					PxTriggerPairFlag::eREMOVED_SHAPE_TRIGGER | PxTriggerPairFlag::eREMOVED_SHAPE_OTHER;
 				if (pairs[i].flags & REMOVED_FLAGS) continue;
 
-				Entity e1 = {(int)(intptr_t)(pairs[i].triggerActor->userData)};
-				Entity e2 = {(int)(intptr_t)(pairs[i].otherActor->userData)};
+				GameObject e1 = {(int)(intptr_t)(pairs[i].triggerActor->userData)};
+				GameObject e2 = {(int)(intptr_t)(pairs[i].otherActor->userData)};
 
 				m_scene.onTrigger(e1, e2, pairs[i].status == PxPairFlag::eNOTIFY_TOUCH_LOST);
 			}
@@ -292,7 +292,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 			, physx_actor(nullptr)
 			, scene(_scene)
 			, layer(0)
-			, entity(INVALID_ENTITY)
+			, gameobject(INVALID_GAMEOBJECT)
 			, type(_type)
 			, dynamic_type(DynamicType::STATIC)
 			, is_trigger(false)
@@ -310,7 +310,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		void setResource(PhysicsGeometry* resource);
 		void setPhysxActor(PxRigidActor* actor);
 
-		Entity entity;
+		GameObject gameobject;
 		float scale;
 		int layer;
 		PxRigidActor* physx_actor;
@@ -422,11 +422,11 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void onTrigger(Entity e1, Entity e2, bool touch_lost)
+	void onTrigger(GameObject e1, GameObject e2, bool touch_lost)
 	{
 		if (!m_script_scene) return;
 
-		auto send = [this, touch_lost](Entity e1, Entity e2) {
+		auto send = [this, touch_lost](GameObject e1, GameObject e2) {
 			if (!m_script_scene->getProject().hasComponent(e1, LUA_SCRIPT_TYPE)) return;
 
 			for (int i = 0, c = m_script_scene->getScriptCount(e1); i < c; ++i)
@@ -445,16 +445,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void onContact(const ContactData& contact_data)
+	void onCollision(const ContactData& contact_data)
 	{
 		if (!m_script_scene) return;
 
-		auto send = [this](Entity e1, Entity e2, const Vec3& position) {
+		auto send = [this](GameObject e1, GameObject e2, const Vec3& position) {
 			if (!m_script_scene->getProject().hasComponent(e1, LUA_SCRIPT_TYPE)) return;
 
 			for (int i = 0, c = m_script_scene->getScriptCount(e1); i < c; ++i)
 			{
-				auto* call = m_script_scene->beginFunctionCall(e1, i, "onContact");
+				auto* call = m_script_scene->beginFunctionCall(e1, i, "onCollision");
 				if (!call) continue;
 
 				call->add(e2.index);
@@ -517,13 +517,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	IPlugin& getPlugin() const override { return *m_system; }
 
 
-	int getControllerLayer(Entity entity) override { return m_controllers[entity].m_layer; }
+	int getControllerLayer(GameObject gameobject) override { return m_controllers[gameobject].m_layer; }
 
 
-	void setControllerLayer(Entity entity, int layer) override
+	void setControllerLayer(GameObject gameobject, int layer) override
 	{
 		ASSERT(layer < lengthOf(m_layers_names));
-		auto& controller = m_controllers[entity];
+		auto& controller = m_controllers[gameobject];
 		controller.m_layer = layer;
 
 		PxFilterData data;
@@ -540,9 +540,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setRagdollLayer(Entity entity, int layer) override
+	void setRagdollLayer(GameObject gameobject, int layer) override
 	{
-		auto& ragdoll = m_ragdolls[entity];
+		auto& ragdoll = m_ragdolls[gameobject];
 		ragdoll.layer = layer;
 		struct Tmp
 		{
@@ -561,13 +561,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	int getRagdollLayer(Entity entity) override { return m_ragdolls[entity].layer; }
+	int getRagdollLayer(GameObject gameobject) override { return m_ragdolls[gameobject].layer; }
 
 
-	void setActorLayer(Entity entity, int layer) override
+	void setActorLayer(GameObject gameobject, int layer) override
 	{
 		ASSERT(layer < lengthOf(m_layers_names));
-		auto* actor = m_actors[entity];
+		auto* actor = m_actors[gameobject];
 		actor->layer = layer;
 		if (actor->physx_actor)
 		{
@@ -576,12 +576,12 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	int getActorLayer(Entity entity) override { return m_actors[entity]->layer; }
+	int getActorLayer(GameObject gameobject) override { return m_actors[gameobject]->layer; }
 
 
-	float getSphereRadius(Entity entity) override
+	float getSphereRadius(GameObject gameobject) override
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		ASSERT(actor->getNbShapes() == 1);
 		if (actor->getShapes(&shapes, 1) != 1) ASSERT(false);
@@ -590,10 +590,10 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setSphereRadius(Entity entity, float value) override
+	void setSphereRadius(GameObject gameobject, float value) override
 	{
 		if (value == 0) return;
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		if (actor->getNbShapes() == 1 && actor->getShapes(&shapes, 1))
 		{
@@ -606,9 +606,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	float getCapsuleRadius(Entity entity) override
+	float getCapsuleRadius(GameObject gameobject) override
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		ASSERT(actor->getNbShapes() == 1);
 		if (actor->getShapes(&shapes, 1) != 1) ASSERT(false);
@@ -617,10 +617,10 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setCapsuleRadius(Entity entity, float value) override
+	void setCapsuleRadius(GameObject gameobject, float value) override
 	{
 		if (value <= 0) return;
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		if (actor->getNbShapes() == 1 && actor->getShapes(&shapes, 1))
 		{
@@ -633,9 +633,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	float getCapsuleHeight(Entity entity) override
+	float getCapsuleHeight(GameObject gameobject) override
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		ASSERT(actor->getNbShapes() == 1);
 		if (actor->getShapes(&shapes, 1) != 1) ASSERT(false);
@@ -644,10 +644,10 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setCapsuleHeight(Entity entity, float value) override
+	void setCapsuleHeight(GameObject gameobject, float value) override
 	{
 		if (value <= 0) return;
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		if (actor->getNbShapes() == 1 && actor->getShapes(&shapes, 1))
 		{
@@ -660,13 +660,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	int getHeightfieldLayer(Entity entity) override { return m_terrains[entity].m_layer; }
+	int getHeightfieldLayer(GameObject gameobject) override { return m_terrains[gameobject].m_layer; }
 
 
-	void setHeightfieldLayer(Entity entity, int layer) override
+	void setHeightfieldLayer(GameObject gameobject, int layer) override
 	{
 		ASSERT(layer < lengthOf(m_layers_names));
-		auto& terrain = m_terrains[entity];
+		auto& terrain = m_terrains[gameobject];
 		terrain.m_layer = layer;
 
 		if (terrain.m_actor)
@@ -684,7 +684,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void updateHeighfieldData(Entity entity,
+	void updateHeighfieldData(GameObject gameobject,
 		int x,
 		int y,
 		int width,
@@ -693,7 +693,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		int bytes_per_pixel) override
 	{
 		PROFILE_FUNCTION();
-		Heightfield& terrain = m_terrains[entity];
+		Heightfield& terrain = m_terrains[gameobject];
 
 		PxShape* shape;
 		terrain.m_actor->getShapes(&shape, 1);
@@ -748,54 +748,54 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 
 	int getJointCount() override { return m_joints.size(); }
-	Entity getJointEntity(int index) override { return {m_joints.getKey(index).index}; }
+	GameObject getJointGameObject(int index) override { return {m_joints.getKey(index).index}; }
 
 
-	PxDistanceJoint* getDistanceJoint(Entity entity) { return static_cast<PxDistanceJoint*>(m_joints[entity].physx); }
+	PxDistanceJoint* getDistanceJoint(GameObject gameobject) { return static_cast<PxDistanceJoint*>(m_joints[gameobject].physx); }
 
 
-	Vec3 getDistanceJointLinearForce(Entity entity) override
+	Vec3 getDistanceJointLinearForce(GameObject gameobject) override
 	{
 		PxVec3 linear, angular;
-		getDistanceJoint(entity)->getConstraint()->getForce(linear, angular);
+		getDistanceJoint(gameobject)->getConstraint()->getForce(linear, angular);
 		return Vec3(linear.x, linear.y, linear.z);
 	}
 
 
-	float getDistanceJointDamping(Entity entity) override { return getDistanceJoint(entity)->getDamping(); }
+	float getDistanceJointDamping(GameObject gameobject) override { return getDistanceJoint(gameobject)->getDamping(); }
 
 
-	void setDistanceJointDamping(Entity entity, float value) override { getDistanceJoint(entity)->setDamping(value); }
+	void setDistanceJointDamping(GameObject gameobject, float value) override { getDistanceJoint(gameobject)->setDamping(value); }
 
 
-	float getDistanceJointStiffness(Entity entity) override { return getDistanceJoint(entity)->getStiffness(); }
+	float getDistanceJointStiffness(GameObject gameobject) override { return getDistanceJoint(gameobject)->getStiffness(); }
 
 
-	void setDistanceJointStiffness(Entity entity, float value) override
+	void setDistanceJointStiffness(GameObject gameobject, float value) override
 	{
-		getDistanceJoint(entity)->setStiffness(value);
+		getDistanceJoint(gameobject)->setStiffness(value);
 	}
 
 
-	float getDistanceJointTolerance(Entity entity) override { return getDistanceJoint(entity)->getTolerance(); }
+	float getDistanceJointTolerance(GameObject gameobject) override { return getDistanceJoint(gameobject)->getTolerance(); }
 
 
-	void setDistanceJointTolerance(Entity entity, float value) override
+	void setDistanceJointTolerance(GameObject gameobject, float value) override
 	{
-		getDistanceJoint(entity)->setTolerance(value);
+		getDistanceJoint(gameobject)->setTolerance(value);
 	}
 
 
-	Vec2 getDistanceJointLimits(Entity entity) override
+	Vec2 getDistanceJointLimits(GameObject gameobject) override
 	{
-		auto* joint = getDistanceJoint(entity);
+		auto* joint = getDistanceJoint(gameobject);
 		return {joint->getMinDistance(), joint->getMaxDistance()};
 	}
 
 
-	void setDistanceJointLimits(Entity entity, const Vec2& value) override
+	void setDistanceJointLimits(GameObject gameobject, const Vec2& value) override
 	{
-		auto* joint = getDistanceJoint(entity);
+		auto* joint = getDistanceJoint(gameobject);
 		joint->setMinDistance(value.x);
 		joint->setMaxDistance(value.y);
 		joint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, value.x > 0);
@@ -803,55 +803,55 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	PxD6Joint* getD6Joint(Entity entity) { return static_cast<PxD6Joint*>(m_joints[entity].physx); }
+	PxD6Joint* getD6Joint(GameObject gameobject) { return static_cast<PxD6Joint*>(m_joints[gameobject].physx); }
 
 
-	float getD6JointDamping(Entity entity) override { return getD6Joint(entity)->getLinearLimit().damping; }
+	float getD6JointDamping(GameObject gameobject) override { return getD6Joint(gameobject)->getLinearLimit().damping; }
 
 
-	void setD6JointDamping(Entity entity, float value) override
+	void setD6JointDamping(GameObject gameobject, float value) override
 	{
-		PxD6Joint* joint = getD6Joint(entity);
+		PxD6Joint* joint = getD6Joint(gameobject);
 		PxJointLinearLimit limit = joint->getLinearLimit();
 		limit.damping = value;
 		joint->setLinearLimit(limit);
 	}
 
 
-	float getD6JointStiffness(Entity entity) override { return getD6Joint(entity)->getLinearLimit().stiffness; }
+	float getD6JointStiffness(GameObject gameobject) override { return getD6Joint(gameobject)->getLinearLimit().stiffness; }
 
 
-	void setD6JointStiffness(Entity entity, float value) override
+	void setD6JointStiffness(GameObject gameobject, float value) override
 	{
-		PxD6Joint* joint = getD6Joint(entity);
+		PxD6Joint* joint = getD6Joint(gameobject);
 		PxJointLinearLimit limit = joint->getLinearLimit();
 		limit.stiffness = value;
 		joint->setLinearLimit(limit);
 	}
 
 
-	float getD6JointRestitution(Entity entity) override { return getD6Joint(entity)->getLinearLimit().restitution; }
+	float getD6JointRestitution(GameObject gameobject) override { return getD6Joint(gameobject)->getLinearLimit().restitution; }
 
 
-	void setD6JointRestitution(Entity entity, float value) override
+	void setD6JointRestitution(GameObject gameobject, float value) override
 	{
-		PxD6Joint* joint = getD6Joint(entity);
+		PxD6Joint* joint = getD6Joint(gameobject);
 		PxJointLinearLimit limit = joint->getLinearLimit();
 		limit.restitution = value;
 		joint->setLinearLimit(limit);
 	}
 
 
-	Vec2 getD6JointTwistLimit(Entity entity) override
+	Vec2 getD6JointTwistLimit(GameObject gameobject) override
 	{
-		auto limit = getD6Joint(entity)->getTwistLimit();
+		auto limit = getD6Joint(gameobject)->getTwistLimit();
 		return {limit.lower, limit.upper};
 	}
 
 
-	void setD6JointTwistLimit(Entity entity, const Vec2& limit) override
+	void setD6JointTwistLimit(GameObject gameobject, const Vec2& limit) override
 	{
-		auto* joint = getD6Joint(entity);
+		auto* joint = getD6Joint(gameobject);
 		auto px_limit = joint->getTwistLimit();
 		px_limit.lower = limit.x;
 		px_limit.upper = limit.y;
@@ -859,16 +859,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	Vec2 getD6JointSwingLimit(Entity entity) override
+	Vec2 getD6JointSwingLimit(GameObject gameobject) override
 	{
-		auto limit = getD6Joint(entity)->getSwingLimit();
+		auto limit = getD6Joint(gameobject)->getSwingLimit();
 		return {limit.yAngle, limit.zAngle};
 	}
 
 
-	void setD6JointSwingLimit(Entity entity, const Vec2& limit) override
+	void setD6JointSwingLimit(GameObject gameobject, const Vec2& limit) override
 	{
-		auto* joint = getD6Joint(entity);
+		auto* joint = getD6Joint(gameobject);
 		auto px_limit = joint->getSwingLimit();
 		px_limit.yAngle = Math::maximum(0.0f, limit.x);
 		px_limit.zAngle = Math::maximum(0.0f, limit.y);
@@ -876,143 +876,143 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	D6Motion getD6JointXMotion(Entity entity) override { return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eX); }
+	D6Motion getD6JointXMotion(GameObject gameobject) override { return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eX); }
 
 
-	void setD6JointXMotion(Entity entity, D6Motion motion) override
+	void setD6JointXMotion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eX, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eX, (PxD6Motion::Enum)motion);
 	}
 
 
-	D6Motion getD6JointYMotion(Entity entity) override { return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eY); }
+	D6Motion getD6JointYMotion(GameObject gameobject) override { return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eY); }
 
 
-	void setD6JointYMotion(Entity entity, D6Motion motion) override
+	void setD6JointYMotion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eY, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eY, (PxD6Motion::Enum)motion);
 	}
 
 
-	D6Motion getD6JointSwing1Motion(Entity entity) override
+	D6Motion getD6JointSwing1Motion(GameObject gameobject) override
 	{
-		return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eSWING1);
+		return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eSWING1);
 	}
 
 
-	void setD6JointSwing1Motion(Entity entity, D6Motion motion) override
+	void setD6JointSwing1Motion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eSWING1, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eSWING1, (PxD6Motion::Enum)motion);
 	}
 
 
-	D6Motion getD6JointSwing2Motion(Entity entity) override
+	D6Motion getD6JointSwing2Motion(GameObject gameobject) override
 	{
-		return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eSWING2);
+		return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eSWING2);
 	}
 
 
-	void setD6JointSwing2Motion(Entity entity, D6Motion motion) override
+	void setD6JointSwing2Motion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eSWING2, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eSWING2, (PxD6Motion::Enum)motion);
 	}
 
 
-	D6Motion getD6JointTwistMotion(Entity entity) override
+	D6Motion getD6JointTwistMotion(GameObject gameobject) override
 	{
-		return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eTWIST);
+		return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eTWIST);
 	}
 
 
-	void setD6JointTwistMotion(Entity entity, D6Motion motion) override
+	void setD6JointTwistMotion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eTWIST, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eTWIST, (PxD6Motion::Enum)motion);
 	}
 
 
-	D6Motion getD6JointZMotion(Entity entity) override { return (D6Motion)getD6Joint(entity)->getMotion(PxD6Axis::eZ); }
+	D6Motion getD6JointZMotion(GameObject gameobject) override { return (D6Motion)getD6Joint(gameobject)->getMotion(PxD6Axis::eZ); }
 
 
-	void setD6JointZMotion(Entity entity, D6Motion motion) override
+	void setD6JointZMotion(GameObject gameobject, D6Motion motion) override
 	{
-		getD6Joint(entity)->setMotion(PxD6Axis::eZ, (PxD6Motion::Enum)motion);
+		getD6Joint(gameobject)->setMotion(PxD6Axis::eZ, (PxD6Motion::Enum)motion);
 	}
 
 
-	float getD6JointLinearLimit(Entity entity) override { return getD6Joint(entity)->getLinearLimit().value; }
+	float getD6JointLinearLimit(GameObject gameobject) override { return getD6Joint(gameobject)->getLinearLimit().value; }
 
 
-	void setD6JointLinearLimit(Entity entity, float limit) override
+	void setD6JointLinearLimit(GameObject gameobject, float limit) override
 	{
-		auto* joint = getD6Joint(entity);
+		auto* joint = getD6Joint(gameobject);
 		auto px_limit = joint->getLinearLimit();
 		px_limit.value = limit;
 		joint->setLinearLimit(px_limit);
 	}
 
 
-	Entity getJointConnectedBody(Entity entity) override { return m_joints[entity].connected_body; }
+	GameObject getJointConnectedBody(GameObject gameobject) override { return m_joints[gameobject].connected_body; }
 
 
-	void setJointConnectedBody(Entity joint_entity, Entity connected_body) override
+	void setJointConnectedBody(GameObject joint_gameobject, GameObject connected_body) override
 	{
-		int idx = m_joints.find(joint_entity);
+		int idx = m_joints.find(joint_gameobject);
 		Joint& joint = m_joints.at(idx);
 		joint.connected_body = connected_body;
-		if (m_is_game_running) initJoint(joint_entity, joint);
+		if (m_is_game_running) initJoint(joint_gameobject, joint);
 	}
 
 
-	void setJointAxisPosition(Entity entity, const Vec3& value) override
+	void setJointAxisPosition(GameObject gameobject, const Vec3& value) override
 	{
-		auto& joint = m_joints[entity];
+		auto& joint = m_joints[gameobject];
 		joint.local_frame0.p = toPhysx(value);
 		joint.physx->setLocalPose(PxJointActorIndex::eACTOR0, joint.local_frame0);
 	}
 
 
-	void setJointAxisDirection(Entity entity, const Vec3& value) override
+	void setJointAxisDirection(GameObject gameobject, const Vec3& value) override
 	{
-		auto& joint = m_joints[entity];
+		auto& joint = m_joints[gameobject];
 		joint.local_frame0.q = toPhysx(Quat::vec3ToVec3(Vec3(1, 0, 0), value));
 		joint.physx->setLocalPose(PxJointActorIndex::eACTOR0, joint.local_frame0);
 	}
 
 
-	Vec3 getJointAxisPosition(Entity entity) override { return fromPhysx(m_joints[entity].local_frame0.p); }
+	Vec3 getJointAxisPosition(GameObject gameobject) override { return fromPhysx(m_joints[gameobject].local_frame0.p); }
 
 
-	Vec3 getJointAxisDirection(Entity entity) override
+	Vec3 getJointAxisDirection(GameObject gameobject) override
 	{
-		return fromPhysx(m_joints[entity].local_frame0.q.rotate(PxVec3(1, 0, 0)));
+		return fromPhysx(m_joints[gameobject].local_frame0.q.rotate(PxVec3(1, 0, 0)));
 	}
 
 
-	bool getSphericalJointUseLimit(Entity entity) override
+	bool getSphericalJointUseLimit(GameObject gameobject) override
 	{
-		return static_cast<PxSphericalJoint*>(m_joints[entity].physx)
+		return static_cast<PxSphericalJoint*>(m_joints[gameobject].physx)
 			->getSphericalJointFlags()
 			.isSet(PxSphericalJointFlag::eLIMIT_ENABLED);
 	}
 
 
-	void setSphericalJointUseLimit(Entity entity, bool use_limit) override
+	void setSphericalJointUseLimit(GameObject gameobject, bool use_limit) override
 	{
-		return static_cast<PxSphericalJoint*>(m_joints[entity].physx)
+		return static_cast<PxSphericalJoint*>(m_joints[gameobject].physx)
 			->setSphericalJointFlag(PxSphericalJointFlag::eLIMIT_ENABLED, use_limit);
 	}
 
 
-	Vec2 getSphericalJointLimit(Entity entity) override
+	Vec2 getSphericalJointLimit(GameObject gameobject) override
 	{
-		auto cone = static_cast<PxSphericalJoint*>(m_joints[entity].physx)->getLimitCone();
+		auto cone = static_cast<PxSphericalJoint*>(m_joints[gameobject].physx)->getLimitCone();
 		return {cone.yAngle, cone.zAngle};
 	}
 
 
-	void setSphericalJointLimit(Entity entity, const Vec2& limit) override
+	void setSphericalJointLimit(GameObject gameobject, const Vec2& limit) override
 	{
-		auto* joint = static_cast<PxSphericalJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxSphericalJoint*>(m_joints[gameobject].physx);
 		auto limit_cone = joint->getLimitCone();
 		limit_cone.yAngle = limit.x;
 		limit_cone.zAngle = limit.y;
@@ -1020,15 +1020,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	RigidTransform getJointLocalFrame(Entity entity) override { return fromPhysx(m_joints[entity].local_frame0); }
+	RigidTransform getJointLocalFrame(GameObject gameobject) override { return fromPhysx(m_joints[gameobject].local_frame0); }
 
 
-	PxJoint* getJoint(Entity entity) override { return m_joints[entity].physx; }
+	PxJoint* getJoint(GameObject gameobject) override { return m_joints[gameobject].physx; }
 
 
-	RigidTransform getJointConnectedBodyLocalFrame(Entity entity) override
+	RigidTransform getJointConnectedBodyLocalFrame(GameObject gameobject) override
 	{
-		auto& joint = m_joints[entity];
+		auto& joint = m_joints[gameobject];
 		if (!joint.connected_body.isValid()) return {Vec3(0, 0, 0), Quat(0, 0, 0, 1)};
 
 		PxRigidActor *a0, *a1;
@@ -1037,38 +1037,38 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 		Transform connected_body_tr = m_project.getTransform(joint.connected_body);
 		RigidTransform unscaled_connected_body_tr = {connected_body_tr.pos, connected_body_tr.rot};
-		Transform tr = m_project.getTransform(entity);
+		Transform tr = m_project.getTransform(gameobject);
 		RigidTransform unscaled_tr = {tr.pos, tr.rot};
 
 		return unscaled_connected_body_tr.inverted() * unscaled_tr * fromPhysx(joint.local_frame0);
 	}
 
 
-	void setHingeJointUseLimit(Entity entity, bool use_limit) override
+	void setHingeJointUseLimit(GameObject gameobject, bool use_limit) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		joint->setRevoluteJointFlag(PxRevoluteJointFlag::eLIMIT_ENABLED, use_limit);
 	}
 
 
-	bool getHingeJointUseLimit(Entity entity) override
+	bool getHingeJointUseLimit(GameObject gameobject) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		return joint->getRevoluteJointFlags().isSet(PxRevoluteJointFlag::eLIMIT_ENABLED);
 	}
 
 
-	Vec2 getHingeJointLimit(Entity entity) override
+	Vec2 getHingeJointLimit(GameObject gameobject) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		PxJointAngularLimitPair limit = joint->getLimit();
 		return {limit.lower, limit.upper};
 	}
 
 
-	void setHingeJointLimit(Entity entity, const Vec2& limit) override
+	void setHingeJointLimit(GameObject gameobject, const Vec2& limit) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		PxJointAngularLimitPair px_limit = joint->getLimit();
 		px_limit.lower = limit.x;
 		px_limit.upper = limit.y;
@@ -1076,197 +1076,197 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	float getHingeJointDamping(Entity entity) override
+	float getHingeJointDamping(GameObject gameobject) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		return joint->getLimit().damping;
 	}
 
 
-	void setHingeJointDamping(Entity entity, float value) override
+	void setHingeJointDamping(GameObject gameobject, float value) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		PxJointAngularLimitPair px_limit = joint->getLimit();
 		px_limit.damping = value;
 		joint->setLimit(px_limit);
 	}
 
 
-	float getHingeJointStiffness(Entity entity) override
+	float getHingeJointStiffness(GameObject gameobject) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		return joint->getLimit().stiffness;
 	}
 
 
-	void setHingeJointStiffness(Entity entity, float value) override
+	void setHingeJointStiffness(GameObject gameobject, float value) override
 	{
-		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[entity].physx);
+		auto* joint = static_cast<PxRevoluteJoint*>(m_joints[gameobject].physx);
 		PxJointAngularLimitPair px_limit = joint->getLimit();
 		px_limit.stiffness = value;
 		joint->setLimit(px_limit);
 	}
 
 
-	void destroyHeightfield(Entity entity)
+	void destroyHeightfield(GameObject gameobject)
 	{
-		m_terrains.erase(entity);
-		m_project.onComponentDestroyed(entity, HEIGHTFIELD_TYPE, this);
+		m_terrains.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, HEIGHTFIELD_TYPE, this);
 	}
 
 
-	void destroyController(Entity entity)
+	void destroyController(GameObject gameobject)
 	{
-		m_controllers[entity].m_controller->release();
-		m_controllers.erase(entity);
-		m_project.onComponentDestroyed(entity, CONTROLLER_TYPE, this);
+		m_controllers[gameobject].m_controller->release();
+		m_controllers.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, CONTROLLER_TYPE, this);
 	}
 
 
-	void destroyRagdoll(Entity entity)
+	void destroyRagdoll(GameObject gameobject)
 	{
-		int idx = m_ragdolls.find(entity);
+		int idx = m_ragdolls.find(gameobject);
 		destroySkeleton(m_ragdolls.at(idx).root);
 		m_ragdolls.eraseAt(idx);
-		m_project.onComponentDestroyed(entity, RAGDOLL_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, RAGDOLL_TYPE, this);
 	}
 
 
-	void destroyRigidActor(Entity entity) { destroyActorGeneric(entity, RIGID_ACTOR_TYPE); }
-	void destroyMeshActor(Entity entity) { destroyActorGeneric(entity, MESH_ACTOR_TYPE); }
-	void destroyBoxActor(Entity entity) { destroyActorGeneric(entity, BOX_ACTOR_TYPE); }
-	void destroySphereActor(Entity entity) { destroyActorGeneric(entity, SPHERE_ACTOR_TYPE); }
-	void destroyCapsuleActor(Entity entity) { destroyActorGeneric(entity, CAPSULE_ACTOR_TYPE); }
+	void destroyRigidActor(GameObject gameobject) { destroyActorGeneric(gameobject, RIGID_ACTOR_TYPE); }
+	void destroyMeshActor(GameObject gameobject) { destroyActorGeneric(gameobject, MESH_ACTOR_TYPE); }
+	void destroyBoxActor(GameObject gameobject) { destroyActorGeneric(gameobject, BOX_ACTOR_TYPE); }
+	void destroySphereActor(GameObject gameobject) { destroyActorGeneric(gameobject, SPHERE_ACTOR_TYPE); }
+	void destroyCapsuleActor(GameObject gameobject) { destroyActorGeneric(gameobject, CAPSULE_ACTOR_TYPE); }
 
 
-	void destroySphericalJoint(Entity entity) { destroyJointGeneric(entity, SPHERE_ACTOR_TYPE); }
-	void destroyHingeJoint(Entity entity) { destroyJointGeneric(entity, SPHERE_ACTOR_TYPE); }
-	void destroyD6Joint(Entity entity) { destroyJointGeneric(entity, SPHERE_ACTOR_TYPE); }
-	void destroyDistanceJoint(Entity entity) { destroyJointGeneric(entity, SPHERE_ACTOR_TYPE); }
+	void destroySphericalJoint(GameObject gameobject) { destroyJointGeneric(gameobject, SPHERE_ACTOR_TYPE); }
+	void destroyHingeJoint(GameObject gameobject) { destroyJointGeneric(gameobject, SPHERE_ACTOR_TYPE); }
+	void destroyD6Joint(GameObject gameobject) { destroyJointGeneric(gameobject, SPHERE_ACTOR_TYPE); }
+	void destroyDistanceJoint(GameObject gameobject) { destroyJointGeneric(gameobject, SPHERE_ACTOR_TYPE); }
 
 
-	void destroyActorGeneric(Entity entity, ComponentType type)
+	void destroyActorGeneric(GameObject gameobject, ComponentType type)
 	{
-		auto* actor = m_actors[entity];
+		auto* actor = m_actors[gameobject];
 		actor->setPhysxActor(nullptr);
 		MALMY_DELETE(m_allocator, actor);
-		m_actors.erase(entity);
+		m_actors.erase(gameobject);
 		m_dynamic_actors.eraseItem(actor);
-		m_project.onComponentDestroyed(entity, type, this);
+		m_project.onComponentDestroyed(gameobject, type, this);
 		if (m_is_game_running)
 		{
 			for (int i = 0, c = m_joints.size(); i < c; ++i)
 			{
 				Joint& joint = m_joints.at(i);
-				if (m_joints.getKey(i) == entity || joint.connected_body == entity)
+				if (m_joints.getKey(i) == gameobject || joint.connected_body == gameobject)
 				{
 					if (joint.physx) joint.physx->release();
 					joint.physx = PxDistanceJointCreate(m_scene->getPhysics(),
 						m_dummy_actor,
-						PxTransform(PxIdentity),
+						PxTransform(PxIdgameobject),
 						nullptr,
-						PxTransform(PxIdentity));
+						PxTransform(PxIdgameobject));
 				}
 			}
 		}
 	}
 
 
-	void destroyJointGeneric(Entity entity, ComponentType type)
+	void destroyJointGeneric(GameObject gameobject, ComponentType type)
 	{
-		auto& joint = m_joints[entity];
+		auto& joint = m_joints[gameobject];
 		if (joint.physx) joint.physx->release();
-		m_joints.erase(entity);
-		m_project.onComponentDestroyed(entity, type, this);
+		m_joints.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, type, this);
 	}
 
 
-	void createDistanceJoint(Entity entity)
+	void createDistanceJoint(GameObject gameobject)
 	{
-		if (m_joints.find(entity) >= 0) return;
-		Joint& joint = m_joints.insert(entity);
-		joint.connected_body = INVALID_ENTITY;
+		if (m_joints.find(gameobject) >= 0) return;
+		Joint& joint = m_joints.insert(gameobject);
+		joint.connected_body = INVALID_GAMEOBJECT;
 		joint.local_frame0.p = PxVec3(0, 0, 0);
 		joint.local_frame0.q = PxQuat(0, 0, 0, 1);
 		joint.physx = PxDistanceJointCreate(m_scene->getPhysics(),
 			m_dummy_actor,
-			PxTransform(PxIdentity),
+			PxTransform(PxIdgameobject),
 			nullptr,
-			PxTransform(PxIdentity));
+			PxTransform(PxIdgameobject));
 		joint.physx->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 		static_cast<PxDistanceJoint*>(joint.physx)->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, true);
 
-		m_project.onComponentCreated(entity, DISTANCE_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, DISTANCE_JOINT_TYPE, this);
 	}
 
 
-	void createSphericalJoint(Entity entity)
+	void createSphericalJoint(GameObject gameobject)
 	{
-		if (m_joints.find(entity) >= 0) return;
-		Joint& joint = m_joints.insert(entity);
-		joint.connected_body = INVALID_ENTITY;
+		if (m_joints.find(gameobject) >= 0) return;
+		Joint& joint = m_joints.insert(gameobject);
+		joint.connected_body = INVALID_GAMEOBJECT;
 		joint.local_frame0.p = PxVec3(0, 0, 0);
 		joint.local_frame0.q = PxQuat(0, 0, 0, 1);
 		joint.physx = PxSphericalJointCreate(m_scene->getPhysics(),
 			m_dummy_actor,
-			PxTransform(PxIdentity),
+			PxTransform(PxIdgameobject),
 			nullptr,
-			PxTransform(PxIdentity));
+			PxTransform(PxIdgameobject));
 		joint.physx->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-		m_project.onComponentCreated(entity, SPHERICAL_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, SPHERICAL_JOINT_TYPE, this);
 	}
 
 
-	void createD6Joint(Entity entity)
+	void createD6Joint(GameObject gameobject)
 	{
-		if (m_joints.find(entity) >= 0) return;
-		Joint& joint = m_joints.insert(entity);
-		joint.connected_body = INVALID_ENTITY;
+		if (m_joints.find(gameobject) >= 0) return;
+		Joint& joint = m_joints.insert(gameobject);
+		joint.connected_body = INVALID_GAMEOBJECT;
 		joint.local_frame0.p = PxVec3(0, 0, 0);
 		joint.local_frame0.q = PxQuat(0, 0, 0, 1);
 		joint.physx = PxD6JointCreate(m_scene->getPhysics(),
 			m_dummy_actor,
-			PxTransform(PxIdentity),
+			PxTransform(PxIdgameobject),
 			nullptr,
-			PxTransform(PxIdentity));
+			PxTransform(PxIdgameobject));
 		auto* d6_joint = static_cast<PxD6Joint*>(joint.physx);
 		auto linear_limit = d6_joint->getLinearLimit();
 		linear_limit.value = 1.0f;
 		d6_joint->setLinearLimit(linear_limit);
 		joint.physx->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-		m_project.onComponentCreated(entity, D6_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, D6_JOINT_TYPE, this);
 	}
 
 
-	void createHingeJoint(Entity entity)
+	void createHingeJoint(GameObject gameobject)
 	{
-		if (m_joints.find(entity) >= 0) return;
-		Joint& joint = m_joints.insert(entity);
-		joint.connected_body = INVALID_ENTITY;
+		if (m_joints.find(gameobject) >= 0) return;
+		Joint& joint = m_joints.insert(gameobject);
+		joint.connected_body = INVALID_GAMEOBJECT;
 		joint.local_frame0.p = PxVec3(0, 0, 0);
 		joint.local_frame0.q = PxQuat(0, 0, 0, 1);
 		joint.physx = PxRevoluteJointCreate(m_scene->getPhysics(),
 			m_dummy_actor,
-			PxTransform(PxIdentity),
+			PxTransform(PxIdgameobject),
 			nullptr,
-			PxTransform(PxIdentity));
+			PxTransform(PxIdgameobject));
 		joint.physx->setConstraintFlag(PxConstraintFlag::eVISUALIZATION, true);
 
-		m_project.onComponentCreated(entity, HINGE_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, HINGE_JOINT_TYPE, this);
 	}
 
 
-	void createHeightfield(Entity entity)
+	void createHeightfield(GameObject gameobject)
 	{
-		Heightfield& terrain = m_terrains.insert(entity);
+		Heightfield& terrain = m_terrains.insert(gameobject);
 		terrain.m_heightmap = nullptr;
 		terrain.m_scene = this;
 		terrain.m_actor = nullptr;
-		terrain.m_entity = entity;
+		terrain.m_gameobject = gameobject;
 
-		m_project.onComponentCreated(entity, HEIGHTFIELD_TYPE, this);
+		m_project.onComponentCreated(gameobject, HEIGHTFIELD_TYPE, this);
 	}
 
 
@@ -1302,15 +1302,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void createController(Entity entity)
+	void createController(GameObject gameobject)
 	{
 		PxCapsuleControllerDesc cDesc;
 		initControllerDesc(cDesc);
-		Vec3 position = m_project.getPosition(entity);
+		Vec3 position = m_project.getPosition(gameobject);
 		cDesc.position.set(position.x, position.y, position.z);
-		Controller& c = m_controllers.insert(entity);
+		Controller& c = m_controllers.insert(gameobject);
 		c.m_controller = m_controller_manager->createController(cDesc);
-		c.m_entity = entity;
+		c.m_gameobject = gameobject;
 		c.m_frame_change.set(0, 0, 0);
 		c.m_radius = cDesc.radius;
 		c.m_height = cDesc.height;
@@ -1325,131 +1325,131 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		c.m_filter_data = data;
 		PxShape* shapes[8];
 		int shapes_count = c.m_controller->getActor()->getShapes(shapes, lengthOf(shapes));
-		c.m_controller->getActor()->userData = (void*)(intptr_t)entity.index;
+		c.m_controller->getActor()->userData = (void*)(intptr_t)gameobject.index;
 		for (int i = 0; i < shapes_count; ++i)
 		{
 			shapes[i]->setSimulationFilterData(data);
 		}
 
-		m_project.onComponentCreated(entity, CONTROLLER_TYPE, this);
+		m_project.onComponentCreated(gameobject, CONTROLLER_TYPE, this);
 	}
 
 
-	void createCapsuleActor(Entity entity)
+	void createCapsuleActor(GameObject gameobject)
 	{
-		if (m_actors.find(entity) >= 0) return;
+		if (m_actors.find(gameobject) >= 0) return;
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::CAPSULE);
-		m_actors.insert(entity, actor);
-		actor->entity = entity;
+		m_actors.insert(gameobject, actor);
+		actor->gameobject = gameobject;
 
 		PxCapsuleGeometry geom;
 		geom.radius = 0.5f;
 		geom.halfHeight = 1;
-		Transform transform = m_project.getTransform(entity);
+		Transform transform = m_project.getTransform(gameobject);
 		PxTransform px_transform = toPhysx({transform.pos, transform.rot});
 
 		PxRigidStatic* physx_actor = PxCreateStatic(*m_system->getPhysics(), px_transform, geom, *m_default_material);
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, CAPSULE_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, CAPSULE_ACTOR_TYPE, this);
 	}
 
 
-	void createRagdoll(Entity entity)
+	void createRagdoll(GameObject gameobject)
 	{
-		Ragdoll& ragdoll = m_ragdolls.insert(entity);
-		ragdoll.entity = entity;
+		Ragdoll& ragdoll = m_ragdolls.insert(gameobject);
+		ragdoll.gameobject = gameobject;
 		ragdoll.root = nullptr;
 		ragdoll.layer = 0;
 		ragdoll.root_transform.pos.set(0, 0, 0);
 		ragdoll.root_transform.rot.set(0, 0, 0, 1);
 
-		m_project.onComponentCreated(entity, RAGDOLL_TYPE, this);
+		m_project.onComponentCreated(gameobject, RAGDOLL_TYPE, this);
 	}
 
 
-	void createRigidActor(Entity entity)
+	void createRigidActor(GameObject gameobject)
 	{
-		if (m_actors.find(entity) >= 0) return;
+		if (m_actors.find(gameobject) >= 0) return;
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::RIGID);
-		m_actors.insert(entity, actor);
-		actor->entity = entity;
+		m_actors.insert(gameobject, actor);
+		actor->gameobject = gameobject;
 
-		Transform transform = m_project.getTransform(entity);
+		Transform transform = m_project.getTransform(gameobject);
 		PxTransform px_transform = toPhysx(transform.getRigidPart());
 
 		PxRigidStatic* physx_actor = m_system->getPhysics()->createRigidStatic(px_transform);
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, RIGID_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, RIGID_ACTOR_TYPE, this);
 	}
 
 
-	void createBoxActor(Entity entity)
+	void createBoxActor(GameObject gameobject)
 	{
-		if (m_actors.find(entity) >= 0) return;
+		if (m_actors.find(gameobject) >= 0) return;
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::BOX);
-		m_actors.insert(entity, actor);
-		actor->entity = entity;
+		m_actors.insert(gameobject, actor);
+		actor->gameobject = gameobject;
 
 		PxBoxGeometry geom;
 		geom.halfExtents.x = 1;
 		geom.halfExtents.y = 1;
 		geom.halfExtents.z = 1;
-		Transform transform = m_project.getTransform(entity);
+		Transform transform = m_project.getTransform(gameobject);
 		PxTransform px_transform = toPhysx({transform.pos, transform.rot});
 
 		PxRigidStatic* physx_actor = PxCreateStatic(*m_system->getPhysics(), px_transform, geom, *m_default_material);
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, BOX_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, BOX_ACTOR_TYPE, this);
 	}
 
 
-	void createSphereActor(Entity entity)
+	void createSphereActor(GameObject gameobject)
 	{
-		if (m_actors.find(entity) >= 0) return;
+		if (m_actors.find(gameobject) >= 0) return;
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::SPHERE);
-		m_actors.insert(entity, actor);
-		actor->entity = entity;
+		m_actors.insert(gameobject, actor);
+		actor->gameobject = gameobject;
 
 		PxSphereGeometry geom;
 		geom.radius = 1;
-		Transform tr = m_project.getTransform(entity);
+		Transform tr = m_project.getTransform(gameobject);
 		PxTransform transform = toPhysx({tr.pos, tr.rot});
 
 		PxRigidStatic* physx_actor = PxCreateStatic(*m_system->getPhysics(), transform, geom, *m_default_material);
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, SPHERE_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, SPHERE_ACTOR_TYPE, this);
 	}
 
 
-	void createMeshActor(Entity entity)
+	void createMeshActor(GameObject gameobject)
 	{
-		if (m_actors.find(entity) >= 0) return;
+		if (m_actors.find(gameobject) >= 0) return;
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::MESH);
-		m_actors.insert(entity, actor);
-		actor->entity = entity;
+		m_actors.insert(gameobject, actor);
+		actor->gameobject = gameobject;
 
-		m_project.onComponentCreated(entity, MESH_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, MESH_ACTOR_TYPE, this);
 	}
 
 
-	Path getHeightmapSource(Entity entity) override
+	Path getHeightmapSource(GameObject gameobject) override
 	{
-		auto& terrain = m_terrains[entity];
+		auto& terrain = m_terrains[gameobject];
 		return terrain.m_heightmap ? terrain.m_heightmap->getPath() : Path("");
 	}
 
 
-	float getHeightmapXZScale(Entity entity) override { return m_terrains[entity].m_xz_scale; }
+	float getHeightmapXZScale(GameObject gameobject) override { return m_terrains[gameobject].m_xz_scale; }
 
 
-	void setHeightmapXZScale(Entity entity, float scale) override
+	void setHeightmapXZScale(GameObject gameobject, float scale) override
 	{
 		if (scale == 0) return;
-		auto& terrain = m_terrains[entity];
+		auto& terrain = m_terrains[gameobject];
 		if (scale != terrain.m_xz_scale)
 		{
 			terrain.m_xz_scale = scale;
@@ -1461,13 +1461,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	float getHeightmapYScale(Entity entity) override { return m_terrains[entity].m_y_scale; }
+	float getHeightmapYScale(GameObject gameobject) override { return m_terrains[gameobject].m_y_scale; }
 
 
-	void setHeightmapYScale(Entity entity, float scale) override
+	void setHeightmapYScale(GameObject gameobject, float scale) override
 	{
 		if (scale == 0) return;
-		auto& terrain = m_terrains[entity];
+		auto& terrain = m_terrains[gameobject];
 		if (scale != terrain.m_y_scale)
 		{
 			terrain.m_y_scale = scale;
@@ -1479,10 +1479,10 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setHeightmapSource(Entity entity, const Path& str) override
+	void setHeightmapSource(GameObject gameobject, const Path& str) override
 	{
 		auto& resource_manager = m_engine->getResourceManager();
-		auto& terrain = m_terrains[entity];
+		auto& terrain = m_terrains[gameobject];
 		auto* old_hm = terrain.m_heightmap;
 		if (old_hm)
 		{
@@ -1505,16 +1505,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	Path getShapeSource(Entity entity) override
+	Path getShapeSource(GameObject gameobject) override
 	{
-		return m_actors[entity]->resource ? m_actors[entity]->resource->getPath() : Path("");
+		return m_actors[gameobject]->resource ? m_actors[gameobject]->resource->getPath() : Path("");
 	}
 
 
-	void setShapeSource(Entity entity, const Path& str) override
+	void setShapeSource(GameObject gameobject, const Path& str) override
 	{
-		ASSERT(m_actors[entity]);
-		auto& actor = *m_actors[entity];
+		ASSERT(m_actors[gameobject]);
+		auto& actor = *m_actors[gameobject];
 		if (actor.resource && actor.resource->getPath() == str)
 		{
 			bool is_kinematic =
@@ -1533,7 +1533,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 
 	int getActorCount() const override { return m_actors.size(); }
-	Entity getActorEntity(int index) override { return m_actors.at(index)->entity; }
+	GameObject getActorGameObject(int index) override { return m_actors.at(index)->gameobject; }
 	ActorType getActorType(int index) override { return m_actors.at(index)->type; }
 
 
@@ -1556,12 +1556,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		shape->setFlag(PxShapeFlag::eVISUALIZATION, enable);
 	}
 
-
+	//her farme de calisiyor
 	void render() override
 	{
 		auto& render_scene = *static_cast<RenderScene*>(m_project.getScene(crc32("renderer")));
 		const PxRenderBuffer& rb = m_scene->getRenderBuffer();
 		const PxU32 num_lines = Math::minimum(100000U, rb.getNbLines());
+		
 		if (num_lines)
 		{
 			const PxDebugLine* PX_RESTRICT lines = rb.getLines();
@@ -1573,6 +1574,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				render_scene.addDebugLine(from, to, line.color0, 0);
 			}
 		}
+
 		const PxU32 num_tris = rb.getNbTriangles();
 		if (num_tris)
 		{
@@ -1594,7 +1596,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		{
 			m_update_in_progress = actor;
 			PxTransform trans = actor->physx_actor->getGlobalPose();
-			m_project.setTransform(actor->entity, fromPhysx(trans));
+			m_project.setTransform(actor->gameobject, fromPhysx(trans));
 		}
 		m_update_in_progress = nullptr;
 	}
@@ -1614,9 +1616,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	bool isControllerCollisionDown(Entity entity) const override
+	bool isControllerCollisionDown(GameObject gameobject) const override
 	{
-		const Controller& ctrl = m_controllers[entity];
+		const Controller& ctrl = m_controllers[gameobject];
 		PxControllerState state;
 		ctrl.m_controller->getState(state);
 		return (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0;
@@ -1658,7 +1660,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 			controller.m_controller->move(toPhysx(dif), 0.001f, time_delta, filters);
 			PxExtendedVec3 p = controller.m_controller->getFootPosition();
 
-			m_project.setPosition(controller.m_entity, (float)p.x, (float)p.y, (float)p.z);
+			m_project.setPosition(controller.m_gameobject, (float)p.x, (float)p.y, (float)p.z);
 		}
 	}
 
@@ -1695,7 +1697,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	PxJoint* getRagdollBoneJoint(RagdollBone* bone) const override { return bone->parent_joint; }
 
 
-	RagdollBone* getRagdollRootBone(Entity entity) const override { return m_ragdolls[entity].root; }
+	RagdollBone* getRagdollRootBone(GameObject gameobject) const override { return m_ragdolls[gameobject].root; }
 
 
 	RagdollBone* getRagdollBoneChild(RagdollBone* bone) override { return bone->child; }
@@ -1741,18 +1743,18 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 	void setRagdollBoneTransform(RagdollBone* bone, const RigidTransform& transform) override
 	{
-		Entity entity = {(int)(intptr_t)bone->actor->userData};
+		GameObject gameobject = {(int)(intptr_t)bone->actor->userData};
 
 		auto* render_scene = static_cast<RenderScene*>(m_project.getScene(RENDERER_HASH));
 		if (!render_scene) return;
 
-		if (!render_scene->getProject().hasComponent(entity, MODEL_INSTANCE_TYPE)) return;
+		if (!render_scene->getProject().hasComponent(gameobject, MODEL_INSTANCE_TYPE)) return;
 
-		Model* model = render_scene->getModelInstanceModel(entity);
-		RigidTransform entity_transform = m_project.getTransform(entity).getRigidPart();
+		Model* model = render_scene->getModelInstanceModel(gameobject);
+		RigidTransform gameobject_transform = m_project.getTransform(gameobject).getRigidPart();
 
 		bone->bind_transform =
-			(entity_transform.inverted() * transform).inverted() * model->getBone(bone->pose_bone_idx).transform;
+			(gameobject_transform.inverted() * transform).inverted() * model->getBone(bone->pose_bone_idx).transform;
 		bone->inv_bind_transform = bone->bind_transform.inverted();
 		PxTransform delta = toPhysx(transform).getInverse() * bone->actor->getGlobalPose();
 		bone->actor->setGlobalPose(toPhysx(transform));
@@ -1774,33 +1776,33 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 	const char* getRagdollBoneName(RagdollBone* bone) override
 	{
-		Entity entity = {(int)(intptr_t)(void*)bone->actor->userData};
+		GameObject gameobject = {(int)(intptr_t)(void*)bone->actor->userData};
 		auto* render_scene = static_cast<RenderScene*>(m_project.getScene(RENDERER_HASH));
 		ASSERT(render_scene);
 
-		Model* model = render_scene->getModelInstanceModel(entity);
+		Model* model = render_scene->getModelInstanceModel(gameobject);
 		ASSERT(model && model->isReady());
 
 		return model->getBone(bone->pose_bone_idx).name.c_str();
 	}
 
 
-	RagdollBone* getRagdollBoneByName(Entity entity, u32 bone_name_hash) override
+	RagdollBone* getRagdollBoneByName(GameObject gameobject, u32 bone_name_hash) override
 	{
 		auto* render_scene = static_cast<RenderScene*>(m_project.getScene(RENDERER_HASH));
 		ASSERT(render_scene);
 
-		Model* model = render_scene->getModelInstanceModel(entity);
+		Model* model = render_scene->getModelInstanceModel(gameobject);
 		ASSERT(model && model->isReady());
 
 		auto iter = model->getBoneIndex(bone_name_hash);
 		ASSERT(iter.isValid());
 
-		return getBone(m_ragdolls[entity].root, iter.value());
+		return getBone(m_ragdolls[gameobject].root, iter.value());
 	}
 
 
-	RagdollBone* getPhyParent(Entity entity, Model* model, int bone_index)
+	RagdollBone* getPhyParent(GameObject gameobject, Model* model, int bone_index)
 	{
 		auto* bone = &model->getBone(bone_index);
 		if (bone->parent_idx < 0) return nullptr;
@@ -1808,23 +1810,23 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		do
 		{
 			bone = &model->getBone(bone->parent_idx);
-			phy_bone = getRagdollBoneByName(entity, crc32(bone->name.c_str()));
+			phy_bone = getRagdollBoneByName(gameobject, crc32(bone->name.c_str()));
 		} while (!phy_bone && bone->parent_idx >= 0);
 		return phy_bone;
 	}
 
 
-	void destroyRagdollBone(Entity entity, RagdollBone* bone) override
+	void destroyRagdollBone(GameObject gameobject, RagdollBone* bone) override
 	{
-		disconnect(m_ragdolls[entity], bone);
+		disconnect(m_ragdolls[gameobject], bone);
 		bone->actor->release();
 		MALMY_DELETE(m_allocator, bone);
 	}
 
 
-	void getRagdollData(Entity entity, OutputBlob& blob) override
+	void getRagdollData(GameObject gameobject, OutputBlob& blob) override
 	{
-		auto& ragdoll = m_ragdolls[entity];
+		auto& ragdoll = m_ragdolls[gameobject];
 		serializeRagdollBone(ragdoll, ragdoll.root, blob);
 	}
 
@@ -1834,14 +1836,14 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		ragdoll.root = bone;
 		if (!bone) return;
 		RigidTransform root_transform = fromPhysx(ragdoll.root->actor->getGlobalPose());
-		RigidTransform entity_transform = m_project.getTransform(ragdoll.entity).getRigidPart();
-		ragdoll.root_transform = root_transform.inverted() * entity_transform;
+		RigidTransform gameobject_transform = m_project.getTransform(ragdoll.gameobject).getRigidPart();
+		ragdoll.root_transform = root_transform.inverted() * gameobject_transform;
 	}
 
 
-	void setRagdollData(Entity entity, InputBlob& blob) override
+	void setRagdollData(GameObject gameobject, InputBlob& blob) override
 	{
-		auto& ragdoll = m_ragdolls[entity];
+		auto& ragdoll = m_ragdolls[gameobject];
 		setRagdollRoot(ragdoll, deserializeRagdollBone(ragdoll, nullptr, blob));
 	}
 
@@ -2012,13 +2014,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void findCloserChildren(Ragdoll& ragdoll, Entity entity, Model* model, RagdollBone* bone)
+	void findCloserChildren(Ragdoll& ragdoll, GameObject gameobject, Model* model, RagdollBone* bone)
 	{
 		for (auto* root = ragdoll.root; root; root = root->next)
 		{
 			if (root == bone) continue;
 
-			auto* tmp = getPhyParent(entity, model, root->pose_bone_idx);
+			auto* tmp = getPhyParent(gameobject, model, root->pose_bone_idx);
 			if (tmp != bone) continue;
 
 			disconnect(ragdoll, root);
@@ -2031,7 +2033,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		{
 			if (child == bone) continue;
 
-			auto* tmp = getPhyParent(entity, model, bone->pose_bone_idx);
+			auto* tmp = getPhyParent(gameobject, model, bone->pose_bone_idx);
 			if (tmp != bone) continue;
 
 			disconnect(ragdoll, child);
@@ -2071,12 +2073,12 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	void setNewBoneOrientation(BoneOrientation orientation) override { m_new_bone_orientation = orientation; }
 
 
-	RagdollBone* createRagdollBone(Entity entity, u32 bone_name_hash) override
+	RagdollBone* createRagdollBone(GameObject gameobject, u32 bone_name_hash) override
 	{
 		auto* render_scene = static_cast<RenderScene*>(m_project.getScene(RENDERER_HASH));
 		ASSERT(render_scene);
 
-		Model* model = render_scene->getModelInstanceModel(entity);
+		Model* model = render_scene->getModelInstanceModel(gameobject);
 		ASSERT(model && model->isReady());
 		auto iter = model->getBoneIndex(bone_name_hash);
 		ASSERT(iter.isValid());
@@ -2092,7 +2094,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 		new_bone->bind_transform = transform.inverted() * model->getBone(iter.value()).transform;
 		new_bone->inv_bind_transform = new_bone->bind_transform.inverted();
-		transform = m_project.getTransform(entity).getRigidPart() * transform;
+		transform = m_project.getTransform(gameobject).getRigidPart() * transform;
 
 		PxCapsuleGeometry geom;
 		geom.halfHeight = bone_height * 0.3f;
@@ -2102,20 +2104,20 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		PxTransform px_transform = toPhysx(transform);
 		new_bone->actor = PxCreateDynamic(m_scene->getPhysics(), px_transform, geom, *m_default_material, 1.0f);
 		new_bone->actor->is<PxRigidDynamic>()->setMass(0.0001f);
-		new_bone->actor->userData = (void*)(intptr_t)entity.index;
+		new_bone->actor->userData = (void*)(intptr_t)gameobject.index;
 		new_bone->actor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		new_bone->actor->is<PxRigidDynamic>()->setSolverIterationCounts(8, 8);
 		m_scene->addActor(*new_bone->actor);
 		updateFilterData(new_bone->actor, 0);
 
-		auto& ragdoll = m_ragdolls[entity];
+		auto& ragdoll = m_ragdolls[gameobject];
 		new_bone->next = ragdoll.root;
 		if (new_bone->next) new_bone->next->prev = new_bone;
 		setRagdollRoot(ragdoll, new_bone);
-		auto* parent = getPhyParent(entity, model, iter.value());
+		auto* parent = getPhyParent(gameobject, model, iter.value());
 		if (parent) connect(ragdoll, new_bone, parent);
 
-		findCloserChildren(ragdoll, entity, model, new_bone);
+		findCloserChildren(ragdoll, gameobject, model, new_bone);
 
 		return new_bone;
 	}
@@ -2164,15 +2166,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 		for (auto& ragdoll : m_ragdolls)
 		{
-			Entity entity = ragdoll.entity;
+			GameObject gameobject = ragdoll.gameobject;
 
-			if (!render_scene->getProject().hasComponent(entity, MODEL_INSTANCE_TYPE)) continue;
-			Pose* pose = render_scene->lockPose(entity);
+			if (!render_scene->getProject().hasComponent(gameobject, MODEL_INSTANCE_TYPE)) continue;
+			Pose* pose = render_scene->lockPose(gameobject);
 			if (!pose) continue;
 
 			RigidTransform root_transform;
-			root_transform.rot = m_project.getRotation(ragdoll.entity);
-			root_transform.pos = m_project.getPosition(ragdoll.entity);
+			root_transform.rot = m_project.getRotation(ragdoll.gameobject);
+			root_transform.pos = m_project.getPosition(ragdoll.gameobject);
 
 			if (ragdoll.root && !ragdoll.root->is_kinematic)
 			{
@@ -2180,16 +2182,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				m_is_updating_ragdoll = true;
 
 				RigidTransform rigid_tr = fromPhysx(bone_pose) * ragdoll.root_transform;
-				m_project.setTransform(ragdoll.entity, {rigid_tr.pos, rigid_tr.rot, 1.0f});
+				m_project.setTransform(ragdoll.gameobject, {rigid_tr.pos, rigid_tr.rot, 1.0f});
 
 				m_is_updating_ragdoll = false;
 			}
 			updateBone(root_transform, root_transform.inverted(), ragdoll.root, pose);
-			render_scene->unlockPose(entity, true);
+			render_scene->unlockPose(gameobject, true);
 		}
 	}
 
-
+	//her farmede calsiyor
 	void update(float time_delta, bool paused) override
 	{
 		if (!m_is_game_running || paused) return;
@@ -2197,7 +2199,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		time_delta = Math::minimum(1 / 20.0f, time_delta);
 		simulateScene(time_delta);
 		fetchResults();
-		updateRagdolls();
+		//updateRagdolls();
 		updateDynamicActors();
 		updateControllers(time_delta);
 
@@ -2205,26 +2207,26 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	DelegateList<void(const ContactData&)>& onContact() override { return m_contact_callbacks; }
+	DelegateList<void(const ContactData&)>& onCollision() override { return m_contact_callbacks; }
 
 
-	void initJoint(Entity entity, Joint& joint)
+	void initJoint(GameObject gameobject, Joint& joint)
 	{
 		PxRigidActor* actors[2] = {nullptr, nullptr};
-		int idx = m_actors.find(entity);
+		int idx = m_actors.find(gameobject);
 		if (idx >= 0) actors[0] = m_actors.at(idx)->physx_actor;
 		idx = m_actors.find(joint.connected_body);
 		if (idx >= 0) actors[1] = m_actors.at(idx)->physx_actor;
 		if (!actors[0] || !actors[1]) return;
 
-		Vec3 pos0 = m_project.getPosition(entity);
-		Quat rot0 = m_project.getRotation(entity);
+		Vec3 pos0 = m_project.getPosition(gameobject);
+		Quat rot0 = m_project.getRotation(gameobject);
 		Vec3 pos1 = m_project.getPosition(joint.connected_body);
 		Quat rot1 = m_project.getRotation(joint.connected_body);
-		PxTransform entity0_frame(toPhysx(pos0), toPhysx(rot0));
-		PxTransform entity1_frame(toPhysx(pos1), toPhysx(rot1));
+		PxTransform gameobject0_frame(toPhysx(pos0), toPhysx(rot0));
+		PxTransform gameobject1_frame(toPhysx(pos1), toPhysx(rot1));
 
-		PxTransform axis_local_frame1 = entity1_frame.getInverse() * entity0_frame * joint.local_frame0;
+		PxTransform axis_local_frame1 = gameobject1_frame.getInverse() * gameobject0_frame * joint.local_frame0;
 
 		joint.physx->setLocalPose(PxJointActorIndex::eACTOR0, joint.local_frame0);
 		joint.physx->setLocalPose(PxJointActorIndex::eACTOR1, axis_local_frame1);
@@ -2238,8 +2240,8 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		for (int i = 0, c = m_joints.size(); i < c; ++i)
 		{
 			Joint& joint = m_joints.at(i);
-			Entity entity = m_joints.getKey(i);
-			initJoint(entity, joint);
+			GameObject gameobject = m_joints.getKey(i);
+			initJoint(gameobject, joint);
 		}
 	}
 
@@ -2257,20 +2259,20 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	void stopGame() override { m_is_game_running = false; }
 
 
-	float getControllerRadius(Entity entity) override { return m_controllers[entity].m_radius; }
-	float getControllerHeight(Entity entity) override { return m_controllers[entity].m_height; }
-	bool getControllerCustomGravity(Entity entity) override { return m_controllers[entity].m_custom_gravity; }
-	float getControllerCustomGravityAcceleration(Entity entity) override
+	float getControllerRadius(GameObject gameobject) override { return m_controllers[gameobject].m_radius; }
+	float getControllerHeight(GameObject gameobject) override { return m_controllers[gameobject].m_height; }
+	bool getControllerCustomGravity(GameObject gameobject) override { return m_controllers[gameobject].m_custom_gravity; }
+	float getControllerCustomGravityAcceleration(GameObject gameobject) override
 	{
-		return m_controllers[entity].m_custom_gravity_acceleration;
+		return m_controllers[gameobject].m_custom_gravity_acceleration;
 	}
 
 
-	void setControllerRadius(Entity entity, float value) override
+	void setControllerRadius(GameObject gameobject, float value) override
 	{
 		if (value <= 0) return;
 
-		Controller& ctrl = m_controllers[entity];
+		Controller& ctrl = m_controllers[gameobject];
 		ctrl.m_radius = value;
 
 		PxRigidActor* actor = ctrl.m_controller->getActor();
@@ -2286,11 +2288,11 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setControllerHeight(Entity entity, float value) override
+	void setControllerHeight(GameObject gameobject, float value) override
 	{
 		if (value <= 0) return;
 
-		Controller& ctrl = m_controllers[entity];
+		Controller& ctrl = m_controllers[gameobject];
 		ctrl.m_height = value;
 
 		PxRigidActor* actor = ctrl.m_controller->getActor();
@@ -2305,37 +2307,37 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 	}
 
-	void setControllerCustomGravity(Entity entity, bool value)
+	void setControllerCustomGravity(GameObject gameobject, bool value)
 	{
-		Controller& ctrl = m_controllers[entity];
+		Controller& ctrl = m_controllers[gameobject];
 		ctrl.m_custom_gravity = value;
 	}
 
-	void setControllerCustomGravityAcceleration(Entity entity, float value)
+	void setControllerCustomGravityAcceleration(GameObject gameobject, float value)
 	{
-		Controller& ctrl = m_controllers[entity];
+		Controller& ctrl = m_controllers[gameobject];
 		ctrl.m_custom_gravity_acceleration = value;
 	}
 
-	bool isControllerTouchingDown(Entity entity) override
+	bool isControllerTouchingDown(GameObject gameobject) override
 	{
 		PxControllerState state;
-		m_controllers[entity].m_controller->getState(state);
+		m_controllers[gameobject].m_controller->getState(state);
 		return (state.collisionFlags & PxControllerCollisionFlag::eCOLLISION_DOWN) != 0;
 	}
 
 
-	void resizeController(Entity entity, float height) override
+	void resizeController(GameObject gameobject, float height) override
 	{
-		Controller& ctrl = m_controllers[entity];
+		Controller& ctrl = m_controllers[gameobject];
 		ctrl.m_height = height;
 		ctrl.m_controller->resize(height);
 	}
 
 
-	void addForceAtPos(Entity entity, const Vec3& force, const Vec3& pos)
+	void addForceAtPos(GameObject gameobject, const Vec3& force, const Vec3& pos)
 	{
-		int index = m_actors.find(entity);
+		int index = m_actors.find(gameobject);
 		if (index < 0) return;
 
 		RigidActor* actor = m_actors.at(index);
@@ -2348,13 +2350,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setRagdollKinematic(Entity entity, bool is_kinematic)
+	void setRagdollKinematic(GameObject gameobject, bool is_kinematic)
 	{
-		setRagdollBoneKinematicRecursive(m_ragdolls[entity].root, is_kinematic);
+		setRagdollBoneKinematicRecursive(m_ragdolls[gameobject].root, is_kinematic);
 	}
 
 
-	void moveController(Entity entity, const Vec3& v) override { m_controllers[entity].m_frame_change += v; }
+	void moveController(GameObject gameobject, const Vec3& v) override { m_controllers[gameobject].m_frame_change += v; }
 
 
 	static int LUA_raycast(lua_State* L)
@@ -2364,10 +2366,10 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		Vec3 dir = LuaWrapper::checkArg<Vec3>(L, 3);
 		const int layer = lua_gettop(L) > 3 ? LuaWrapper::checkArg<int>(L, 4) : -1;
 		RaycastHit hit;
-		if (scene->raycastEx(origin, dir, FLT_MAX, hit, INVALID_ENTITY, layer))
+		if (scene->raycastEx(origin, dir, FLT_MAX, hit, INVALID_GAMEOBJECT, layer))
 		{
-			LuaWrapper::push(L, hit.entity != INVALID_ENTITY);
-			LuaWrapper::push(L, hit.entity);
+			LuaWrapper::push(L, hit.gameobject != INVALID_GAMEOBJECT);
+			LuaWrapper::push(L, hit.gameobject);
 			LuaWrapper::push(L, hit.position);
 			LuaWrapper::push(L, hit.normal);
 			return 4;
@@ -2377,11 +2379,11 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	Entity raycast(const Vec3& origin, const Vec3& dir, Entity ignore_entity) override
+	GameObject raycast(const Vec3& origin, const Vec3& dir, GameObject ignore_gameobject) override
 	{
 		RaycastHit hit;
-		if (raycastEx(origin, dir, FLT_MAX, hit, ignore_entity, -1)) return hit.entity;
-		return INVALID_ENTITY;
+		if (raycastEx(origin, dir, FLT_MAX, hit, ignore_gameobject, -1)) return hit.gameobject;
+		return INVALID_GAMEOBJECT;
 	}
 
 	struct Filter : public PxQueryFilterCallback
@@ -2393,15 +2395,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		{
 			if (layer >= 0)
 			{
-				const Entity hit_entity = {(int)(intptr_t)actor->userData};
-				const int idx = scene->m_actors.find(hit_entity);
+				const GameObject hit_gameobject = {(int)(intptr_t)actor->userData};
+				const int idx = scene->m_actors.find(hit_gameobject);
 				if (idx >= 0)
 				{
 					const RigidActor* actor = scene->m_actors.at(idx);
 					if (!scene->canLayersCollide(actor->layer, layer)) return PxQueryHitType::eNONE;
 				}
 			}
-			if (entity.index == (int)(intptr_t)actor->userData) return PxQueryHitType::eNONE;
+			if (gameobject.index == (int)(intptr_t)actor->userData) return PxQueryHitType::eNONE;
 			return PxQueryHitType::eBLOCK;
 		}
 
@@ -2411,13 +2413,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 			return PxQueryHitType::eBLOCK;
 		}
 
-		Entity entity;
+		GameObject gameobject;
 		int layer;
 		PhysicsSceneImpl* scene;
 	};
 
 
-	bool raycastEx(const Vec3& origin, const Vec3& dir, float distance, RaycastHit& result, Entity ignored, int layer)
+	bool raycastEx(const Vec3& origin, const Vec3& dir, float distance, RaycastHit& result, GameObject ignored, int layer)
 		override
 	{
 		PxVec3 physx_origin(origin.x, origin.y, origin.z);
@@ -2428,7 +2430,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		PxRaycastBuffer hit;
 
 		Filter filter;
-		filter.entity = ignored;
+		filter.gameobject = ignored;
 		filter.layer = layer;
 		filter.scene = this;
 		PxQueryFilterData filter_data;
@@ -2440,57 +2442,57 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		result.position.x = hit.block.position.x;
 		result.position.y = hit.block.position.y;
 		result.position.z = hit.block.position.z;
-		result.entity = INVALID_ENTITY;
+		result.gameobject = INVALID_GAMEOBJECT;
 		if (hit.block.shape)
 		{
 			PxRigidActor* actor = hit.block.shape->getActor();
-			if (actor) result.entity = {(int)(intptr_t)actor->userData};
+			if (actor) result.gameobject = {(int)(intptr_t)actor->userData};
 		}
 		return status;
 	}
 
-	void onEntityDestroyed(Entity entity)
+	void onGameObjectDestroyed(GameObject gameobject)
 	{
 		for (int i = 0, c = m_joints.size(); i < c; ++i)
 		{
-			if (m_joints.at(i).connected_body == entity)
+			if (m_joints.at(i).connected_body == gameobject)
 			{
-				setJointConnectedBody({m_joints.getKey(i).index}, INVALID_ENTITY);
+				setJointConnectedBody({m_joints.getKey(i).index}, INVALID_GAMEOBJECT);
 			}
 		}
 	}
 
-	void onEntityMoved(Entity entity)
+	void onGameObjectMoved(GameObject gameobject)
 	{
-		int ctrl_idx = m_controllers.find(entity);
+		int ctrl_idx = m_controllers.find(gameobject);
 		if (ctrl_idx >= 0)
 		{
 			auto& controller = m_controllers.at(ctrl_idx);
-			Vec3 pos = m_project.getPosition(entity);
+			Vec3 pos = m_project.getPosition(gameobject);
 			PxExtendedVec3 pvec(pos.x, pos.y, pos.z);
 			controller.m_controller->setFootPosition(pvec);
 		}
 
-		int ragdoll_idx = m_ragdolls.find(entity);
+		int ragdoll_idx = m_ragdolls.find(gameobject);
 		if (ragdoll_idx >= 0 && !m_is_updating_ragdoll)
 		{
 			auto* render_scene = static_cast<RenderScene*>(m_project.getScene(RENDERER_HASH));
 			if (!render_scene) return;
-			if (!m_project.hasComponent(entity, MODEL_INSTANCE_TYPE)) return;
+			if (!m_project.hasComponent(gameobject, MODEL_INSTANCE_TYPE)) return;
 
-			const Pose* pose = render_scene->lockPose(entity);
+			const Pose* pose = render_scene->lockPose(gameobject);
 			if (!pose) return;
-			setSkeletonPose(m_project.getTransform(entity).getRigidPart(), m_ragdolls.at(ragdoll_idx).root, pose);
-			render_scene->unlockPose(entity, false);
+			setSkeletonPose(m_project.getTransform(gameobject).getRigidPart(), m_ragdolls.at(ragdoll_idx).root, pose);
+			render_scene->unlockPose(gameobject, false);
 		}
 
-		int idx = m_actors.find(entity);
+		int idx = m_actors.find(gameobject);
 		if (idx >= 0)
 		{
 			RigidActor* actor = m_actors.at(idx);
 			if (actor->physx_actor && m_update_in_progress != actor)
 			{
-				Transform trans = m_project.getTransform(entity);
+				Transform trans = m_project.getTransform(gameobject);
 				if (actor->dynamic_type == DynamicType::KINEMATIC)
 				{
 					auto* rigid_dynamic = (PxRigidDynamic*)actor->physx_actor;
@@ -2577,13 +2579,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				terrain.m_actor = nullptr;
 			}
 
-			PxTransform transform = toPhysx(m_project.getTransform(terrain.m_entity).getRigidPart());
+			PxTransform transform = toPhysx(m_project.getTransform(terrain.m_gameobject).getRigidPart());
 			transform.p.y += terrain.m_y_scale * 0.5f;
 
 			PxRigidActor* actor = PxCreateStatic(*m_system->getPhysics(), transform, hfGeom, *m_default_material);
 			if (actor)
 			{
-				actor->userData = (void*)(intptr_t)terrain.m_entity.index;
+				actor->userData = (void*)(intptr_t)terrain.m_gameobject.index;
 				m_scene->addActor(*actor);
 				terrain.m_actor = actor;
 
@@ -2750,12 +2752,12 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	int getCollisionsLayersCount() const override { return m_layers_count; }
 
 
-	bool getIsTrigger(Entity entity) override { return m_actors[entity]->is_trigger; }
+	bool getIsTrigger(GameObject gameobject) override { return m_actors[gameobject]->is_trigger; }
 
 
-	void setIsTrigger(Entity entity, bool is_trigger) override
+	void setIsTrigger(GameObject gameobject, bool is_trigger) override
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		actor->is_trigger = is_trigger;
 		if (actor->physx_actor)
 		{
@@ -2777,13 +2779,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	DynamicType getDynamicType(Entity entity) override { return m_actors[entity]->dynamic_type; }
+	DynamicType getDynamicType(GameObject gameobject) override { return m_actors[gameobject]->dynamic_type; }
 
 
-	Vec3 getHalfExtents(Entity entity) override
+	Vec3 getHalfExtents(GameObject gameobject) override
 	{
 		Vec3 size;
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		if (actor->getNbShapes() == 1 && actor->getShapes(&shapes, 1))
 		{
@@ -2796,22 +2798,22 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void moveShapeIndices(Entity entity, int index, PxGeometryType::Enum type)
+	void moveShapeIndices(GameObject gameobject, int index, PxGeometryType::Enum type)
 	{
-		int count = getGeometryCount(entity, type);
+		int count = getGeometryCount(gameobject, type);
 		for (int i = index; i < count; ++i)
 		{
-			PxShape* shape = getShape(entity, i, type);
+			PxShape* shape = getShape(gameobject, i, type);
 			shape->userData = (void*)(intptr_t)(i + 1);
 		}
 	}
 
 
-	void addBoxGeometry(Entity entity, int index) override
+	void addBoxGeometry(GameObject gameobject, int index) override
 	{
-		if (index == -1) index = getBoxGeometryCount(entity);
-		moveShapeIndices(entity, index, PxGeometryType::eBOX);
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		if (index == -1) index = getBoxGeometryCount(gameobject);
+		moveShapeIndices(gameobject, index, PxGeometryType::eBOX);
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxBoxGeometry geom;
 		geom.halfExtents.x = 1;
 		geom.halfExtents.y = 1;
@@ -2822,34 +2824,34 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void removeGeometry(Entity entity, int index, PxGeometryType::Enum type)
+	void removeGeometry(GameObject gameobject, int index, PxGeometryType::Enum type)
 	{
-		int count = getGeometryCount(entity, type);
-		PxShape* shape = getShape(entity, index, type);
+		int count = getGeometryCount(gameobject, type);
+		PxShape* shape = getShape(gameobject, index, type);
 		shape->getActor()->detachShape(*shape);
 
 		for (int i = index + 1; i < count; ++i)
 		{
-			PxShape* shape = getShape(entity, i, type);
+			PxShape* shape = getShape(gameobject, i, type);
 			shape->userData = (void*)(intptr_t)(i - 1);
 		}
 	}
 
 
-	void removeBoxGeometry(Entity entity, int index) override { removeGeometry(entity, index, PxGeometryType::eBOX); }
+	void removeBoxGeometry(GameObject gameobject, int index) override { removeGeometry(gameobject, index, PxGeometryType::eBOX); }
 
 
-	Vec3 getBoxGeomHalfExtents(Entity entity, int index) override
+	Vec3 getBoxGeomHalfExtents(GameObject gameobject, int index) override
 	{
-		PxShape* shape = getShape(entity, index, PxGeometryType::eBOX);
+		PxShape* shape = getShape(gameobject, index, PxGeometryType::eBOX);
 		PxBoxGeometry box = shape->getGeometry().box();
 		return fromPhysx(box.halfExtents);
 	}
 
 
-	PxShape* getShape(Entity entity, int index, PxGeometryType::Enum type)
+	PxShape* getShape(GameObject gameobject, int index, PxGeometryType::Enum type)
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		int shape_count = actor->getNbShapes();
 		PxShape* shape;
 		for (int i = 0; i < shape_count; ++i)
@@ -2868,55 +2870,55 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setBoxGeomHalfExtents(Entity entity, int index, const Vec3& size) override
+	void setBoxGeomHalfExtents(GameObject gameobject, int index, const Vec3& size) override
 	{
-		PxShape* shape = getShape(entity, index, PxGeometryType::eBOX);
+		PxShape* shape = getShape(gameobject, index, PxGeometryType::eBOX);
 		PxBoxGeometry box = shape->getGeometry().box();
 		box.halfExtents = toPhysx(size);
 		shape->setGeometry(box);
 	}
 
 
-	Vec3 getGeomOffsetPosition(Entity entity, int index, PxGeometryType::Enum type)
+	Vec3 getGeomOffsetPosition(GameObject gameobject, int index, PxGeometryType::Enum type)
 	{
-		PxShape* shape = getShape(entity, index, type);
+		PxShape* shape = getShape(gameobject, index, type);
 		PxTransform tr = shape->getLocalPose();
 		return fromPhysx(tr.p);
 	}
 
 
-	Vec3 getGeomOffsetRotation(Entity entity, int index, PxGeometryType::Enum type)
+	Vec3 getGeomOffsetRotation(GameObject gameobject, int index, PxGeometryType::Enum type)
 	{
-		PxShape* shape = getShape(entity, index, type);
+		PxShape* shape = getShape(gameobject, index, type);
 		PxTransform tr = shape->getLocalPose();
 		return fromPhysx(tr.q).toEuler();
 	}
 
 
-	Vec3 getBoxGeomOffsetRotation(Entity entity, int index) override
+	Vec3 getBoxGeomOffsetRotation(GameObject gameobject, int index) override
 	{
-		return getGeomOffsetRotation(entity, index, PxGeometryType::eBOX);
+		return getGeomOffsetRotation(gameobject, index, PxGeometryType::eBOX);
 	}
 
 
-	Vec3 getBoxGeomOffsetPosition(Entity entity, int index) override
+	Vec3 getBoxGeomOffsetPosition(GameObject gameobject, int index) override
 	{
-		return getGeomOffsetPosition(entity, index, PxGeometryType::eBOX);
+		return getGeomOffsetPosition(gameobject, index, PxGeometryType::eBOX);
 	}
 
 
-	void setGeomOffsetPosition(Entity entity, int index, const Vec3& pos, PxGeometryType::Enum type)
+	void setGeomOffsetPosition(GameObject gameobject, int index, const Vec3& pos, PxGeometryType::Enum type)
 	{
-		PxShape* shape = getShape(entity, index, type);
+		PxShape* shape = getShape(gameobject, index, type);
 		PxTransform tr = shape->getLocalPose();
 		tr.p = toPhysx(pos);
 		shape->setLocalPose(tr);
 	}
 
 
-	void setGeomOffsetRotation(Entity entity, int index, const Vec3& rot, PxGeometryType::Enum type)
+	void setGeomOffsetRotation(GameObject gameobject, int index, const Vec3& rot, PxGeometryType::Enum type)
 	{
-		PxShape* shape = getShape(entity, index, type);
+		PxShape* shape = getShape(gameobject, index, type);
 		PxTransform tr = shape->getLocalPose();
 		Quat q;
 		q.fromEuler(rot);
@@ -2925,21 +2927,21 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setBoxGeomOffsetPosition(Entity entity, int index, const Vec3& pos) override
+	void setBoxGeomOffsetPosition(GameObject gameobject, int index, const Vec3& pos) override
 	{
-		setGeomOffsetPosition(entity, index, pos, PxGeometryType::eBOX);
+		setGeomOffsetPosition(gameobject, index, pos, PxGeometryType::eBOX);
 	}
 
 
-	void setBoxGeomOffsetRotation(Entity entity, int index, const Vec3& rot) override
+	void setBoxGeomOffsetRotation(GameObject gameobject, int index, const Vec3& rot) override
 	{
-		setGeomOffsetRotation(entity, index, rot, PxGeometryType::eBOX);
+		setGeomOffsetRotation(gameobject, index, rot, PxGeometryType::eBOX);
 	}
 
 
-	int getGeometryCount(Entity entity, PxGeometryType::Enum type)
+	int getGeometryCount(GameObject gameobject, PxGeometryType::Enum type)
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		int shape_count = actor->getNbShapes();
 		PxShape* shape;
 		int count = 0;
@@ -2952,14 +2954,14 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	int getBoxGeometryCount(Entity entity) override { return getGeometryCount(entity, PxGeometryType::eBOX); }
+	int getBoxGeometryCount(GameObject gameobject) override { return getGeometryCount(gameobject, PxGeometryType::eBOX); }
 
 
-	void addSphereGeometry(Entity entity, int index) override
+	void addSphereGeometry(GameObject gameobject, int index) override
 	{
-		if (index == -1) index = getSphereGeometryCount(entity);
-		moveShapeIndices(entity, index, PxGeometryType::eSPHERE);
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		if (index == -1) index = getSphereGeometryCount(gameobject);
+		moveShapeIndices(gameobject, index, PxGeometryType::eSPHERE);
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxSphereGeometry geom;
 		geom.radius = 1;
 		PxShape* shape = m_system->getPhysics()->createShape(geom, *m_default_material);
@@ -2968,59 +2970,59 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void removeSphereGeometry(Entity entity, int index) override
+	void removeSphereGeometry(GameObject gameobject, int index) override
 	{
-		removeGeometry(entity, index, PxGeometryType::eSPHERE);
+		removeGeometry(gameobject, index, PxGeometryType::eSPHERE);
 	}
 
 
-	int getSphereGeometryCount(Entity entity) override { return getGeometryCount(entity, PxGeometryType::eSPHERE); }
+	int getSphereGeometryCount(GameObject gameobject) override { return getGeometryCount(gameobject, PxGeometryType::eSPHERE); }
 
 
-	float getSphereGeomRadius(Entity entity, int index) override
+	float getSphereGeomRadius(GameObject gameobject, int index) override
 	{
-		PxShape* shape = getShape(entity, index, PxGeometryType::eSPHERE);
+		PxShape* shape = getShape(gameobject, index, PxGeometryType::eSPHERE);
 		PxSphereGeometry geom = shape->getGeometry().sphere();
 		return geom.radius;
 	}
 
 
-	void setSphereGeomRadius(Entity entity, int index, float radius) override
+	void setSphereGeomRadius(GameObject gameobject, int index, float radius) override
 	{
-		PxShape* shape = getShape(entity, index, PxGeometryType::eSPHERE);
+		PxShape* shape = getShape(gameobject, index, PxGeometryType::eSPHERE);
 		PxSphereGeometry geom = shape->getGeometry().sphere();
 		geom.radius = radius;
 		shape->setGeometry(geom);
 	}
 
 
-	Vec3 getSphereGeomOffsetPosition(Entity entity, int index) override
+	Vec3 getSphereGeomOffsetPosition(GameObject gameobject, int index) override
 	{
-		return getGeomOffsetPosition(entity, index, PxGeometryType::eSPHERE);
+		return getGeomOffsetPosition(gameobject, index, PxGeometryType::eSPHERE);
 	}
 
 
-	void setSphereGeomOffsetPosition(Entity entity, int index, const Vec3& pos) override
+	void setSphereGeomOffsetPosition(GameObject gameobject, int index, const Vec3& pos) override
 	{
-		setGeomOffsetPosition(entity, index, pos, PxGeometryType::eSPHERE);
+		setGeomOffsetPosition(gameobject, index, pos, PxGeometryType::eSPHERE);
 	}
 
 
-	Vec3 getSphereGeomOffsetRotation(Entity entity, int index) override
+	Vec3 getSphereGeomOffsetRotation(GameObject gameobject, int index) override
 	{
-		return getGeomOffsetRotation(entity, index, PxGeometryType::eSPHERE);
+		return getGeomOffsetRotation(gameobject, index, PxGeometryType::eSPHERE);
 	}
 
 
-	void setSphereGeomOffsetRotation(Entity entity, int index, const Vec3& euler_angles) override
+	void setSphereGeomOffsetRotation(GameObject gameobject, int index, const Vec3& euler_angles) override
 	{
-		setGeomOffsetRotation(entity, index, euler_angles, PxGeometryType::eSPHERE);
+		setGeomOffsetRotation(gameobject, index, euler_angles, PxGeometryType::eSPHERE);
 	}
 
 
-	void setHalfExtents(Entity entity, const Vec3& size) override
+	void setHalfExtents(GameObject gameobject, const Vec3& size) override
 	{
-		PxRigidActor* actor = m_actors[entity]->physx_actor;
+		PxRigidActor* actor = m_actors[gameobject]->physx_actor;
 		PxShape* shapes;
 		if (actor->getNbShapes() == 1 && actor->getShapes(&shapes, 1))
 		{
@@ -3036,9 +3038,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void setDynamicType(Entity entity, DynamicType new_value) override
+	void setDynamicType(GameObject gameobject, DynamicType new_value) override
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		if (actor->dynamic_type == new_value) return;
 
 		if (actor->type == ActorType::MESH && new_value != DynamicType::STATIC && actor->physx_actor)
@@ -3066,7 +3068,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		if (!actor->physx_actor) return;
 
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		PxRigidActor* new_physx_actor;
 		switch (actor->dynamic_type)
 		{
@@ -3148,38 +3150,38 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeHeightfield(ISerializer& serializer, Entity entity)
+	void serializeHeightfield(ISerializer& serializer, GameObject gameobject)
 	{
-		Heightfield& terrain = m_terrains[entity];
+		Heightfield& terrain = m_terrains[gameobject];
 		serializer.write("heightmap", terrain.m_heightmap ? terrain.m_heightmap->getPath().c_str() : "");
 		serializer.write("xz_scale", terrain.m_xz_scale);
 		serializer.write("y_scale", terrain.m_y_scale);
 		serializer.write("layer", terrain.m_layer);
 	}
 
-	void deserializeHeightfield(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeHeightfield(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
 		Heightfield terrain;
 		terrain.m_scene = this;
-		terrain.m_entity = entity;
+		terrain.m_gameobject = gameobject;
 		char tmp[MAX_PATH_LENGTH];
 		serializer.read(tmp, MAX_PATH_LENGTH);
 		serializer.read(&terrain.m_xz_scale);
 		serializer.read(&terrain.m_y_scale);
 		serializer.read(&terrain.m_layer);
 
-		m_terrains.insert(terrain.m_entity, terrain);
+		m_terrains.insert(terrain.m_gameobject, terrain);
 		if (terrain.m_heightmap == nullptr || !equalStrings(tmp, terrain.m_heightmap->getPath().c_str()))
 		{
-			setHeightmapSource(terrain.m_entity, Path(tmp));
+			setHeightmapSource(terrain.m_gameobject, Path(tmp));
 		}
-		m_project.onComponentCreated(terrain.m_entity, HEIGHTFIELD_TYPE, this);
+		m_project.onComponentCreated(terrain.m_gameobject, HEIGHTFIELD_TYPE, this);
 	}
 
 
-	void serializeController(ISerializer& serializer, Entity entity)
+	void serializeController(ISerializer& serializer, GameObject gameobject)
 	{
-		Controller& controller = m_controllers[entity];
+		Controller& controller = m_controllers[gameobject];
 		serializer.write("layer", controller.m_layer);
 		serializer.write("radius", controller.m_radius);
 		serializer.write("height", controller.m_height);
@@ -3188,9 +3190,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeController(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeController(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
-		Controller& c = m_controllers.insert(entity);
+		Controller& c = m_controllers.insert(gameobject);
 		c.m_frame_change.set(0, 0, 0);
 
 		serializer.read(&c.m_layer);
@@ -3211,11 +3213,11 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		initControllerDesc(cDesc);
 		cDesc.height = c.m_height;
 		cDesc.radius = c.m_radius;
-		Vec3 position = m_project.getPosition(entity);
+		Vec3 position = m_project.getPosition(gameobject);
 		cDesc.position.set(position.x, position.y - cDesc.height * 0.5f, position.z);
 		c.m_controller = m_controller_manager->createController(cDesc);
-		c.m_controller->getActor()->userData = (void*)(intptr_t)entity.index;
-		c.m_entity = entity;
+		c.m_controller->getActor()->userData = (void*)(intptr_t)gameobject.index;
+		c.m_gameobject = gameobject;
 
 		PxFilterData data;
 		int controller_layer = c.m_layer;
@@ -3231,30 +3233,30 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		c.m_controller->invalidateCache();
 		c.m_controller->setFootPosition({position.x, position.y, position.z});
 
-		m_project.onComponentCreated(entity, CONTROLLER_TYPE, this);
+		m_project.onComponentCreated(gameobject, CONTROLLER_TYPE, this);
 	}
 
 
-	void serializeRagdoll(ISerializer& serializer, Entity entity)
+	void serializeRagdoll(ISerializer& serializer, GameObject gameobject)
 	{
-		const Ragdoll& ragdoll = m_ragdolls[entity];
+		const Ragdoll& ragdoll = m_ragdolls[gameobject];
 		serializer.write("layer", ragdoll.layer);
 
 		serializeRagdollBone(ragdoll, ragdoll.root, serializer);
 	}
 
 
-	void deserializeRagdoll(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeRagdoll(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		Ragdoll& ragdoll = m_ragdolls.insert(entity);
+		Ragdoll& ragdoll = m_ragdolls.insert(gameobject);
 
-		ragdoll.entity = entity;
+		ragdoll.gameobject = gameobject;
 		ragdoll.root_transform.pos.set(0, 0, 0);
 		ragdoll.root_transform.rot.set(0, 0, 0, 1);
 		serializer.read(&ragdoll.layer);
 
 		setRagdollRoot(ragdoll, deserializeRagdollBone(ragdoll, nullptr, serializer));
-		m_project.onComponentCreated(ragdoll.entity, RAGDOLL_TYPE, this);
+		m_project.onComponentCreated(ragdoll.gameobject, RAGDOLL_TYPE, this);
 	}
 
 
@@ -3273,9 +3275,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeSphericalJoint(ISerializer& serializer, Entity entity)
+	void serializeSphericalJoint(ISerializer& serializer, GameObject gameobject)
 	{
-		Joint& joint = m_joints[entity];
+		Joint& joint = m_joints[gameobject];
 		serializer.write("connected_body", joint.connected_body);
 		RigidTransform tr = fromPhysx(joint.local_frame0);
 		serializer.write("local_frame", tr);
@@ -3300,18 +3302,18 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeSphericalJoint(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeSphericalJoint(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		Joint& joint = m_joints.insert(entity);
+		Joint& joint = m_joints.insert(gameobject);
 		serializer.read(&joint.connected_body);
 		RigidTransform tr;
 		serializer.read(&tr);
 		joint.local_frame0 = toPhysx(tr);
 		auto* px_joint = PxSphericalJointCreate(
-			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdentity));
+			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdgameobject));
 		joint.physx = px_joint;
 		deserializeJoint(serializer, px_joint);
-		m_project.onComponentCreated(entity, SPHERICAL_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, SPHERICAL_JOINT_TYPE, this);
 	}
 
 
@@ -3327,9 +3329,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeDistanceJoint(ISerializer& serializer, Entity entity)
+	void serializeDistanceJoint(ISerializer& serializer, GameObject gameobject)
 	{
-		Joint& joint = m_joints[entity];
+		Joint& joint = m_joints[gameobject];
 		serializer.write("connected_body", joint.connected_body);
 		RigidTransform tr = fromPhysx(joint.local_frame0);
 		serializer.write("local_frame", tr);
@@ -3356,18 +3358,18 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeDistanceJoint(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeDistanceJoint(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		Joint& joint = m_joints.insert(entity);
+		Joint& joint = m_joints.insert(gameobject);
 		serializer.read(&joint.connected_body);
 		RigidTransform tr;
 		serializer.read(&tr);
 		joint.local_frame0 = toPhysx(tr);
 		auto* px_joint = PxDistanceJointCreate(
-			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdentity));
+			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdgameobject));
 		joint.physx = px_joint;
 		deserializeJoint(serializer, px_joint);
-		m_project.onComponentCreated(entity, DISTANCE_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, DISTANCE_JOINT_TYPE, this);
 	}
 
 
@@ -3408,9 +3410,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeD6Joint(ISerializer& serializer, Entity entity)
+	void serializeD6Joint(ISerializer& serializer, GameObject gameobject)
 	{
-		Joint& joint = m_joints[entity];
+		Joint& joint = m_joints[gameobject];
 		serializer.write("connected_body", joint.connected_body);
 		RigidTransform tr = fromPhysx(joint.local_frame0);
 		serializer.write("local_frame", tr);
@@ -3465,20 +3467,20 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeD6Joint(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeD6Joint(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		Joint& joint = m_joints.insert(entity);
+		Joint& joint = m_joints.insert(gameobject);
 		serializer.read(&joint.connected_body);
 		RigidTransform tr;
 		serializer.read(&tr);
 		joint.local_frame0 = toPhysx(tr);
 		auto* px_joint = PxD6JointCreate(
-			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdentity));
+			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdgameobject));
 		joint.physx = px_joint;
 
 		deserializeJoint(serializer, px_joint);
 
-		m_project.onComponentCreated(entity, D6_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, D6_JOINT_TYPE, this);
 	}
 
 
@@ -3497,9 +3499,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeHingeJoint(ISerializer& serializer, Entity entity)
+	void serializeHingeJoint(ISerializer& serializer, GameObject gameobject)
 	{
-		Joint& joint = m_joints[entity];
+		Joint& joint = m_joints[gameobject];
 		serializer.write("connected_body", joint.connected_body);
 		RigidTransform tr = fromPhysx(joint.local_frame0);
 		serializer.write("local_frame", tr);
@@ -3524,24 +3526,24 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeHingeJoint(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeHingeJoint(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		Joint& joint = m_joints.insert(entity);
+		Joint& joint = m_joints.insert(gameobject);
 		serializer.read(&joint.connected_body);
 		RigidTransform tr;
 		serializer.read(&tr);
 		joint.local_frame0 = toPhysx(tr);
 		auto* px_joint = PxRevoluteJointCreate(
-			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdentity));
+			m_scene->getPhysics(), m_dummy_actor, joint.local_frame0, nullptr, PxTransform(PxIdgameobject));
 		joint.physx = px_joint;
 		deserializeJoint(serializer, px_joint);
-		m_project.onComponentCreated(entity, HINGE_JOINT_TYPE, this);
+		m_project.onComponentCreated(gameobject, HINGE_JOINT_TYPE, this);
 	}
 
 
-	void serializeMeshActor(ISerializer& serializer, Entity entity)
+	void serializeMeshActor(ISerializer& serializer, GameObject gameobject)
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		serializer.write("layer", actor->layer);
 		serializer.write("dynamic_type", (int)actor->dynamic_type);
 		serializer.write("trigger", actor->is_trigger);
@@ -3573,13 +3575,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeMeshActor(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeMeshActor(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::MESH);
-		actor->entity = entity;
+		actor->gameobject = gameobject;
 		serializer.read(&actor->layer);
 		deserializeCommonRigidActorProperties(serializer, actor, scene_version);
-		m_actors.insert(actor->entity, actor);
+		m_actors.insert(actor->gameobject, actor);
 
 		char tmp[MAX_PATH_LENGTH];
 		serializer.read(tmp, sizeof(tmp));
@@ -3587,13 +3589,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		auto* geometry = manager->load(Path(tmp));
 		actor->setResource(static_cast<PhysicsGeometry*>(geometry));
 
-		m_project.onComponentCreated(actor->entity, MESH_ACTOR_TYPE, this);
+		m_project.onComponentCreated(actor->gameobject, MESH_ACTOR_TYPE, this);
 	}
 
 
-	void serializeRigidActor(ISerializer& serializer, Entity entity)
+	void serializeRigidActor(ISerializer& serializer, GameObject gameobject)
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		serializer.write("layer", actor->layer);
 		serializer.write("dynamic_type", (int)actor->dynamic_type);
 		serializer.write("trigger", actor->is_trigger);
@@ -3634,9 +3636,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void serializeBoxActor(ISerializer& serializer, Entity entity)
+	void serializeBoxActor(ISerializer& serializer, GameObject gameobject)
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		serializer.write("layer", actor->layer);
 		serializer.write("dynamic_type", (int)actor->dynamic_type);
 		serializer.write("trigger", actor->is_trigger);
@@ -3651,15 +3653,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeRigidActor(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeRigidActor(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::RIGID);
-		actor->entity = entity;
+		actor->gameobject = gameobject;
 		serializer.read(&actor->layer);
 		deserializeCommonRigidActorProperties(serializer, actor, scene_version);
-		m_actors.insert(actor->entity, actor);
+		m_actors.insert(actor->gameobject, actor);
 
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		PxRigidActor* physx_actor;
 		switch (actor->dynamic_type)
 		{
@@ -3711,20 +3713,20 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, RIGID_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, RIGID_ACTOR_TYPE, this);
 	}
 
 
-	void deserializeBoxActor(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeBoxActor(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::BOX);
-		actor->entity = entity;
+		actor->gameobject = gameobject;
 		serializer.read(&actor->layer);
 		deserializeCommonRigidActorProperties(serializer, actor, scene_version);
-		m_actors.insert(actor->entity, actor);
+		m_actors.insert(actor->gameobject, actor);
 
 		PxBoxGeometry box_geom;
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		serializer.read(&box_geom.halfExtents.x);
 		serializer.read(&box_geom.halfExtents.y);
 		serializer.read(&box_geom.halfExtents.z);
@@ -3744,13 +3746,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, BOX_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, BOX_ACTOR_TYPE, this);
 	}
 
 
-	void serializeCapsuleActor(ISerializer& serializer, Entity entity)
+	void serializeCapsuleActor(ISerializer& serializer, GameObject gameobject)
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		serializer.write("layer", actor->layer);
 		serializer.write("dynamic_type", (int)actor->dynamic_type);
 		serializer.write("trigger", actor->is_trigger);
@@ -3764,16 +3766,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeCapsuleActor(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeCapsuleActor(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::CAPSULE);
-		actor->entity = entity;
+		actor->gameobject = gameobject;
 		serializer.read(&actor->layer);
 		deserializeCommonRigidActorProperties(serializer, actor, scene_version);
-		m_actors.insert(actor->entity, actor);
+		m_actors.insert(actor->gameobject, actor);
 
 		PxCapsuleGeometry capsule_geom;
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		serializer.read(&capsule_geom.halfHeight);
 		serializer.read(&capsule_geom.radius);
 		PxRigidActor* physx_actor;
@@ -3794,13 +3796,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, CAPSULE_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, CAPSULE_ACTOR_TYPE, this);
 	}
 
 
-	void serializeSphereActor(ISerializer& serializer, Entity entity)
+	void serializeSphereActor(ISerializer& serializer, GameObject gameobject)
 	{
-		RigidActor* actor = m_actors[entity];
+		RigidActor* actor = m_actors[gameobject];
 		serializer.write("layer", actor->layer);
 		serializer.write("dynamic_type", (int)actor->dynamic_type);
 		serializer.write("trigger", actor->is_trigger);
@@ -3813,16 +3815,16 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void deserializeSphereActor(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeSphereActor(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::SPHERE);
-		actor->entity = entity;
+		actor->gameobject = gameobject;
 		serializer.read(&actor->layer);
 		deserializeCommonRigidActorProperties(serializer, actor, scene_version);
-		m_actors.insert(actor->entity, actor);
+		m_actors.insert(actor->gameobject, actor);
 
 		PxSphereGeometry sphere_geom;
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		serializer.read(&sphere_geom.radius);
 		PxRigidActor* physx_actor;
 		switch (actor->dynamic_type)
@@ -3842,7 +3844,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		actor->setPhysxActor(physx_actor);
 
-		m_project.onComponentCreated(entity, SPHERE_ACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, SPHERE_ACTOR_TYPE, this);
 	}
 
 
@@ -3948,13 +3950,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 	void deserializeActor(InputBlob& serializer, RigidActor* actor)
 	{
-		Entity entity = actor->entity;
+		GameObject gameobject = actor->gameobject;
 		actor->layer = 0;
 		serializer.read(actor->layer);
 
 		serializer.read((i32&)actor->type);
 
-		PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+		PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 		switch (actor->type)
 		{
 			case ActorType::RIGID:
@@ -3996,39 +3998,39 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 					if (shape) shape->userData = (void*)(intptr_t)index;
 				}
 				actor->setPhysxActor(physx_actor);
-				m_project.onComponentCreated(actor->entity, RIGID_ACTOR_TYPE, this);
+				m_project.onComponentCreated(actor->gameobject, RIGID_ACTOR_TYPE, this);
 			}
 			break;
 			case ActorType::BOX:
 			{
 				PxBoxGeometry box_geom;
-				PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+				PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 				serializer.read(box_geom.halfExtents);
 				PxRigidActor* physx_actor = createPhysXActor(actor, transform, box_geom);
 
 				actor->setPhysxActor(physx_actor);
-				m_project.onComponentCreated(actor->entity, BOX_ACTOR_TYPE, this);
+				m_project.onComponentCreated(actor->gameobject, BOX_ACTOR_TYPE, this);
 			}
 			break;
 			case ActorType::SPHERE:
 			{
 				PxSphereGeometry sphere_geom;
-				PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+				PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 				serializer.read(sphere_geom.radius);
 				PxRigidActor* physx_actor = createPhysXActor(actor, transform, sphere_geom);
 				actor->setPhysxActor(physx_actor);
-				m_project.onComponentCreated(actor->entity, SPHERE_ACTOR_TYPE, this);
+				m_project.onComponentCreated(actor->gameobject, SPHERE_ACTOR_TYPE, this);
 			}
 			break;
 			case ActorType::CAPSULE:
 			{
 				PxCapsuleGeometry capsule_geom;
-				PxTransform transform = toPhysx(m_project.getTransform(actor->entity).getRigidPart());
+				PxTransform transform = toPhysx(m_project.getTransform(actor->gameobject).getRigidPart());
 				serializer.read(capsule_geom.halfHeight);
 				serializer.read(capsule_geom.radius);
 				PxRigidActor* physx_actor = createPhysXActor(actor, transform, capsule_geom);
 				actor->setPhysxActor(physx_actor);
-				m_project.onComponentCreated(actor->entity, CAPSULE_ACTOR_TYPE, this);
+				m_project.onComponentCreated(actor->gameobject, CAPSULE_ACTOR_TYPE, this);
 			}
 			break;
 			case ActorType::MESH:
@@ -4038,7 +4040,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				ResourceManagerBase* manager = m_engine->getResourceManager().get(PhysicsGeometry::TYPE);
 				auto* geometry = manager->load(Path(tmp));
 				actor->setResource(static_cast<PhysicsGeometry*>(geometry));
-				m_project.onComponentCreated(actor->entity, MESH_ACTOR_TYPE, this);
+				m_project.onComponentCreated(actor->gameobject, MESH_ACTOR_TYPE, this);
 			}
 			break;
 			default: ASSERT(false); break;
@@ -4056,13 +4058,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		{
 			serializer.write(actor->dynamic_type);
 			serializer.write(actor->is_trigger);
-			serializer.write(actor->entity);
+			serializer.write(actor->gameobject);
 			serializeActor(serializer, actor);
 		}
 		serializer.write((i32)m_controllers.size());
 		for (const auto& controller : m_controllers)
 		{
-			serializer.write(controller.m_entity);
+			serializer.write(controller.m_gameobject);
 			serializer.write(controller.m_layer);
 			serializer.write(controller.m_radius);
 			serializer.write(controller.m_height);
@@ -4072,7 +4074,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		serializer.write((i32)m_terrains.size());
 		for (auto& terrain : m_terrains)
 		{
-			serializer.write(terrain.m_entity);
+			serializer.write(terrain.m_gameobject);
 			serializer.writeString(terrain.m_heightmap ? terrain.m_heightmap->getPath().c_str() : "");
 			serializer.write(terrain.m_xz_scale);
 			serializer.write(terrain.m_y_scale);
@@ -4191,7 +4193,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		serializer.write("bone", bone->pose_bone_idx);
 		PxTransform pose = bone->actor->getGlobalPose();
-		pose = toPhysx(m_project.getTransform(ragdoll.entity).getRigidPart()).getInverse() * pose;
+		pose = toPhysx(m_project.getTransform(ragdoll.gameobject).getRigidPart()).getInverse() * pose;
 		serializer.write("pose", fromPhysx(pose));
 		serializer.write("bind_transform", bone->bind_transform);
 
@@ -4231,7 +4233,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		}
 		serializer.write(bone->pose_bone_idx);
 		PxTransform pose = bone->actor->getGlobalPose();
-		pose = toPhysx(m_project.getTransform(ragdoll.entity).getRigidPart()).getInverse() * pose;
+		pose = toPhysx(m_project.getTransform(ragdoll.gameobject).getRigidPart()).getInverse() * pose;
 		serializer.write(fromPhysx(pose));
 		serializer.write(bone->bind_transform);
 
@@ -4415,7 +4417,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		serializer.read(bone->bind_transform);
 		bone->inv_bind_transform = bone->bind_transform.inverted();
 
-		PxTransform px_transform = toPhysx(m_project.getTransform(ragdoll.entity).getRigidPart()) * toPhysx(transform);
+		PxTransform px_transform = toPhysx(m_project.getTransform(ragdoll.gameobject).getRigidPart()) * toPhysx(transform);
 
 		RagdollBone::Type type;
 		serializer.read(type);
@@ -4443,7 +4445,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		bone->actor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, bone->is_kinematic);
 		bone->actor->is<PxRigidDynamic>()->setSolverIterationCounts(8, 8);
 		bone->actor->is<PxRigidDynamic>()->setMass(0.0001f);
-		bone->actor->userData = (void*)(intptr_t)ragdoll.entity.index;
+		bone->actor->userData = (void*)(intptr_t)ragdoll.gameobject.index;
 
 		bone->actor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		m_scene->addActor(*bone->actor);
@@ -4476,7 +4478,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		serializer.read(&bone->bind_transform);
 		bone->inv_bind_transform = bone->bind_transform.inverted();
 
-		PxTransform px_transform = toPhysx(m_project.getTransform(ragdoll.entity).getRigidPart()) * toPhysx(transform);
+		PxTransform px_transform = toPhysx(m_project.getTransform(ragdoll.gameobject).getRigidPart()) * toPhysx(transform);
 
 		RagdollBone::Type type;
 		serializer.read((int*)&type);
@@ -4506,7 +4508,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		bone->actor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, bone->is_kinematic);
 		bone->actor->is<PxRigidDynamic>()->setSolverIterationCounts(8, 8);
 		bone->actor->is<PxRigidDynamic>()->setMass(0.0001f);
-		bone->actor->userData = (void*)(intptr_t)ragdoll.entity.index;
+		bone->actor->userData = (void*)(intptr_t)ragdoll.gameobject.index;
 
 		bone->actor->setActorFlag(PxActorFlag::eVISUALIZATION, true);
 		m_scene->addActor(*bone->actor);
@@ -4609,14 +4611,14 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 			RigidActor* actor = MALMY_NEW(m_allocator, RigidActor)(*this, ActorType::BOX);
 			serializer.read(actor->dynamic_type);
 			serializer.read(actor->is_trigger);
-			serializer.read(actor->entity);
-			if (!actor->entity.isValid())
+			serializer.read(actor->gameobject);
+			if (!actor->gameobject.isValid())
 			{
 				MALMY_DELETE(m_allocator, actor);
 				continue;
 			}
 			if (actor->dynamic_type == DynamicType::DYNAMIC) m_dynamic_actors.push(actor);
-			m_actors.insert(actor->entity, actor);
+			m_actors.insert(actor->gameobject, actor);
 			deserializeActor(serializer, actor);
 		}
 	}
@@ -4628,9 +4630,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		serializer.read(count);
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity;
-			serializer.read(entity);
-			Controller& c = m_controllers.insert(entity);
+			GameObject gameobject;
+			serializer.read(gameobject);
+			Controller& c = m_controllers.insert(gameobject);
 			c.m_frame_change.set(0, 0, 0);
 
 			serializer.read(c.m_layer);
@@ -4642,13 +4644,13 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 			initControllerDesc(cDesc);
 			cDesc.height = c.m_height;
 			cDesc.radius = c.m_radius;
-			Vec3 position = m_project.getPosition(entity);
+			Vec3 position = m_project.getPosition(gameobject);
 			cDesc.position.set(position.x, position.y - cDesc.height * 0.5f, position.z);
 			c.m_controller = m_controller_manager->createController(cDesc);
-			c.m_controller->getActor()->userData = (void*)(intptr_t)entity.index;
-			c.m_entity = entity;
+			c.m_controller->getActor()->userData = (void*)(intptr_t)gameobject.index;
+			c.m_gameobject = gameobject;
 			c.m_controller->setFootPosition({position.x, position.y, position.z});
-			m_project.onComponentCreated(entity, CONTROLLER_TYPE, this);
+			m_project.onComponentCreated(gameobject, CONTROLLER_TYPE, this);
 		}
 	}
 
@@ -4671,17 +4673,17 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		m_ragdolls.reserve(count);
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity;
-			serializer.read(entity);
-			Ragdoll& ragdoll = m_ragdolls.insert(entity);
+			GameObject gameobject;
+			serializer.read(gameobject);
+			Ragdoll& ragdoll = m_ragdolls.insert(gameobject);
 			ragdoll.layer = 0;
 			ragdoll.root_transform.pos.set(0, 0, 0);
 			ragdoll.root_transform.rot.set(0, 0, 0, 1);
 
 			serializer.read(ragdoll.layer);
-			ragdoll.entity = entity;
+			ragdoll.gameobject = gameobject;
 			setRagdollRoot(ragdoll, deserializeRagdollBone(ragdoll, nullptr, serializer));
-			m_project.onComponentCreated(ragdoll.entity, RAGDOLL_TYPE, this);
+			m_project.onComponentCreated(ragdoll.gameobject, RAGDOLL_TYPE, this);
 		}
 	}
 
@@ -4693,9 +4695,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		m_joints.reserve(count);
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity;
-			serializer.read(entity);
-			Joint& joint = m_joints.insert(entity);
+			GameObject gameobject;
+			serializer.read(gameobject);
+			Joint& joint = m_joints.insert(gameobject);
 			int type;
 			serializer.read(type);
 			serializer.read(joint.connected_body);
@@ -4710,7 +4712,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 						m_dummy_actor,
 						joint.local_frame0,
 						nullptr,
-						PxTransform(PxIdentity));
+						PxTransform(PxIdgameobject));
 					joint.physx = px_joint;
 					u32 flags;
 					serializer.read(flags);
@@ -4727,7 +4729,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 						m_dummy_actor,
 						joint.local_frame0,
 						nullptr,
-						PxTransform(PxIdentity));
+						PxTransform(PxIdgameobject));
 					joint.physx = px_joint;
 					u32 flags;
 					serializer.read(flags);
@@ -4744,7 +4746,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 						m_dummy_actor,
 						joint.local_frame0,
 						nullptr,
-						PxTransform(PxIdentity));
+						PxTransform(PxIdgameobject));
 					joint.physx = px_joint;
 					u32 flags;
 					serializer.read(flags);
@@ -4769,7 +4771,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 						m_dummy_actor,
 						joint.local_frame0,
 						nullptr,
-						PxTransform(PxIdentity));
+						PxTransform(PxIdgameobject));
 					joint.physx = px_joint;
 					int motions[6];
 					serializer.read(motions);
@@ -4793,7 +4795,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 				default: ASSERT(false); break;
 			}
 
-			m_project.onComponentCreated(entity, cmp_type, this);
+			m_project.onComponentCreated(gameobject, cmp_type, this);
 		}
 	}
 
@@ -4806,20 +4808,20 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 		{
 			Heightfield terrain;
 			terrain.m_scene = this;
-			serializer.read(terrain.m_entity);
+			serializer.read(terrain.m_gameobject);
 			char tmp[MAX_PATH_LENGTH];
 			serializer.readString(tmp, MAX_PATH_LENGTH);
 			serializer.read(terrain.m_xz_scale);
 			serializer.read(terrain.m_y_scale);
 			serializer.read(terrain.m_layer);
 
-			m_terrains.insert(terrain.m_entity, terrain);
-			Entity entity = terrain.m_entity;
+			m_terrains.insert(terrain.m_gameobject, terrain);
+			GameObject gameobject = terrain.m_gameobject;
 			if (terrain.m_heightmap == nullptr || !equalStrings(tmp, terrain.m_heightmap->getPath().c_str()))
 			{
-				setHeightmapSource(entity, Path(tmp));
+				setHeightmapSource(gameobject, Path(tmp));
 			}
-			m_project.onComponentCreated(terrain.m_entity, HEIGHTFIELD_TYPE, this);
+			m_project.onComponentCreated(terrain.m_gameobject, HEIGHTFIELD_TYPE, this);
 		}
 	}
 
@@ -4843,9 +4845,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	PhysicsSystem& getSystem() const override { return *m_system; }
 
 
-	Vec3 getActorVelocity(Entity entity) override
+	Vec3 getActorVelocity(GameObject gameobject) override
 	{
-		auto* actor = m_actors[entity];
+		auto* actor = m_actors[gameobject];
 		if (actor->dynamic_type != DynamicType::DYNAMIC)
 		{
 			g_log_warning.log("Physics") << "Trying to get speed of static object";
@@ -4858,9 +4860,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	float getActorSpeed(Entity entity) override
+	float getActorSpeed(GameObject gameobject) override
 	{
-		auto* actor = m_actors[entity];
+		auto* actor = m_actors[gameobject];
 		if (actor->dynamic_type != DynamicType::DYNAMIC)
 		{
 			g_log_warning.log("Physics") << "Trying to get speed of static object";
@@ -4873,9 +4875,9 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void putToSleep(Entity entity) override
+	void putToSleep(GameObject gameobject) override
 	{
-		int key = m_actors.find(entity);
+		int key = m_actors.find(gameobject);
 		if (key < 0) return;
 		RigidActor* actor = m_actors.at(key);
 
@@ -4891,15 +4893,15 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void applyForceToActor(Entity entity, const Vec3& force) override
+	void applyForceToActor(GameObject gameobject, const Vec3& force) override
 	{
-		int key = m_actors.find(entity);
+		int key = m_actors.find(gameobject);
 		if (key < 0) return;
 		RigidActor* actor = m_actors.at(key);
 
 		if (actor->dynamic_type != DynamicType::DYNAMIC)
 		{
-			g_log_warning.log("Physics") << "Trying to apply force to static object #" << entity.index;
+			g_log_warning.log("Physics") << "Trying to apply force to static object #" << gameobject.index;
 			return;
 		}
 
@@ -4909,14 +4911,14 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	}
 
 
-	void applyImpulseToActor(Entity entity, const Vec3& impulse) override
+	void applyImpulseToActor(GameObject gameobject, const Vec3& impulse) override
 	{
-		int key = m_actors.find(entity);
+		int key = m_actors.find(gameobject);
 		if (key < 0) return;
 		RigidActor* actor = m_actors.at(key);
 		if (actor->dynamic_type != DynamicType::DYNAMIC)
 		{
-			g_log_warning.log("Physics") << "Trying to apply force to static object #" << entity.index;
+			g_log_warning.log("Physics") << "Trying to apply force to static object #" << gameobject.index;
 			return;
 		}
 
@@ -4951,7 +4953,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 	struct QueuedForce
 	{
-		Entity entity;
+		GameObject gameobject;
 		Vec3 force;
 	};
 
@@ -4992,7 +4994,7 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 
 
 		PxController* m_controller;
-		Entity m_entity;
+		GameObject m_gameobject;
 		Vec3 m_frame_change;
 		float m_radius;
 		float m_height;
@@ -5018,11 +5020,11 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 	PxControllerManager* m_controller_manager;
 	PxMaterial* m_default_material;
 
-	AssociativeArray<Entity, RigidActor*> m_actors;
-	AssociativeArray<Entity, Ragdoll> m_ragdolls;
-	AssociativeArray<Entity, Joint> m_joints;
-	AssociativeArray<Entity, Controller> m_controllers;
-	AssociativeArray<Entity, Heightfield> m_terrains;
+	AssociativeArray<GameObject, RigidActor*> m_actors;
+	AssociativeArray<GameObject, Ragdoll> m_ragdolls;
+	AssociativeArray<GameObject, Joint> m_joints;
+	AssociativeArray<GameObject, Controller> m_controllers;
+	AssociativeArray<GameObject, Heightfield> m_terrains;
 
 	Array<RigidActor*> m_dynamic_actors;
 	RigidActor* m_update_in_progress;
@@ -5040,8 +5042,8 @@ struct PhysicsSceneImpl MALMY_FINAL : public PhysicsScene
 PhysicsScene* PhysicsScene::create(PhysicsSystem& system, Project& context, Engine& engine, IAllocator& allocator)
 {
 	PhysicsSceneImpl* impl = MALMY_NEW(allocator, PhysicsSceneImpl)(context, allocator);
-	impl->m_project.entityTransformed().bind<PhysicsSceneImpl, &PhysicsSceneImpl::onEntityMoved>(impl);
-	impl->m_project.entityDestroyed().bind<PhysicsSceneImpl, &PhysicsSceneImpl::onEntityDestroyed>(impl);
+	impl->m_project.gameobjectTransformed().bind<PhysicsSceneImpl, &PhysicsSceneImpl::onGameObjectMoved>(impl);
+	impl->m_project.gameobjectDestroyed().bind<PhysicsSceneImpl, &PhysicsSceneImpl::onGameObjectDestroyed>(impl);
 	impl->m_engine = &engine;
 	PxSceneDesc sceneDesc(system.getPhysics()->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.8f, 0.0f);
@@ -5063,7 +5065,7 @@ PhysicsScene* PhysicsScene::create(PhysicsSystem& system, Project& context, Engi
 	impl->m_default_material = impl->m_system->getPhysics()->createMaterial(0.5f, 0.5f, 0.1f);
 	PxSphereGeometry geom(1);
 	impl->m_dummy_actor =
-		PxCreateDynamic(impl->m_scene->getPhysics(), PxTransform(PxIdentity), geom, *impl->m_default_material, 1);
+		PxCreateDynamic(impl->m_scene->getPhysics(), PxTransform(PxIdgameobject), geom, *impl->m_default_material, 1);
 	return impl;
 }
 
@@ -5082,9 +5084,9 @@ void PhysicsSceneImpl::RigidActor::onStateChanged(Resource::State, Resource::Sta
 	{
 		setPhysxActor(nullptr);
 
-		PxTransform transform = toPhysx(scene.getProject().getTransform(entity).getRigidPart());
+		PxTransform transform = toPhysx(scene.getProject().getTransform(gameobject).getRigidPart());
 
-		scale = scene.getProject().getScale(entity);
+		scale = scene.getProject().getScale(gameobject);
 		PxMeshScale scale(scale);
 		PxConvexMeshGeometry convex_geom(resource->convex_mesh, scale);
 		PxTriangleMeshGeometry tri_geom(resource->tri_mesh, scale);
@@ -5124,9 +5126,9 @@ void PhysicsSceneImpl::RigidActor::setPhysxActor(PxRigidActor* actor)
 	if (actor)
 	{
 		scene.m_scene->addActor(*actor);
-		actor->userData = (void*)(intptr_t)entity.index;
+		actor->userData = (void*)(intptr_t)gameobject.index;
 		scene.updateFilterData(actor, layer);
-		scene.setIsTrigger({entity.index}, is_trigger);
+		scene.setIsTrigger({gameobject.index}, is_trigger);
 	}
 }
 

@@ -38,8 +38,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\data\bin\</OutDir>
-    <IntDir>..\obj\lua_script\</IntDir>
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\bin\obj\lua_script\</IntDir>
     <TargetName>lua_script</TargetName>
     <TargetExt>.dll</TargetExt>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
@@ -79,7 +79,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDataBaseFileName>$(OutDir)lua_script.pdb</ProgramDataBaseFileName>
       <OutputFile>$(OutDir)lua_script.dll</OutputFile>
-      <ImportLibrary>..\data\bin\lua_script.lib</ImportLibrary>
+      <ImportLibrary>..\bin\lua_script.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>

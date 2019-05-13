@@ -80,7 +80,7 @@ namespace Malmy
 
 #pragma region serialization
 
-	void JsonSerializer::serialize(const char* label, Entity value)
+	void JsonSerializer::serialize(const char* label, GameObject value)
 	{
 		serialize(label, value.index);
 	}
@@ -222,7 +222,7 @@ namespace Malmy
 		m_is_first_in_block = false;
 	}
 
-	void JsonSerializer::serializeArrayItem(Entity value)
+	void JsonSerializer::serializeArrayItem(GameObject value)
 	{
 		serializeArrayItem(value.index);
 	}
@@ -273,7 +273,7 @@ namespace Malmy
 		return false;
 	}
 
-	void JsonDeserializer::deserialize(const char* label, Entity& value, Entity default_value)
+	void JsonDeserializer::deserialize(const char* label, GameObject& value, GameObject default_value)
 	{
 		deserialize(label, value.index, default_value.index);
 	}
@@ -518,7 +518,7 @@ namespace Malmy
 		}
 	}
 
-	void JsonDeserializer::deserializeArrayItem(Entity& value, Entity default_value)
+	void JsonDeserializer::deserializeArrayItem(GameObject& value, GameObject default_value)
 	{
 		deserializeArrayItem(value.index, default_value.index);
 	}

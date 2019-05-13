@@ -112,23 +112,23 @@ namespace Malmy
 			template <typename Getter> struct GetterProxy;
 
 			template <typename R, typename C>
-			struct GetterProxy<R(C::*)(Entity, int)>
+			struct GetterProxy<R(C::*)(GameObject, int)>
 			{
-				using Getter = R(C::*)(Entity, int);
-				static void invoke(OutputBlob& stream, C* inst, Getter getter, Entity entity, int index)
+				using Getter = R(C::*)(GameObject, int);
+				static void invoke(OutputBlob& stream, C* inst, Getter getter, GameObject gameobject, int index)
 				{
-					R value = (inst->*getter)(entity, index);
+					R value = (inst->*getter)(gameobject, index);
 					writeToStream(stream, value);
 				}
 			};
 
 			template <typename R, typename C>
-			struct GetterProxy<R(C::*)(Entity)>
+			struct GetterProxy<R(C::*)(GameObject)>
 			{
-				using Getter = R(C::*)(Entity);
-				static void invoke(OutputBlob& stream, C* inst, Getter getter, Entity entity, int index)
+				using Getter = R(C::*)(GameObject);
+				static void invoke(OutputBlob& stream, C* inst, Getter getter, GameObject gameobject, int index)
 				{
-					R value = (inst->*getter)(entity);
+					R value = (inst->*getter)(gameobject);
 					writeToStream(stream, value);
 				}
 			};
@@ -136,26 +136,26 @@ namespace Malmy
 			template <typename Setter> struct SetterProxy;
 
 			template <typename C, typename A>
-			struct SetterProxy<void (C::*)(Entity, int, A)>
+			struct SetterProxy<void (C::*)(GameObject, int, A)>
 			{
-				using Setter = void (C::*)(Entity, int, A);
-				static void invoke(InputBlob& stream, C* inst, Setter setter, Entity entity, int index)
+				using Setter = void (C::*)(GameObject, int, A);
+				static void invoke(InputBlob& stream, C* inst, Setter setter, GameObject gameobject, int index)
 				{
 					using Value = RemoveCR<A>;
 					auto value = readFromStream<Value>(stream);
-					(inst->*setter)(entity, index, value);
+					(inst->*setter)(gameobject, index, value);
 				}
 			};
 
 			template <typename C, typename A>
-			struct SetterProxy<void (C::*)(Entity, A)>
+			struct SetterProxy<void (C::*)(GameObject, A)>
 			{
-				using Setter = void (C::*)(Entity, A);
-				static void invoke(InputBlob& stream, C* inst, Setter setter, Entity entity, int index)
+				using Setter = void (C::*)(GameObject, A);
+				static void invoke(InputBlob& stream, C* inst, Setter setter, GameObject gameobject, int index)
 				{
 					using Value = RemoveCR<A>;
 					auto value = readFromStream<Value>(stream);
-					(inst->*setter)(entity, value);
+					(inst->*setter)(gameobject, value);
 				}
 			};
 
@@ -237,7 +237,7 @@ namespace Malmy
 			virtual void begin(const ComponentBase&) {}
 			virtual void visit(const Property<float>& prop) = 0;
 			virtual void visit(const Property<int>& prop) = 0;
-			virtual void visit(const Property<Entity>& prop) = 0;
+			virtual void visit(const Property<GameObject>& prop) = 0;
 			virtual void visit(const Property<Int2>& prop) = 0;
 			virtual void visit(const Property<Vec2>& prop) = 0;
 			virtual void visit(const Property<Vec3>& prop) = 0;
@@ -258,7 +258,7 @@ namespace Malmy
 
 			void visit(const Property<float>& prop) override { visitProperty(prop); }
 			void visit(const Property<int>& prop) override { visitProperty(prop); }
-			void visit(const Property<Entity>& prop) override { visitProperty(prop); }
+			void visit(const Property<GameObject>& prop) override { visitProperty(prop); }
 			void visit(const Property<Int2>& prop) override { visitProperty(prop); }
 			void visit(const Property<Vec2>& prop) override { visitProperty(prop); }
 			void visit(const Property<Vec3>& prop) override { visitProperty(prop); }
@@ -299,7 +299,7 @@ namespace Malmy
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
 				static_assert(4 == sizeof(typename ResultOf<Getter>::Type), "enum must have 4 bytes");
-				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.entity, index);
+				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.gameobject, index);
 			}
 
 			void setValue(ComponentUID cmp, int index, InputBlob& stream) const override
@@ -308,7 +308,7 @@ namespace Malmy
 				C* inst = static_cast<C*>(cmp.scene);
 
 				static_assert(4 == sizeof(typename ResultOf<Getter>::Type), "enum must have 4 bytes");
-				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.entity, index);
+				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.gameobject, index);
 			}
 
 
@@ -353,7 +353,7 @@ namespace Malmy
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
 				static_assert(4 == sizeof(typename ResultOf<Getter>::Type), "enum must have 4 bytes");
-				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.entity, index);
+				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.gameobject, index);
 			}
 
 			void setValue(ComponentUID cmp, int index, InputBlob& stream) const override
@@ -362,7 +362,7 @@ namespace Malmy
 				C* inst = static_cast<C*>(cmp.scene);
 
 				static_assert(4 == sizeof(typename ResultOf<Getter>::Type), "enum must have 4 bytes");
-				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.entity, index);
+				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.gameobject, index);
 			}
 
 			int getEnumValueIndex(ComponentUID cmp, int value) const override { return value; }
@@ -397,9 +397,9 @@ namespace Malmy
 				ASSERT(index == -1);
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				int count = (inst->*counter)(cmp.entity);
+				int count = (inst->*counter)(cmp.gameobject);
 				stream.write(count);
-				const Vec2* values = (inst->*getter)(cmp.entity);
+				const Vec2* values = (inst->*getter)(cmp.gameobject);
 				stream.write(values, sizeof(float) * 2 * count);
 			}
 
@@ -411,7 +411,7 @@ namespace Malmy
 				int count;
 				stream.read(count);
 				auto* buf = (const Vec2*)stream.skip(sizeof(float) * 2 * count);
-				(inst->*setter)(cmp.entity, buf, count);
+				(inst->*setter)(cmp.gameobject, buf, count);
 			}
 
 			float getMaxX() const override { return max_x; }
@@ -431,14 +431,14 @@ namespace Malmy
 			{
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				(inst->*getter)(cmp.entity, stream);
+				(inst->*getter)(cmp.gameobject, stream);
 			}
 
 			void setValue(ComponentUID cmp, int index, InputBlob& stream) const override
 			{
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				(inst->*setter)(cmp.entity, stream);
+				(inst->*setter)(cmp.gameobject, stream);
 			}
 
 			void visit(IAttributeVisitor& visitor) const override {
@@ -462,14 +462,14 @@ namespace Malmy
 			{
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.entity, index);
+				detail::GetterProxy<Getter>::invoke(stream, inst, getter, cmp.gameobject, index);
 			}
 
 			void setValue(ComponentUID cmp, int index, InputBlob& stream) const override
 			{
 				using C = typename ClassOf<Getter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.entity, index);
+				detail::SetterProxy<Setter>::invoke(stream, inst, setter, cmp.gameobject, index);
 			}
 
 			Tuple<Attributes...> attributes;
@@ -549,21 +549,21 @@ namespace Malmy
 			{
 				using C = typename ClassOf<Counter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				(inst->*adder)(cmp.entity, index);
+				(inst->*adder)(cmp.gameobject, index);
 			}
 
 			void removeItem(ComponentUID cmp, int index) const override
 			{
 				using C = typename ClassOf<Counter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				(inst->*remover)(cmp.entity, index);
+				(inst->*remover)(cmp.gameobject, index);
 			}
 
 			int getCount(ComponentUID cmp) const override
 			{
 				using C = typename ClassOf<Counter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				return (inst->*counter)(cmp.entity);
+				return (inst->*counter)(cmp.gameobject);
 			}
 
 			void visit(IPropertyVisitor& visitor) const override
@@ -648,7 +648,7 @@ namespace Malmy
 			{
 				using C = typename ClassOf<Counter>::Type;
 				C* inst = static_cast<C*>(cmp.scene);
-				return (inst->*counter)(cmp.entity);
+				return (inst->*counter)(cmp.gameobject);
 			}
 
 			void visit(IPropertyVisitor& visitor) const override

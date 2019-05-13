@@ -171,7 +171,7 @@ public:
 	\note Setting an unrealistic center of mass which is a long way from the body can make it difficult for
 	the SDK to solve constraints. Perhaps leading to instability and jittering bodies.
 
-	<b>Default:</b> the identity transform
+	<b>Default:</b> the idgameobject transform
 
 	\param[in] pose Mass frame offset transform relative to the actor frame. <b>Range:</b> rigid body transform.
 

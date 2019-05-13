@@ -162,7 +162,7 @@ struct BillboardSceneData
 
 	Matrix computeMVPMatrix()
 	{
-		Matrix mvp = Matrix::IDENTITY;
+		Matrix mvp = Matrix::IDGAMEOBJECT;
 
 		float ratio = height > 0 ? (float)width / height : 1.0f;
 		Matrix proj;
@@ -308,12 +308,12 @@ struct FBXImporter
 	}
 
 
-	static ofbx::Matrix makeOFBXIdentity() { return {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}; }
+	static ofbx::Matrix makeOFBXIdgameobject() { return {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}; }
 
 
 	static ofbx::Matrix getBindPoseMatrix(const ofbx::Mesh* mesh, const ofbx::Object* node)
 	{
-		if (!mesh) return makeOFBXIdentity();
+		if (!mesh) return makeOFBXIdgameobject();
 
 		auto* skin = mesh->getGeometry()->getSkin();
 
@@ -326,7 +326,7 @@ struct FBXImporter
 			}
 		}
 		ASSERT(false);
-		return makeOFBXIdentity();
+		return makeOFBXIdgameobject();
 	}
 
 
@@ -599,7 +599,7 @@ struct FBXImporter
 			const ofbx::Vec4* colors = import_vertex_colors ? geom->getColors() : nullptr;
 			const ofbx::Vec2* uvs = geom->getUVs();
 
-			Matrix transform_matrix = Matrix::IDENTITY;
+			Matrix transform_matrix = Matrix::IDGAMEOBJECT;
 			Matrix geometry_matrix = toMalmy(mesh.getGeometricMatrix());
 			transform_matrix = toMalmy(mesh.getGlobalTransform()) * geometry_matrix;
 			if (cancel_mesh_transforms) transform_matrix.setTranslation({0, 0, 0});
@@ -3073,31 +3073,31 @@ static bool createBillboard(ImportAssetDialog& dialog,
 	pipeline->load();
 	while (engine.getFileSystem().hasWork()) engine.getFileSystem().updateAsyncTransactions();
 
-	auto mesh_entity = project.createEntity({0, 0, 0}, {0, 0, 0, 0});
+	auto mesh_gameobject = project.createGameObject({0, 0, 0}, {0, 0, 0, 0});
 	static const auto MODEL_INSTANCE_TYPE = Reflection::getComponentType("renderable");
-	project.createComponent(MODEL_INSTANCE_TYPE, mesh_entity);
-	render_scene->setModelInstancePath(mesh_entity, mesh_path);
+	project.createComponent(MODEL_INSTANCE_TYPE, mesh_gameobject);
+	render_scene->setModelInstancePath(mesh_gameobject, mesh_path);
 
-	auto mesh_left_entity = project.createEntity({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI * 0.5f });
-	project.createComponent(MODEL_INSTANCE_TYPE, mesh_left_entity);
-	render_scene->setModelInstancePath(mesh_left_entity, mesh_path);
+	auto mesh_left_gameobject = project.createGameObject({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI * 0.5f });
+	project.createComponent(MODEL_INSTANCE_TYPE, mesh_left_gameobject);
+	render_scene->setModelInstancePath(mesh_left_gameobject, mesh_path);
 
-	auto mesh_back_entity = project.createEntity({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI });
-	project.createComponent(MODEL_INSTANCE_TYPE, mesh_back_entity);
-	render_scene->setModelInstancePath(mesh_back_entity, mesh_path);
+	auto mesh_back_gameobject = project.createGameObject({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI });
+	project.createComponent(MODEL_INSTANCE_TYPE, mesh_back_gameobject);
+	render_scene->setModelInstancePath(mesh_back_gameobject, mesh_path);
 
-	auto mesh_right_entity = project.createEntity({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI * 1.5f});
-	project.createComponent(MODEL_INSTANCE_TYPE, mesh_right_entity);
-	render_scene->setModelInstancePath(mesh_right_entity, mesh_path);
+	auto mesh_right_gameobject = project.createGameObject({ 0, 0, 0 }, { Vec3(0, 1, 0), Math::PI * 1.5f});
+	project.createComponent(MODEL_INSTANCE_TYPE, mesh_right_gameobject);
+	render_scene->setModelInstancePath(mesh_right_gameobject, mesh_path);
 
-	auto light_entity = project.createEntity({0, 0, 0}, {0, 0, 0, 0});
+	auto light_gameobject = project.createGameObject({0, 0, 0}, {0, 0, 0, 0});
 	static const auto GLOBAL_LIGHT_TYPE = Reflection::getComponentType("global_light");
-	project.createComponent(GLOBAL_LIGHT_TYPE, light_entity);
-	render_scene->setGlobalLightIntensity(light_entity, 0);
+	project.createComponent(GLOBAL_LIGHT_TYPE, light_gameobject);
+	render_scene->setGlobalLightIntensity(light_gameobject, 0);
 
 	while (engine.getFileSystem().hasWork()) engine.getFileSystem().updateAsyncTransactions();
 
-	auto* model = render_scene->getModelInstanceModel(mesh_entity);
+	auto* model = render_scene->getModelInstanceModel(mesh_gameobject);
 	int width = 640, height = 480;
 	float original_lod_0 = FLT_MAX;
 	if (model->isReady())
@@ -3107,19 +3107,19 @@ static bool createBillboard(ImportAssetDialog& dialog,
 		lods[0].distance = FLT_MAX;
 		AABB aabb = model->getAABB();
 		Vec3 size = aabb.max - aabb.min;
-		project.setPosition(mesh_left_entity, {aabb.max.x - aabb.min.z, 0, 0});
-		project.setPosition(mesh_back_entity, {aabb.max.x + size.z + aabb.max.x, 0, 0});
-		project.setPosition(mesh_right_entity, {aabb.max.x + size.x + size.z + aabb.max.x, 0, 0});
+		project.setPosition(mesh_left_gameobject, {aabb.max.x - aabb.min.z, 0, 0});
+		project.setPosition(mesh_back_gameobject, {aabb.max.x + size.z + aabb.max.x, 0, 0});
+		project.setPosition(mesh_right_gameobject, {aabb.max.x + size.x + size.z + aabb.max.x, 0, 0});
 		
 		BillboardSceneData data(aabb, texture_size);
-		auto camera_entity = project.createEntity(data.position, { 0, 0, 0, 1 });
+		auto camera_gameobject = project.createGameObject(data.position, { 0, 0, 0, 1 });
 		static const auto CAMERA_TYPE = Reflection::getComponentType("camera");
-		project.createComponent(CAMERA_TYPE, camera_entity);
-		render_scene->setCameraOrtho(camera_entity, true);
-		render_scene->setCameraSlot(camera_entity, "main");
+		project.createComponent(CAMERA_TYPE, camera_gameobject);
+		render_scene->setCameraOrtho(camera_gameobject, true);
+		render_scene->setCameraSlot(camera_gameobject, "main");
 		width = data.width;
 		height = data.height;
-		render_scene->setCameraOrthoSize(camera_entity, data.ortho_size);
+		render_scene->setCameraOrthoSize(camera_gameobject, data.ortho_size);
 	}
 
 	pipeline->setScene(render_scene);

@@ -426,7 +426,7 @@ public:
 
 	The goal is relative to the constraint frame of actor[0]
 
-	<b>Default</b> the identity transform
+	<b>Default</b> the idgameobject transform
 
 	\param[in] pose The goal drive pose if positional drive is in use. 
 	\param[in] autowake Whether to wake the joint rigids up if it is asleep.

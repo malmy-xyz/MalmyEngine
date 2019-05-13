@@ -1,7 +1,0 @@
-﻿  plugins.cpp
-  gui_scene.cpp
-  gui_system.cpp
-  sprite_manager.cpp
-     Creating library ..\data\bin\gui.lib and object ..\data\bin\gui.exp
-  gui.vcxproj -> C:\Users\ynsbalci\Desktop\MalmyEngine\src\..\data\bin\gui.dll
-  gui.vcxproj -> ..\data\bin\gui.pdb (Partial PDB)

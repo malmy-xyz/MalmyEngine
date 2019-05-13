@@ -359,7 +359,7 @@ protected:
 
 
 /**
-\brief An array of instances of this class is passed to PxContactModifyCallback::onContactModify().
+\brief An array of instances of this class is passed to PxContactModifyCallback::onCollisionModify().
 
 @see PxContactModifyCallback
 */
@@ -433,7 +433,7 @@ public:
 
 	@see PxContactModifyPair
 	*/
-	virtual void onContactModify(PxContactModifyPair* const pairs, PxU32 count) = 0;
+	virtual void onCollisionModify(PxContactModifyPair* const pairs, PxU32 count) = 0;
 
 protected:
 	virtual ~PxContactModifyCallback(){}

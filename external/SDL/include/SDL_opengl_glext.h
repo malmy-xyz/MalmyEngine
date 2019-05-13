@@ -6093,7 +6093,7 @@ typedef void (APIENTRYP PFNGLMATRIXLOADFEXTPROC) (GLenum mode, const GLfloat *m)
 typedef void (APIENTRYP PFNGLMATRIXLOADDEXTPROC) (GLenum mode, const GLdouble *m);
 typedef void (APIENTRYP PFNGLMATRIXMULTFEXTPROC) (GLenum mode, const GLfloat *m);
 typedef void (APIENTRYP PFNGLMATRIXMULTDEXTPROC) (GLenum mode, const GLdouble *m);
-typedef void (APIENTRYP PFNGLMATRIXLOADIDENTITYEXTPROC) (GLenum mode);
+typedef void (APIENTRYP PFNGLMATRIXLOADIDGAMEOBJECTEXTPROC) (GLenum mode);
 typedef void (APIENTRYP PFNGLMATRIXROTATEFEXTPROC) (GLenum mode, GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 typedef void (APIENTRYP PFNGLMATRIXROTATEDEXTPROC) (GLenum mode, GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
 typedef void (APIENTRYP PFNGLMATRIXSCALEFEXTPROC) (GLenum mode, GLfloat x, GLfloat y, GLfloat z);
@@ -6349,7 +6349,7 @@ GLAPI void APIENTRY glMatrixLoadfEXT (GLenum mode, const GLfloat *m);
 GLAPI void APIENTRY glMatrixLoaddEXT (GLenum mode, const GLdouble *m);
 GLAPI void APIENTRY glMatrixMultfEXT (GLenum mode, const GLfloat *m);
 GLAPI void APIENTRY glMatrixMultdEXT (GLenum mode, const GLdouble *m);
-GLAPI void APIENTRY glMatrixLoadIdentityEXT (GLenum mode);
+GLAPI void APIENTRY glMatrixLoadIdgameobjectEXT (GLenum mode);
 GLAPI void APIENTRY glMatrixRotatefEXT (GLenum mode, GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
 GLAPI void APIENTRY glMatrixRotatedEXT (GLenum mode, GLdouble angle, GLdouble x, GLdouble y, GLdouble z);
 GLAPI void APIENTRY glMatrixScalefEXT (GLenum mode, GLfloat x, GLfloat y, GLfloat z);
@@ -9333,13 +9333,13 @@ GLAPI void APIENTRY glPrimitiveRestartIndexNV (GLuint index);
 #define GL_DISCARD_NV                     0x8530
 #define GL_E_TIMES_F_NV                   0x8531
 #define GL_SPARE0_PLUS_SECONDARY_COLOR_NV 0x8532
-#define GL_UNSIGNED_IDENTITY_NV           0x8536
+#define GL_UNSIGNED_IDGAMEOBJECT_NV           0x8536
 #define GL_UNSIGNED_INVERT_NV             0x8537
 #define GL_EXPAND_NORMAL_NV               0x8538
 #define GL_EXPAND_NEGATE_NV               0x8539
 #define GL_HALF_BIAS_NORMAL_NV            0x853A
 #define GL_HALF_BIAS_NEGATE_NV            0x853B
-#define GL_SIGNED_IDENTITY_NV             0x853C
+#define GL_SIGNED_IDGAMEOBJECT_NV             0x853C
 #define GL_SIGNED_NEGATE_NV               0x853D
 #define GL_SCALE_BY_TWO_NV                0x853E
 #define GL_SCALE_BY_FOUR_NV               0x853F
@@ -9896,7 +9896,7 @@ GLAPI void APIENTRY glGetIntegerui64i_vNV (GLenum value, GLuint index, GLuint64E
 #define GL_PROGRAM_LENGTH_NV              0x8627
 #define GL_PROGRAM_STRING_NV              0x8628
 #define GL_MODELVIEW_PROJECTION_NV        0x8629
-#define GL_IDENTITY_NV                    0x862A
+#define GL_IDGAMEOBJECT_NV                    0x862A
 #define GL_INVERSE_NV                     0x862B
 #define GL_TRANSPOSE_NV                   0x862C
 #define GL_INVERSE_TRANSPOSE_NV           0x862D
@@ -10787,12 +10787,12 @@ GLAPI void APIENTRY glPixelTexGenSGIX (GLenum mode);
 typedef void (APIENTRYP PFNGLDEFORMATIONMAP3DSGIXPROC) (GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, GLdouble w1, GLdouble w2, GLint wstride, GLint worder, const GLdouble *points);
 typedef void (APIENTRYP PFNGLDEFORMATIONMAP3FSGIXPROC) (GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, GLfloat w1, GLfloat w2, GLint wstride, GLint worder, const GLfloat *points);
 typedef void (APIENTRYP PFNGLDEFORMSGIXPROC) (GLbitfield mask);
-typedef void (APIENTRYP PFNGLLOADIDENTITYDEFORMATIONMAPSGIXPROC) (GLbitfield mask);
+typedef void (APIENTRYP PFNGLLOADIDGAMEOBJECTDEFORMATIONMAPSGIXPROC) (GLbitfield mask);
 #ifdef GL_GLEXT_PROTOTYPES
 GLAPI void APIENTRY glDeformationMap3dSGIX (GLenum target, GLdouble u1, GLdouble u2, GLint ustride, GLint uorder, GLdouble v1, GLdouble v2, GLint vstride, GLint vorder, GLdouble w1, GLdouble w2, GLint wstride, GLint worder, const GLdouble *points);
 GLAPI void APIENTRY glDeformationMap3fSGIX (GLenum target, GLfloat u1, GLfloat u2, GLint ustride, GLint uorder, GLfloat v1, GLfloat v2, GLint vstride, GLint vorder, GLfloat w1, GLfloat w2, GLint wstride, GLint worder, const GLfloat *points);
 GLAPI void APIENTRY glDeformSGIX (GLbitfield mask);
-GLAPI void APIENTRY glLoadIdentityDeformationMapSGIX (GLbitfield mask);
+GLAPI void APIENTRY glLoadIdgameobjectDeformationMapSGIX (GLbitfield mask);
 #endif
 #endif /* GL_SGIX_polynomial_ffd */
 

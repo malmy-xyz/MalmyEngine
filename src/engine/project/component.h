@@ -17,18 +17,18 @@ struct MALMY_ENGINE_API ComponentUID final
 	ComponentUID()
 	{
 		scene = nullptr;
-		entity = INVALID_ENTITY;
+		gameobject = INVALID_GAMEOBJECT;
 		type = {-1};
 	}
 
-	ComponentUID(Entity _entity, ComponentType _type, IScene* _scene)
-		: entity(_entity)
+	ComponentUID(GameObject _gameobject, ComponentType _type, IScene* _scene)
+		: gameobject(_gameobject)
 		, type(_type)
 		, scene(_scene)
 	{
 	}
 
-	Entity entity; 
+	GameObject gameobject; 
 	ComponentType type;
 	IScene* scene;
 
@@ -36,9 +36,9 @@ struct MALMY_ENGINE_API ComponentUID final
 
 	bool operator==(const ComponentUID& rhs) const
 	{
-		return type == rhs.type && scene == rhs.scene && entity == rhs.entity;
+		return type == rhs.type && scene == rhs.scene && gameobject == rhs.gameobject;
 	}
-	bool isValid() const { return entity.isValid(); }
+	bool isValid() const { return gameobject.isValid(); }
 };
 
 

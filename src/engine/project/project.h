@@ -26,37 +26,37 @@ struct PrefabResource;
 class MALMY_ENGINE_API Project
 {
 public:
-	typedef void (IScene::*Create)(Entity);
-	typedef void (IScene::*Destroy)(Entity);
-	typedef void (IScene::*Serialize)(ISerializer&, Entity);
-	typedef void (IScene::*Deserialize)(IDeserializer&, Entity, int);
+	typedef void (IScene::*Create)(GameObject);
+	typedef void (IScene::*Destroy)(GameObject);
+	typedef void (IScene::*Serialize)(ISerializer&, GameObject);
+	typedef void (IScene::*Deserialize)(IDeserializer&, GameObject, int);
 	struct ComponentTypeEntry
 	{
 		IScene* scene = nullptr;
-		void (IScene::*create)(Entity);
-		void (IScene::*destroy)(Entity);
-		void (IScene::*serialize)(ISerializer&, Entity);
-		void (IScene::*deserialize)(IDeserializer&, Entity, int);
+		void (IScene::*create)(GameObject);
+		void (IScene::*destroy)(GameObject);
+		void (IScene::*serialize)(ISerializer&, GameObject);
+		void (IScene::*deserialize)(IDeserializer&, GameObject, int);
 	};
 
-	enum { ENTITY_NAME_MAX_LENGTH = 32 };
+	enum { GAMEOBJECT_NAME_MAX_LENGTH = 32 };
 
 public:
 	explicit Project(IAllocator& allocator);
 	~Project();
 
 	IAllocator& getAllocator() { return m_allocator; }
-	void emplaceEntity(Entity entity);
-	Entity createEntity(const Vec3& position, const Quat& rotation);
-	Entity cloneEntity(Entity entity);
-	void destroyEntity(Entity entity);
-	void createComponent(ComponentType type, Entity entity);
-	void destroyComponent(Entity entity, ComponentType type);
-	void onComponentCreated(Entity entity, ComponentType component_type, IScene* scene);
-	void onComponentDestroyed(Entity entity, ComponentType component_type, IScene* scene);
-	bool hasComponent(Entity entity, ComponentType component_type) const;
-	ComponentUID getComponent(Entity entity, ComponentType type) const;
-	ComponentUID getFirstComponent(Entity entity) const;
+	void emplaceGameObject(GameObject gameobject);
+	GameObject createGameObject(const Vec3& position, const Quat& rotation);
+	GameObject cloneGameObject(GameObject gameobject);
+	void destroyGameObject(GameObject gameobject);
+	void createComponent(ComponentType type, GameObject gameobject);
+	void destroyComponent(GameObject gameobject, ComponentType type);
+	void onComponentCreated(GameObject gameobject, ComponentType component_type, IScene* scene);
+	void onComponentDestroyed(GameObject gameobject, ComponentType component_type, IScene* scene);
+	bool hasComponent(GameObject gameobject, ComponentType component_type) const;
+	ComponentUID getComponent(GameObject gameobject, ComponentType type) const;
+	ComponentUID getFirstComponent(GameObject gameobject) const;
 	ComponentUID getNextComponent(const ComponentUID& cmp) const;
 	ComponentTypeEntry& registerComponentType(ComponentType type) { return m_component_type_map[type.index]; }
 	template <typename T1, typename T2, typename T3, typename T4>
@@ -69,59 +69,59 @@ public:
 		m_component_type_map[type.index].deserialize = static_cast<Deserialize>(deserialize);
 	}
 
-	Entity getFirstEntity() const;
-	Entity getNextEntity(Entity entity) const;
-	const char* getEntityName(Entity entity) const;
-	Entity findByName(Entity parent, const char* name);
-	void setEntityName(Entity entity, const char* name);
-	bool hasEntity(Entity entity) const;
+	GameObject getFirstGameObject() const;
+	GameObject getNextGameObject(GameObject gameobject) const;
+	const char* getGameObjectName(GameObject gameobject) const;
+	GameObject findByName(GameObject parent, const char* name);
+	void setGameObjectName(GameObject gameobject, const char* name);
+	bool hasGameObject(GameObject gameobject) const;
 
-	bool isDescendant(Entity ancestor, Entity descendant) const;
-	Entity getParent(Entity entity) const;
-	Entity getFirstChild(Entity entity) const;
-	Entity getNextSibling(Entity entity) const;
-	Transform getLocalTransform(Entity entity) const;
-	float getLocalScale(Entity entity) const;
-	void setParent(Entity parent, Entity child);
-	void setLocalPosition(Entity entity, const Vec3& pos);
-	void setLocalRotation(Entity entity, const Quat& rot);
-	void setLocalTransform(Entity entity, const Transform& transform);
-	Transform computeLocalTransform(Entity parent, const Transform& global_transform) const;
+	bool isDescendant(GameObject ancestor, GameObject descendant) const;
+	GameObject getParent(GameObject gameobject) const;
+	GameObject getFirstChild(GameObject gameobject) const;
+	GameObject getNextSibling(GameObject gameobject) const;
+	Transform getLocalTransform(GameObject gameobject) const;
+	float getLocalScale(GameObject gameobject) const;
+	void setParent(GameObject parent, GameObject child);
+	void setLocalPosition(GameObject gameobject, const Vec3& pos);
+	void setLocalRotation(GameObject gameobject, const Quat& rot);
+	void setLocalTransform(GameObject gameobject, const Transform& transform);
+	Transform computeLocalTransform(GameObject parent, const Transform& global_transform) const;
 
-	void setMatrix(Entity entity, const Matrix& mtx);
-	Matrix getPositionAndRotation(Entity entity) const;
-	Matrix getMatrix(Entity entity) const;
-	void setTransform(Entity entity, const RigidTransform& transform);
-	void setTransform(Entity entity, const Transform& transform);
-	void setTransformKeepChildren(Entity entity, const Transform& transform);
-	void setTransform(Entity entity, const Vec3& pos, const Quat& rot, float scale);
-	Transform getTransform(Entity entity) const;
-	void setRotation(Entity entity, float x, float y, float z, float w);
-	void setRotation(Entity entity, const Quat& rot);
-	void setPosition(Entity entity, float x, float y, float z);
-	void setPosition(Entity entity, const Vec3& pos);
-	void setScale(Entity entity, float scale);
-	Entity instantiatePrefab(const PrefabResource& prefab,
+	void setMatrix(GameObject gameobject, const Matrix& mtx);
+	Matrix getPositionAndRotation(GameObject gameobject) const;
+	Matrix getMatrix(GameObject gameobject) const;
+	void setTransform(GameObject gameobject, const RigidTransform& transform);
+	void setTransform(GameObject gameobject, const Transform& transform);
+	void setTransformKeepChildren(GameObject gameobject, const Transform& transform);
+	void setTransform(GameObject gameobject, const Vec3& pos, const Quat& rot, float scale);
+	Transform getTransform(GameObject gameobject) const;
+	void setRotation(GameObject gameobject, float x, float y, float z, float w);
+	void setRotation(GameObject gameobject, const Quat& rot);
+	void setPosition(GameObject gameobject, float x, float y, float z);
+	void setPosition(GameObject gameobject, const Vec3& pos);
+	void setScale(GameObject gameobject, float scale);
+	GameObject instantiatePrefab(const PrefabResource& prefab,
 		const Vec3& pos,
 		const Quat& rot,
 		float scale);
-	float getScale(Entity entity) const;
-	const Vec3& getPosition(Entity entity) const;
-	const Quat& getRotation(Entity entity) const;
+	float getScale(GameObject gameobject) const;
+	const Vec3& getPosition(GameObject gameobject) const;
+	const Quat& getRotation(GameObject gameobject) const;
 	const char* getName() const { return m_name; }
 	void setName(const char* name) 
 	{ 
 		m_name = name; 
 	}
 
-	DelegateList<void(Entity)>& entityTransformed() { return m_entity_moved; }
-	DelegateList<void(Entity)>& entityCreated() { return m_entity_created; }
-	DelegateList<void(Entity)>& entityDestroyed() { return m_entity_destroyed; }
+	DelegateList<void(GameObject)>& gameobjectTransformed() { return m_gameobject_moved; }
+	DelegateList<void(GameObject)>& gameobjectCreated() { return m_gameobject_created; }
+	DelegateList<void(GameObject)>& gameobjectDestroyed() { return m_gameobject_destroyed; }
 	DelegateList<void(const ComponentUID&)>& componentDestroyed() { return m_component_destroyed; }
 	DelegateList<void(const ComponentUID&)>& componentAdded() { return m_component_added; }
 
-	void serializeComponent(ISerializer& serializer, ComponentType type, Entity entity);
-	void deserializeComponent(IDeserializer& serializer, Entity entity, ComponentType type, int scene_version);
+	void serializeComponent(ISerializer& serializer, ComponentType type, GameObject gameobject);
+	void deserializeComponent(IDeserializer& serializer, GameObject gameobject, ComponentType type, int scene_version);
 	void serialize(OutputBlob& serializer);
 	void deserialize(InputBlob& serializer);
 
@@ -132,23 +132,23 @@ public:
 	void removeScene(IScene* scene);
 
 private:
-	void transformEntity(Entity entity, bool update_local);
-	void updateGlobalTransform(Entity entity);
+	void transformGameObject(GameObject gameobject, bool update_local);
+	void updateGlobalTransform(GameObject gameobject);
 
 	struct Hierarchy
 	{
-		Entity entity;
-		Entity parent;
-		Entity first_child;
-		Entity next_sibling;
+		GameObject gameobject;
+		GameObject parent;
+		GameObject first_child;
+		GameObject next_sibling;
 
 		Transform local_transform;
 	};
 
 
-	struct EntityData
+	struct GameObjectData
 	{
-		EntityData() {}
+		GameObjectData() {}
 
 		Vec3 position;
 		Quat rotation;
@@ -172,22 +172,22 @@ private:
 		bool valid;
 	};
 
-	struct EntityName
+	struct GameObjectName
 	{
-		Entity entity;
-		char name[ENTITY_NAME_MAX_LENGTH];
+		GameObject gameobject;
+		char name[GAMEOBJECT_NAME_MAX_LENGTH];
 	};
 
 private:
 	IAllocator& m_allocator;
 	ComponentTypeEntry m_component_type_map[ComponentType::MAX_TYPES_COUNT];
 	Array<IScene*> m_scenes;
-	Array<EntityData> m_entities;
+	Array<GameObjectData> m_entities;
 	Array<Hierarchy> m_hierarchy;
-	Array<EntityName> m_names;
-	DelegateList<void(Entity)> m_entity_moved;
-	DelegateList<void(Entity)> m_entity_created;
-	DelegateList<void(Entity)> m_entity_destroyed;
+	Array<GameObjectName> m_names;
+	DelegateList<void(GameObject)> m_gameobject_moved;
+	DelegateList<void(GameObject)> m_gameobject_created;
+	DelegateList<void(GameObject)> m_gameobject_destroyed;
 	DelegateList<void(const ComponentUID&)> m_component_destroyed;
 	DelegateList<void(const ComponentUID&)> m_component_added;
 	int m_first_free_slot;

@@ -73,7 +73,7 @@ namespace Malmy
 		virtual PathManager& getPathManager() = 0;
 		virtual lua_State* getState() = 0;
 		virtual void runScript(const char* src, int src_length, const char* path) = 0;
-		virtual ComponentUID createComponent(Project& project, Entity entity, ComponentType type) = 0;
+		virtual ComponentUID createComponent(Project& project, GameObject gameobject, ComponentType type) = 0;
 		virtual IAllocator& getLIFOAllocator() = 0;
 		virtual class Resource* getLuaResource(int idx) const = 0;
 		virtual int addLuaResource(const Path& path, struct ResourceType type) = 0;

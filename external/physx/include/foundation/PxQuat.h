@@ -56,8 +56,8 @@ class PxQuat
 	{
 	}
 
-	//! identity constructor
-	PX_CUDA_CALLABLE PX_INLINE PxQuat(PxIDENTITY r) : x(0.0f), y(0.0f), z(0.0f), w(1.0f)
+	//! idgameobject constructor
+	PX_CUDA_CALLABLE PX_INLINE PxQuat(PxIDGAMEOBJECT r) : x(0.0f), y(0.0f), z(0.0f), w(1.0f)
 	{
 		PX_UNUSED(r);
 	}
@@ -111,9 +111,9 @@ class PxQuat
 	PX_CUDA_CALLABLE PX_INLINE explicit PxQuat(const PxMat33& m); /* defined in PxMat33.h */
 
 	/**
-	\brief returns true if quat is identity
+	\brief returns true if quat is idgameobject
 	*/
-	PX_CUDA_CALLABLE PX_FORCE_INLINE bool isIdentity() const
+	PX_CUDA_CALLABLE PX_FORCE_INLINE bool isIdgameobject() const
 	{
 		return x==0.0f && y==0.0f && z==0.0f && w==1.0f;
 	}
@@ -174,7 +174,7 @@ class PxQuat
 	}
 
 	/**
-	\brief Gets the angle between this quat and the identity quaternion.
+	\brief Gets the angle between this quat and the idgameobject quaternion.
 
 	<b>Unit:</b> Radians
 	*/

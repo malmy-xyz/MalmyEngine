@@ -93,7 +93,7 @@ namespace Malmy
 			ScriptComponent(LuaScriptSceneImpl& scene, IAllocator& allocator)
 				: m_scripts(allocator)
 				, m_scene(scene)
-				, m_entity(INVALID_ENTITY)
+				, m_gameobject(INVALID_GAMEOBJECT)
 			{
 			}
 
@@ -206,7 +206,7 @@ namespace Malmy
 						lua_setfield(script.m_state, -2, "__index");  // [env]
 
 						// set this
-						lua_pushinteger(script.m_state, m_entity.index); // [env, index]
+						lua_pushinteger(script.m_state, m_gameobject.index); // [env, index]
 						lua_setfield(script.m_state, -2, "this"); // [env]
 					}
 					else
@@ -244,7 +244,7 @@ namespace Malmy
 					detectProperties(script);
 					
 					bool enabled = script.m_flags.isSet(ScriptInstance::ENABLED);
-					m_scene.setEnableProperty(m_entity, scr_index, script, enabled);
+					m_scene.setEnableProperty(m_gameobject, scr_index, script, enabled);
 
 					if (m_scene.m_is_game_running) m_scene.startScript(script, is_reload);
 				}
@@ -252,7 +252,7 @@ namespace Malmy
 
 			Array<ScriptInstance> m_scripts;
 			LuaScriptSceneImpl& m_scene;
-			Entity m_entity;
+			GameObject m_gameobject;
 		};
 
 		//fonksiyon cagrisi
@@ -322,11 +322,11 @@ namespace Malmy
 
 		int getVersion() const override { return (int)LuaSceneVersion::LATEST; }
 
-		IFunctionCall* beginFunctionCall(Entity entity, int scr_index, const char* function) override
+		IFunctionCall* beginFunctionCall(GameObject gameobject, int scr_index, const char* function) override
 		{
 			ASSERT(!m_function_call.is_in_progress);
 
-			auto* script_cmp = m_scripts[entity];
+			auto* script_cmp = m_scripts[gameobject];
 			auto& script = script_cmp->m_scripts[scr_index];
 			if (!script.m_state) return nullptr;
 
@@ -364,29 +364,29 @@ namespace Malmy
 			lua_pop(script.m_state, 1);
 		}
 
-		int getPropertyCount(Entity entity, int scr_index) override
+		int getPropertyCount(GameObject gameobject, int scr_index) override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_properties.size();
+			return m_scripts[gameobject]->m_scripts[scr_index].m_properties.size();
 		}
 
-		const char* getPropertyName(Entity entity, int scr_index, int prop_index) override
+		const char* getPropertyName(GameObject gameobject, int scr_index, int prop_index) override
 		{
-			return getPropertyName(m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].name_hash);
+			return getPropertyName(m_scripts[gameobject]->m_scripts[scr_index].m_properties[prop_index].name_hash);
 		}
 
-		ResourceType getPropertyResourceType(Entity entity, int scr_index, int prop_index) override
+		ResourceType getPropertyResourceType(GameObject gameobject, int scr_index, int prop_index) override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].resource_type;
+			return m_scripts[gameobject]->m_scripts[scr_index].m_properties[prop_index].resource_type;
 		}
 
-		Property::Type getPropertyType(Entity entity, int scr_index, int prop_index) override
+		Property::Type getPropertyType(GameObject gameobject, int scr_index, int prop_index) override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_properties[prop_index].type;
+			return m_scripts[gameobject]->m_scripts[scr_index].m_properties[prop_index].type;
 		}
 
-		void getScriptData(Entity entity, OutputBlob& blob) override
+		void getScriptData(GameObject gameobject, OutputBlob& blob) override
 		{
-			auto* scr = m_scripts[entity];
+			auto* scr = m_scripts[gameobject];
 			blob.write(scr->m_scripts.size());
 			for (int i = 0; i < scr->m_scripts.size(); ++i)
 			{
@@ -401,25 +401,25 @@ namespace Malmy
 					char tmp[1024];
 					tmp[0] = '\0';
 					const char* prop_name = getPropertyName(prop.name_hash);
-					if(prop_name) getPropertyValue(entity, i, getPropertyName(prop.name_hash), tmp, lengthOf(tmp));
+					if(prop_name) getPropertyValue(gameobject, i, getPropertyName(prop.name_hash), tmp, lengthOf(tmp));
 					blob.writeString(prop_name ? tmp : prop.stored_value.c_str());
 				}
 			}
 		}
 
-		void setScriptData(Entity entity, InputBlob& blob) override
+		void setScriptData(GameObject gameobject, InputBlob& blob) override
 		{
-			auto* scr = m_scripts[entity];
+			auto* scr = m_scripts[gameobject];
 			int count;
 			blob.read(count);
 			for (int i = 0; i < count; ++i)
 			{
-				int idx = addScript(entity);
+				int idx = addScript(gameobject);
 				auto& inst = scr->m_scripts[idx];
 				char tmp[MAX_PATH_LENGTH];
 				blob.readString(tmp, lengthOf(tmp));
 				blob.read(inst.m_flags);
-				setScriptPath(entity, idx, Path(tmp));
+				setScriptPath(gameobject, idx, Path(tmp));
 				
 				int prop_count;
 				blob.read(prop_count);
@@ -460,9 +460,9 @@ namespace Malmy
 			m_scripts.clear();
 		}
 
-		lua_State* getState(Entity entity, int scr_index) override
+		lua_State* getState(GameObject gameobject, int scr_index) override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_state;
+			return m_scripts[gameobject]->m_scripts[scr_index].m_state;
 		}
 
 		Project& getProject() override { return m_project; }
@@ -509,29 +509,29 @@ namespace Malmy
 			LuaWrapper::createSystemFunction(L, "Editor", "setPropertyType", f);
 			LuaWrapper::createSystemVariable(L, "Editor", "BOOLEAN_PROPERTY", Property::BOOLEAN);
 			LuaWrapper::createSystemVariable(L, "Editor", "FLOAT_PROPERTY", Property::FLOAT);
-			LuaWrapper::createSystemVariable(L, "Editor", "ENTITY_PROPERTY", Property::ENTITY);
+			LuaWrapper::createSystemVariable(L, "Editor", "GAMEOBJECT_PROPERTY", Property::GAMEOBJECT);
 			LuaWrapper::createSystemVariable(L, "Editor", "RESOURCE_PROPERTY", Property::RESOURCE);
 		}
 
 		static int getEnvironment(lua_State* L)
 		{
 			auto* scene = LuaWrapper::checkArg<LuaScriptScene*>(L, 1);
-			Entity entity = LuaWrapper::checkArg<Entity>(L, 2);
+			GameObject gameobject = LuaWrapper::checkArg<GameObject>(L, 2);
 			int scr_index = LuaWrapper::checkArg<int>(L, 3);
 
-			if (!entity.isValid() || !scene->getProject().hasComponent(entity, LUA_SCRIPT_TYPE))
+			if (!gameobject.isValid() || !scene->getProject().hasComponent(gameobject, LUA_SCRIPT_TYPE))
 			{
 				lua_pushnil(L);
 				return 1;
 			}
-			int count = scene->getScriptCount(entity);
+			int count = scene->getScriptCount(gameobject);
 			if (scr_index >= count)
 			{
 				lua_pushnil(L);
 				return 1;
 			}
 
-			int env = scene->getEnvironment(entity, scr_index);
+			int env = scene->getEnvironment(gameobject, scr_index);
 			if (env < 0)
 			{
 				lua_pushnil(L);
@@ -562,7 +562,7 @@ namespace Malmy
 			void visit(const Reflection::Property<Vec2>& prop) override { get(prop); }
 			void visit(const Reflection::Property<Vec3>& prop) override { get(prop); }
 			void visit(const Reflection::Property<Vec4>& prop) override { get(prop); }
-			void visit(const Reflection::Property<Entity>& prop) override { get(prop); }
+			void visit(const Reflection::Property<GameObject>& prop) override { get(prop); }
 
 			void visit(const Reflection::Property<Path>& prop) override
 			{
@@ -597,7 +597,7 @@ namespace Malmy
 			visitor.L = L;
 			visitor.cmp.type = { LuaWrapper::toType<int>(L, lua_upvalueindex(2)) };
 			visitor.cmp.scene = LuaWrapper::checkArg<IScene*>(L, 1);
-			visitor.cmp.entity = LuaWrapper::checkArg<Entity>(L, 2);
+			visitor.cmp.gameobject = LuaWrapper::checkArg<GameObject>(L, 2);
 			visitor.visit(*prop);
 			return 1;
 		}
@@ -619,7 +619,7 @@ namespace Malmy
 			void visit(const Reflection::Property<Vec2>& prop) override { set(prop); }
 			void visit(const Reflection::Property<Vec3>& prop) override { set(prop); }
 			void visit(const Reflection::Property<Vec4>& prop) override { set(prop); }
-			void visit(const Reflection::Property<Entity>& prop) override { set(prop); }
+			void visit(const Reflection::Property<GameObject>& prop) override { set(prop); }
 
 			void visit(const Reflection::Property<Path>& prop) override
 			{
@@ -653,7 +653,7 @@ namespace Malmy
 			visitor.L = L;
 			visitor.cmp.scene = LuaWrapper::checkArg<IScene*>(L, 1);
 			visitor.cmp.type = type;
-			visitor.cmp.entity = LuaWrapper::checkArg<Entity>(L, 2);
+			visitor.cmp.gameobject = LuaWrapper::checkArg<GameObject>(L, 2);
 			visitor.visit(*prop);
 
 			return 0;
@@ -712,7 +712,7 @@ namespace Malmy
 
 			void visit(const Reflection::Property<float>& prop) override { set(prop); }
 			void visit(const Reflection::Property<int>& prop) override { set(prop); }
-			void visit(const Reflection::Property<Entity>& prop) override { set(prop); }
+			void visit(const Reflection::Property<GameObject>& prop) override { set(prop); }
 			void visit(const Reflection::Property<Int2>& prop) override { set(prop); }
 			void visit(const Reflection::Property<Vec2>& prop) override { set(prop); }
 			void visit(const Reflection::Property<Vec3>& prop) override { set(prop); }
@@ -782,9 +782,9 @@ namespace Malmy
 			return 1;
 		}
 
-		void setScriptSource(Entity entity, int scr_index, const char* path)
+		void setScriptSource(GameObject gameobject, int scr_index, const char* path)
 		{
-			setScriptPath(entity, scr_index, Path(path));
+			setScriptPath(gameobject, scr_index, Path(path));
 		}
 
 		void registerAPI()
@@ -819,9 +819,9 @@ namespace Malmy
 		}
 
 
-		int getEnvironment(Entity entity, int scr_index) override
+		int getEnvironment(GameObject gameobject, int scr_index) override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_environment;
+			return m_scripts[gameobject]->m_scripts[scr_index].m_environment;
 		}
 
 		const char* getPropertyName(u32 name_hash) const
@@ -886,14 +886,14 @@ namespace Malmy
 		}
 
 
-		void setPropertyValue(Entity entity,
+		void setPropertyValue(GameObject gameobject,
 			int scr_index,
 			const char* name,
 			const char* value) override
 		{
-			auto* script_cmp = m_scripts[entity];
+			auto* script_cmp = m_scripts[gameobject];
 			if (!script_cmp) return;
-			Property& prop = getScriptProperty(entity, scr_index, name);
+			Property& prop = getScriptProperty(gameobject, scr_index, name);
 			if (!script_cmp->m_scripts[scr_index].m_state)
 			{
 				prop.stored_value = value;
@@ -903,16 +903,16 @@ namespace Malmy
 			applyProperty(script_cmp->m_scripts[scr_index], prop, value);
 		}
 
-		const char* getPropertyName(Entity entity, int scr_index, int index) const
+		const char* getPropertyName(GameObject gameobject, int scr_index, int index) const
 		{
-			auto& script = m_scripts[entity]->m_scripts[scr_index];
+			auto& script = m_scripts[gameobject]->m_scripts[scr_index];
 
 			return getPropertyName(script.m_properties[index].name_hash);
 		}
 
-		int getPropertyCount(Entity entity, int scr_index) const
+		int getPropertyCount(GameObject gameobject, int scr_index) const
 		{
-			auto& script = m_scripts[entity]->m_scripts[scr_index];
+			auto& script = m_scripts[gameobject]->m_scripts[scr_index];
 
 			return script.m_properties.size();
 		}
@@ -1055,11 +1055,11 @@ namespace Malmy
 			lua_pop(instance.m_state, 1);
 		}
 
-		void onButtonClicked(Entity e) { onGUIEvent(e, "onButtonClicked"); }
-		void onRectHovered(Entity e) { onGUIEvent(e, "onRectHovered"); }
-		void onRectHoveredOut(Entity e) { onGUIEvent(e, "onRectHoveredOut"); }
+		void onButtonClicked(GameObject e) { onGUIEvent(e, "onButtonClicked"); }
+		void onRectHovered(GameObject e) { onGUIEvent(e, "onRectHovered"); }
+		void onRectHoveredOut(GameObject e) { onGUIEvent(e, "onRectHoveredOut"); }
 
-		MALMY_FORCE_INLINE void onGUIEvent(Entity e, const char* event)
+		MALMY_FORCE_INLINE void onGUIEvent(GameObject e, const char* event)
 		{
 			if (!m_project.hasComponent(e, LUA_SCRIPT_TYPE)) return;
 
@@ -1100,18 +1100,18 @@ namespace Malmy
 			//m_animation_scene = nullptr;
 		}
 
-		void createLuaScriptComponent(Entity entity)
+		void createLuaScriptComponent(GameObject gameobject)
 		{
 			auto& allocator = m_system.m_allocator;
 			ScriptComponent* script = MALMY_NEW(allocator, ScriptComponent)(*this, allocator);
-			script->m_entity = entity;
-			m_scripts.insert(entity, script);
-			m_project.onComponentCreated(entity, LUA_SCRIPT_TYPE, this);
+			script->m_gameobject = gameobject;
+			m_scripts.insert(gameobject, script);
+			m_project.onComponentCreated(gameobject, LUA_SCRIPT_TYPE, this);
 		}
 
-		void destroyLuaScriptComponent(Entity entity)
+		void destroyLuaScriptComponent(GameObject gameobject)
 		{
-			auto* script = m_scripts[entity];
+			auto* script = m_scripts[gameobject];
 			for (auto& scr : script->m_scripts)
 			{
 				if (scr.m_state) destroyInstance(*script, scr);
@@ -1123,11 +1123,11 @@ namespace Malmy
 				}
 			}
 			MALMY_DELETE(m_system.m_allocator, script);
-			m_scripts.erase(entity);
-			m_project.onComponentDestroyed(entity, LUA_SCRIPT_TYPE, this);
+			m_scripts.erase(gameobject);
+			m_project.onComponentDestroyed(gameobject, LUA_SCRIPT_TYPE, this);
 		}
 
-		void getPropertyValue(Entity entity,
+		void getPropertyValue(GameObject gameobject,
 			int scr_index,
 			const char* property_name,
 			char* out,
@@ -1136,7 +1136,7 @@ namespace Malmy
 			ASSERT(max_size > 0);
 
 			u32 hash = crc32(property_name);
-			auto& inst = m_scripts[entity]->m_scripts[scr_index];
+			auto& inst = m_scripts[gameobject]->m_scripts[scr_index];
 			for (auto& prop : inst.m_properties)
 			{
 				if (prop.name_hash == hash)
@@ -1182,9 +1182,9 @@ namespace Malmy
 					toCString(val, out, max_size, 8);
 				}
 				break;
-				case Property::ENTITY:
+				case Property::GAMEOBJECT:
 				{
-					Entity val = { (int)lua_tointeger(scr.m_state, -1) };
+					GameObject val = { (int)lua_tointeger(scr.m_state, -1) };
 					toCString(val.index, out, max_size);
 				}
 				break;
@@ -1205,9 +1205,9 @@ namespace Malmy
 			lua_pop(scr.m_state, 2);
 		}
 
-		void serializeLuaScript(ISerializer& serializer, Entity entity)
+		void serializeLuaScript(ISerializer& serializer, GameObject gameobject)
 		{
-			ScriptComponent* script = m_scripts[entity];
+			ScriptComponent* script = m_scripts[gameobject];
 			serializer.write("count", script->m_scripts.size());
 			for (ScriptInstance& inst : script->m_scripts)
 			{
@@ -1223,7 +1223,7 @@ namespace Malmy
 					{
 						const char* name = m_property_names.at(idx).c_str();
 						serializer.write("prop_type", (int)prop.type);
-						if (prop.type == Property::ENTITY)
+						if (prop.type == Property::GAMEOBJECT)
 						{
 							lua_rawgeti(inst.m_state, LUA_REGISTRYINDEX, inst.m_environment);
 							if (lua_getfield(inst.m_state, -1, name) == LUA_TNIL)
@@ -1232,8 +1232,8 @@ namespace Malmy
 							}
 							else
 							{
-								Entity val = {(int)lua_tointeger(inst.m_state, -1)};
-								EntityGUID guid = serializer.getGUID(val);
+								GameObject val = {(int)lua_tointeger(inst.m_state, -1)};
+								GameObjectGUID guid = serializer.getGUID(val);
 								char tmp[128];
 								toCString(guid.value, tmp, lengthOf(tmp));
 								serializer.write("prop_value", tmp);
@@ -1255,12 +1255,12 @@ namespace Malmy
 			}
 		}
 
-		void deserializeLuaScript(IDeserializer& serializer, Entity entity, int scene_version)
+		void deserializeLuaScript(IDeserializer& serializer, GameObject gameobject, int scene_version)
 		{
 			auto& allocator = m_system.m_allocator;
 			ScriptComponent* script = MALMY_NEW(allocator, ScriptComponent)(*this, allocator);
-			script->m_entity = entity;
-			m_scripts.insert(entity, script);
+			script->m_gameobject = gameobject;
+			m_scripts.insert(gameobject, script);
 			
 			int count;
 			serializer.read(&count);
@@ -1270,7 +1270,7 @@ namespace Malmy
 				ScriptInstance& inst = script->m_scripts.emplace(allocator);
 				char tmp[MAX_PATH_LENGTH];
 				serializer.read(tmp, lengthOf(tmp));
-				setScriptPath(entity, i, Path(tmp));
+				setScriptPath(gameobject, i, Path(tmp));
 				if(scene_version >(int)LuaSceneVersion::FLAGS)
 					serializer.read(&inst.m_flags.base);
 
@@ -1301,19 +1301,19 @@ namespace Malmy
 					if (scene_version > (int)LuaSceneVersion::PROPERTY_TYPE) serializer.read((int*)&prop->type);
 					serializer.read(tmp, lengthOf(tmp));
 					
-					if (prop->type == Property::ENTITY)
+					if (prop->type == Property::GAMEOBJECT)
 					{
 						u64 guid;
 						fromCString(tmp, lengthOf(tmp), &guid);
-						Entity entity = serializer.getEntity({guid});
-						toCString(entity.index, tmp, lengthOf(tmp));
+						GameObject gameobject = serializer.getGameObject({guid});
+						toCString(gameobject.index, tmp, lengthOf(tmp));
 					}
 					prop->stored_value = tmp;
 					applyProperty(inst, *prop, tmp);
 				}
 			}
 
-			m_project.onComponentCreated(entity, LUA_SCRIPT_TYPE, this);
+			m_project.onComponentCreated(gameobject, LUA_SCRIPT_TYPE, this);
 		}
 
 		void serialize(OutputBlob& serializer) override
@@ -1322,7 +1322,7 @@ namespace Malmy
 			for (auto iter = m_scripts.begin(), end = m_scripts.end(); iter != end; ++iter)
 			{
 				ScriptComponent* script_cmp = iter.value();
-				serializer.write(script_cmp->m_entity);
+				serializer.write(script_cmp->m_gameobject);
 				serializer.write(script_cmp->m_scripts.size());
 				for (auto& scr : script_cmp->m_scripts)
 				{
@@ -1358,8 +1358,8 @@ namespace Malmy
 				auto& allocator = m_system.m_allocator;
 				ScriptComponent* script = MALMY_NEW(allocator, ScriptComponent)(*this, allocator);
 
-				serializer.read(script->m_entity);
-				m_scripts.insert(script->m_entity, script);
+				serializer.read(script->m_gameobject);
+				m_scripts.insert(script->m_gameobject, script);
 				int scr_count;
 				serializer.read(scr_count);
 				for (int j = 0; j < scr_count; ++j)
@@ -1385,7 +1385,7 @@ namespace Malmy
 					}
 					setScriptPath(*script, scr, Path(tmp));
 				}
-				m_project.onComponentCreated(script->m_entity, LUA_SCRIPT_TYPE, this);
+				m_project.onComponentCreated(script->m_gameobject, LUA_SCRIPT_TYPE, this);
 			}
 		}
 
@@ -1537,6 +1537,7 @@ namespace Malmy
 			}
 		}
 
+		//her farmede caliscka
 		void update(float time_delta, bool paused) override
 		{
 			PROFILE_FUNCTION();
@@ -1547,15 +1548,18 @@ namespace Malmy
 			if (paused) return;
 
 			processInputEvents();
+
 			updateTimers(time_delta);
 
 			for (int i = 0; i < m_updates.size(); ++i)
 			{
 				CallbackData update_item = m_updates[i];
+
 				if (lua_rawgeti(update_item.state, LUA_REGISTRYINDEX, update_item.environment) != LUA_TTABLE)
 				{
 					ASSERT(false);
 				}
+
 				if (lua_getfield(update_item.state, -1, "update") != LUA_TFUNCTION)
 				{
 					lua_pop(update_item.state, 2);
@@ -1572,10 +1576,10 @@ namespace Malmy
 			}
 		}
 
-		Property& getScriptProperty(Entity entity, int scr_index, const char* name)
+		Property& getScriptProperty(GameObject gameobject, int scr_index, const char* name)
 		{
 			u32 name_hash = crc32(name);
-			ScriptComponent* script_cmp = m_scripts[entity];
+			ScriptComponent* script_cmp = m_scripts[gameobject];
 			for (auto& prop : script_cmp->m_scripts[scr_index].m_properties)
 			{
 				if (prop.name_hash == name_hash)
@@ -1590,39 +1594,39 @@ namespace Malmy
 			return prop;
 		}
 
-		Path getScriptPath(Entity entity, int scr_index) override
+		Path getScriptPath(GameObject gameobject, int scr_index) override
 		{
-			auto& tmp = m_scripts[entity]->m_scripts[scr_index];
+			auto& tmp = m_scripts[gameobject]->m_scripts[scr_index];
 			return tmp.m_script ? tmp.m_script->getPath() : Path("");
 		}
 
-		void setScriptPath(Entity entity, int scr_index, const Path& path) override
+		void setScriptPath(GameObject gameobject, int scr_index, const Path& path) override
 		{
-			auto* script_cmp = m_scripts[entity];
+			auto* script_cmp = m_scripts[gameobject];
 			if (script_cmp->m_scripts.size() <= scr_index) return;
 			setScriptPath(*script_cmp, script_cmp->m_scripts[scr_index], path);
 		}
 
-		int getScriptCount(Entity entity) override
+		int getScriptCount(GameObject gameobject) override
 		{
-			return m_scripts[entity]->m_scripts.size();
+			return m_scripts[gameobject]->m_scripts.size();
 		}
 
-		void insertScript(Entity entity, int idx) override
+		void insertScript(GameObject gameobject, int idx) override
 		{
-			m_scripts[entity]->m_scripts.emplaceAt(idx, m_system.m_allocator);
+			m_scripts[gameobject]->m_scripts.emplaceAt(idx, m_system.m_allocator);
 		}
 
-		int addScript(Entity entity) override
+		int addScript(GameObject gameobject) override
 		{
-			ScriptComponent* script_cmp = m_scripts[entity];
+			ScriptComponent* script_cmp = m_scripts[gameobject];
 			script_cmp->m_scripts.emplace(m_system.m_allocator);
 			return script_cmp->m_scripts.size() - 1;
 		}
 
-		void moveScript(Entity entity, int scr_index, bool up) override
+		void moveScript(GameObject gameobject, int scr_index, bool up) override
 		{
-			auto* script_cmp = m_scripts[entity];
+			auto* script_cmp = m_scripts[gameobject];
 			if (!up && scr_index > script_cmp->m_scripts.size() - 2) return;
 			if (up && scr_index == 0) return;
 			int other = up ? scr_index - 1 : scr_index + 1;
@@ -1631,7 +1635,7 @@ namespace Malmy
 			script_cmp->m_scripts[other] = tmp;
 		}
 
-		void setEnableProperty(Entity entity, int scr_index, ScriptInstance& inst, bool enabled)
+		void setEnableProperty(GameObject gameobject, int scr_index, ScriptInstance& inst, bool enabled)
 		{
 			if (!inst.m_state) return;
 
@@ -1642,17 +1646,17 @@ namespace Malmy
 			lua_pop(inst.m_state, 1); // []
 
 			const char* fn = enabled ? "onEnable" : "onDisable";
-			if (beginFunctionCall(entity, scr_index, fn)) endFunctionCall();
+			if (beginFunctionCall(gameobject, scr_index, fn)) endFunctionCall();
 		}
 
-		void enableScript(Entity entity, int scr_index, bool enable) override
+		void enableScript(GameObject gameobject, int scr_index, bool enable) override
 		{
-			ScriptInstance& inst = m_scripts[entity]->m_scripts[scr_index];
+			ScriptInstance& inst = m_scripts[gameobject]->m_scripts[scr_index];
 			if (inst.m_flags.isSet(ScriptInstance::ENABLED) == enable) return;
 
 			inst.m_flags.set(ScriptInstance::ENABLED, enable);
 
-			setEnableProperty(entity, scr_index, inst, enable);
+			setEnableProperty(gameobject, scr_index, inst, enable);
 
 			if(enable)
 			{
@@ -1664,20 +1668,20 @@ namespace Malmy
 			}
 		}
 
-		bool isScriptEnabled(Entity entity, int scr_index) const override
+		bool isScriptEnabled(GameObject gameobject, int scr_index) const override
 		{
-			return m_scripts[entity]->m_scripts[scr_index].m_flags.isSet(ScriptInstance::ENABLED);
+			return m_scripts[gameobject]->m_scripts[scr_index].m_flags.isSet(ScriptInstance::ENABLED);
 		}
 
-		void removeScript(Entity entity, int scr_index) override
+		void removeScript(GameObject gameobject, int scr_index) override
 		{
-			setScriptPath(entity, scr_index, Path());
-			m_scripts[entity]->m_scripts.eraseFast(scr_index);
+			setScriptPath(gameobject, scr_index, Path());
+			m_scripts[gameobject]->m_scripts.eraseFast(scr_index);
 		}
 
-		void serializeScript(Entity entity, int scr_index, OutputBlob& blob) override
+		void serializeScript(GameObject gameobject, int scr_index, OutputBlob& blob) override
 		{
-			auto& scr = m_scripts[entity]->m_scripts[scr_index];
+			auto& scr = m_scripts[gameobject]->m_scripts[scr_index];
 			blob.writeString(scr.m_script ? scr.m_script->getPath().c_str() : "");
 			blob.write(scr.m_flags);
 			blob.write(scr.m_properties.size());
@@ -1698,9 +1702,9 @@ namespace Malmy
 			}
 		}
 
-		void deserializeScript(Entity entity, int scr_index, InputBlob& blob) override
+		void deserializeScript(GameObject gameobject, int scr_index, InputBlob& blob) override
 		{
-			auto& scr = m_scripts[entity]->m_scripts[scr_index];
+			auto& scr = m_scripts[gameobject]->m_scripts[scr_index];
 			int count;
 			char path[MAX_PATH_LENGTH];
 			blob.readString(path, lengthOf(path));
@@ -1717,11 +1721,11 @@ namespace Malmy
 				blob.readString(buf, lengthOf(buf));
 				prop.stored_value = buf;
 			}
-			setScriptPath(entity, scr_index, Path(path));
+			setScriptPath(gameobject, scr_index, Path(path));
 		}
 
 		LuaScriptSystemImpl& m_system;
-		HashMap<Entity, ScriptComponent*> m_scripts;
+		HashMap<GameObject, ScriptComponent*> m_scripts;
 		AssociativeArray<u32, string> m_property_names;
 		Array<CallbackData> m_input_handlers;
 		Project& m_project;

@@ -26,9 +26,9 @@ Project::Project(IAllocator& allocator)
 	, m_entities(m_allocator)
 	, m_component_added(m_allocator)
 	, m_component_destroyed(m_allocator)
-	, m_entity_created(m_allocator)
-	, m_entity_destroyed(m_allocator)
-	, m_entity_moved(m_allocator)
+	, m_gameobject_created(m_allocator)
+	, m_gameobject_destroyed(m_allocator)
+	, m_gameobject_moved(m_allocator)
 	, m_first_free_slot(-1)
 	, m_scenes(m_allocator)
 	, m_hierarchy(m_allocator)
@@ -74,42 +74,42 @@ void Project::removeScene(IScene* scene)
 }
 
 
-const Vec3& Project::getPosition(Entity entity) const
+const Vec3& Project::getPosition(GameObject gameobject) const
 {
-	return m_entities[entity.index].position;
+	return m_entities[gameobject.index].position;
 }
 
 
-const Quat& Project::getRotation(Entity entity) const
+const Quat& Project::getRotation(GameObject gameobject) const
 {
-	return m_entities[entity.index].rotation;
+	return m_entities[gameobject.index].rotation;
 }
 
 
-void Project::transformEntity(Entity entity, bool update_local)
+void Project::transformGameObject(GameObject gameobject, bool update_local)
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
-	entityTransformed().invoke(entity);
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
+	gameobjectTransformed().invoke(gameobject);
 	if (hierarchy_idx >= 0)
 	{
 		Hierarchy& h = m_hierarchy[hierarchy_idx];
-		Transform my_transform = getTransform(entity);
+		Transform my_transform = getTransform(gameobject);
 		if (update_local && h.parent.isValid())
 		{
 			Transform parent_tr = getTransform(h.parent);
 			h.local_transform = (parent_tr.inverted() * my_transform);
 		}
 
-		Entity child = h.first_child;
+		GameObject child = h.first_child;
 		while (child.isValid())
 		{
 			Hierarchy& child_h = m_hierarchy[m_entities[child.index].hierarchy];
 			Transform abs_tr = my_transform * child_h.local_transform;
-			EntityData& child_data = m_entities[child.index];
+			GameObjectData& child_data = m_entities[child.index];
 			child_data.position = abs_tr.pos;
 			child_data.rotation = abs_tr.rot;
 			child_data.scale = abs_tr.scale;
-			transformEntity(child, false);
+			transformGameObject(child, false);
 
 			child = child_h.next_sibling;
 		}
@@ -117,63 +117,63 @@ void Project::transformEntity(Entity entity, bool update_local)
 }
 
 
-void Project::setRotation(Entity entity, const Quat& rot)
+void Project::setRotation(GameObject gameobject, const Quat& rot)
 {
-	m_entities[entity.index].rotation = rot;
-	transformEntity(entity, true);
+	m_entities[gameobject.index].rotation = rot;
+	transformGameObject(gameobject, true);
 }
 
 
-void Project::setRotation(Entity entity, float x, float y, float z, float w)
+void Project::setRotation(GameObject gameobject, float x, float y, float z, float w)
 {
-	m_entities[entity.index].rotation.set(x, y, z, w);
-	transformEntity(entity, true);
+	m_entities[gameobject.index].rotation.set(x, y, z, w);
+	transformGameObject(gameobject, true);
 }
 
 
-bool Project::hasEntity(Entity entity) const
+bool Project::hasGameObject(GameObject gameobject) const
 {
-	return entity.index >= 0 && entity.index < m_entities.size() && m_entities[entity.index].valid;
+	return gameobject.index >= 0 && gameobject.index < m_entities.size() && m_entities[gameobject.index].valid;
 }
 
 
-void Project::setMatrix(Entity entity, const Matrix& mtx)
+void Project::setMatrix(GameObject gameobject, const Matrix& mtx)
 {
-	EntityData& out = m_entities[entity.index];
+	GameObjectData& out = m_entities[gameobject.index];
 	mtx.decompose(out.position, out.rotation, out.scale);
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-Matrix Project::getPositionAndRotation(Entity entity) const
+Matrix Project::getPositionAndRotation(GameObject gameobject) const
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	Matrix mtx = transform.rotation.toMatrix();
 	mtx.setTranslation(transform.position);
 	return mtx;
 }
 
 
-void Project::setTransformKeepChildren(Entity entity, const Transform& transform)
+void Project::setTransformKeepChildren(GameObject gameobject, const Transform& transform)
 {
-	auto& tmp = m_entities[entity.index];
+	auto& tmp = m_entities[gameobject.index];
 	tmp.position = transform.pos;
 	tmp.rotation = transform.rot;
 	tmp.scale = transform.scale;
 	
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
-	entityTransformed().invoke(entity);
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
+	gameobjectTransformed().invoke(gameobject);
 	if (hierarchy_idx >= 0)
 	{
 		Hierarchy& h = m_hierarchy[hierarchy_idx];
-		Transform my_transform = getTransform(entity);
+		Transform my_transform = getTransform(gameobject);
 		if (h.parent.isValid())
 		{
 			Transform parent_tr = getTransform(h.parent);
 			h.local_transform = parent_tr.inverted() * my_transform;
 		}
 
-		Entity child = h.first_child;
+		GameObject child = h.first_child;
 		while (child.isValid())
 		{
 			Hierarchy& child_h = m_hierarchy[m_entities[child.index].hierarchy];
@@ -186,45 +186,45 @@ void Project::setTransformKeepChildren(Entity entity, const Transform& transform
 }
 
 
-void Project::setTransform(Entity entity, const Transform& transform)
+void Project::setTransform(GameObject gameobject, const Transform& transform)
 {
-	auto& tmp = m_entities[entity.index];
+	auto& tmp = m_entities[gameobject.index];
 	tmp.position = transform.pos;
 	tmp.rotation = transform.rot;
 	tmp.scale = transform.scale;
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-void Project::setTransform(Entity entity, const RigidTransform& transform)
+void Project::setTransform(GameObject gameobject, const RigidTransform& transform)
 {
-	auto& tmp = m_entities[entity.index];
+	auto& tmp = m_entities[gameobject.index];
 	tmp.position = transform.pos;
 	tmp.rotation = transform.rot;
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-void Project::setTransform(Entity entity, const Vec3& pos, const Quat& rot, float scale)
+void Project::setTransform(GameObject gameobject, const Vec3& pos, const Quat& rot, float scale)
 {
-	auto& tmp = m_entities[entity.index];
+	auto& tmp = m_entities[gameobject.index];
 	tmp.position = pos;
 	tmp.rotation = rot;
 	tmp.scale = scale;
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-Transform Project::getTransform(Entity entity) const
+Transform Project::getTransform(GameObject gameobject) const
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	return {transform.position, transform.rotation, transform.scale};
 }
 
 
-Matrix Project::getMatrix(Entity entity) const
+Matrix Project::getMatrix(GameObject gameobject) const
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	Matrix mtx = transform.rotation.toMatrix();
 	mtx.setTranslation(transform.position);
 	mtx.multiply3x3(transform.scale);
@@ -232,31 +232,31 @@ Matrix Project::getMatrix(Entity entity) const
 }
 
 
-void Project::setPosition(Entity entity, float x, float y, float z)
+void Project::setPosition(GameObject gameobject, float x, float y, float z)
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	transform.position.set(x, y, z);
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-void Project::setPosition(Entity entity, const Vec3& pos)
+void Project::setPosition(GameObject gameobject, const Vec3& pos)
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	transform.position = pos;
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-void Project::setEntityName(Entity entity, const char* name)
+void Project::setGameObjectName(GameObject gameobject, const char* name)
 {
-	int name_idx = m_entities[entity.index].name;
+	int name_idx = m_entities[gameobject.index].name;
 	if (name_idx < 0)
 	{
 		if (name[0] == '\0') return;
-		m_entities[entity.index].name = m_names.size();
-		EntityName& name_data = m_names.emplace();
-		name_data.entity = entity;
+		m_entities[gameobject.index].name = m_names.size();
+		GameObjectName& name_data = m_names.emplace();
+		name_data.gameobject = gameobject;
 		copyString(name_data.name, name);
 	}
 	else
@@ -266,25 +266,25 @@ void Project::setEntityName(Entity entity, const char* name)
 }
 
 
-const char* Project::getEntityName(Entity entity) const
+const char* Project::getGameObjectName(GameObject gameobject) const
 {
-	int name_idx = m_entities[entity.index].name;
+	int name_idx = m_entities[gameobject.index].name;
 	if (name_idx < 0) return "";
 	return m_names[name_idx].name;
 }
 
 
-Entity Project::findByName(Entity parent, const char* name)
+GameObject Project::findByName(GameObject parent, const char* name)
 {
 	if (parent.isValid())
 	{
 		int h_idx = m_entities[parent.index].hierarchy;
-		if (h_idx < 0) return INVALID_ENTITY;
+		if (h_idx < 0) return INVALID_GAMEOBJECT;
 
-		Entity e = m_hierarchy[h_idx].first_child;
+		GameObject e = m_hierarchy[h_idx].first_child;
 		while (e.isValid())
 		{
-			const EntityData& data = m_entities[e.index];
+			const GameObjectData& data = m_entities[e.index];
 			int name_idx = data.name;
 			if (name_idx >= 0)
 			{
@@ -299,22 +299,22 @@ Entity Project::findByName(Entity parent, const char* name)
 		{
 			if (equalStrings(m_names[i].name, name))
 			{
-				const EntityData& data = m_entities[m_names[i].entity.index];
-				if (data.hierarchy < 0) return m_names[i].entity;
-				if (!m_hierarchy[data.hierarchy].parent.isValid()) return m_names[i].entity;
+				const GameObjectData& data = m_entities[m_names[i].gameobject.index];
+				if (data.hierarchy < 0) return m_names[i].gameobject;
+				if (!m_hierarchy[data.hierarchy].parent.isValid()) return m_names[i].gameobject;
 			}
 		}
 	}
 
-	return INVALID_ENTITY;
+	return INVALID_GAMEOBJECT;
 }
 
 
-void Project::emplaceEntity(Entity entity)
+void Project::emplaceGameObject(GameObject gameobject)
 {
-	while (m_entities.size() <= entity.index)
+	while (m_entities.size() <= gameobject.index)
 	{
-		EntityData& data = m_entities.emplace();
+		GameObjectData& data = m_entities.emplace();
 		data.valid = false;
 		data.prev = -1;
 		data.name = -1;
@@ -327,19 +327,19 @@ void Project::emplaceEntity(Entity entity)
 		}
 		m_first_free_slot = m_entities.size() - 1;
 	}
-	if (m_first_free_slot == entity.index)
+	if (m_first_free_slot == gameobject.index)
 	{
-		m_first_free_slot = m_entities[entity.index].next;
+		m_first_free_slot = m_entities[gameobject.index].next;
 	}
-	if (m_entities[entity.index].prev >= 0)
+	if (m_entities[gameobject.index].prev >= 0)
 	{
-		m_entities[m_entities[entity.index].prev].next = m_entities[entity.index].next;
+		m_entities[m_entities[gameobject.index].prev].next = m_entities[gameobject.index].next;
 	}
-	if (m_entities[entity.index].next >= 0)
+	if (m_entities[gameobject.index].next >= 0)
 	{
-		m_entities[m_entities[entity.index].next].prev= m_entities[entity.index].prev;
+		m_entities[m_entities[gameobject.index].next].prev= m_entities[gameobject.index].prev;
 	}
-	EntityData& data = m_entities[entity.index];
+	GameObjectData& data = m_entities[gameobject.index];
 	data.position.set(0, 0, 0);
 	data.rotation.set(0, 0, 0, 1);
 	data.scale = 1;
@@ -347,34 +347,34 @@ void Project::emplaceEntity(Entity entity)
 	data.hierarchy = -1;
 	data.components = 0;
 	data.valid = true;
-	m_entity_created.invoke(entity);
+	m_gameobject_created.invoke(gameobject);
 }
 
 
-Entity Project::cloneEntity(Entity entity)
+GameObject Project::cloneGameObject(GameObject gameobject)
 {
-	Transform tr = getTransform(entity);
-	Entity parent = getParent(entity);
-	Entity clone = createEntity(tr.pos, tr.rot);
+	Transform tr = getTransform(gameobject);
+	GameObject parent = getParent(gameobject);
+	GameObject clone = createGameObject(tr.pos, tr.rot);
 	setScale(clone, tr.scale);
 	setParent(parent, clone);
 
 	OutputBlob blob_out(m_allocator);
 	blob_out.reserve(1024);
-	for (ComponentUID cmp = getFirstComponent(entity); cmp.isValid(); cmp = getNextComponent(cmp))
+	for (ComponentUID cmp = getFirstComponent(gameobject); cmp.isValid(); cmp = getNextComponent(cmp))
 	{
 		blob_out.clear();
-		struct : ISaveEntityGUIDMap
+		struct : ISaveGameObjectGUIDMap
 		{
-			EntityGUID get(Entity entity) override { return { (u64)entity.index }; }
+			GameObjectGUID get(GameObject gameobject) override { return { (u64)gameobject.index }; }
 		} save_map;
 		TextSerializer serializer(blob_out, save_map);
-		serializeComponent(serializer, cmp.type, entity);
+		serializeComponent(serializer, cmp.type, gameobject);
 		
 		InputBlob blob_in(blob_out);
-		struct : ILoadEntityGUIDMap
+		struct : ILoadGameObjectGUIDMap
 		{
-			Entity get(EntityGUID guid) override { return { (int)guid.value }; }
+			GameObject get(GameObjectGUID guid) override { return { (int)guid.value }; }
 		} load_map;
 		TextDeserializer deserializer(blob_in, load_map);
 		deserializeComponent(deserializer, clone, cmp.type, cmp.scene->getVersion());
@@ -383,20 +383,20 @@ Entity Project::cloneEntity(Entity entity)
 }
 
 
-Entity Project::createEntity(const Vec3& position, const Quat& rotation)
+GameObject Project::createGameObject(const Vec3& position, const Quat& rotation)
 {
-	EntityData* data;
-	Entity entity;
+	GameObjectData* data;
+	GameObject gameobject;
 	if (m_first_free_slot >= 0)
 	{
 		data = &m_entities[m_first_free_slot];
-		entity.index = m_first_free_slot;
+		gameobject.index = m_first_free_slot;
 		if (data->next >= 0) m_entities[data->next].prev = -1;
 		m_first_free_slot = data->next;
 	}
 	else
 	{
-		entity.index = m_entities.size();
+		gameobject.index = m_entities.size();
 		data = &m_entities.emplace();
 	}
 	data->position = position;
@@ -406,26 +406,26 @@ Entity Project::createEntity(const Vec3& position, const Quat& rotation)
 	data->hierarchy = -1;
 	data->components = 0;
 	data->valid = true;
-	m_entity_created.invoke(entity);
+	m_gameobject_created.invoke(gameobject);
 
-	return entity;
+	return gameobject;
 }
 
 
-void Project::destroyEntity(Entity entity)
+void Project::destroyGameObject(GameObject gameobject)
 {
-	if (!entity.isValid()) return;
+	if (!gameobject.isValid()) return;
 	
-	EntityData& entity_data = m_entities[entity.index];
-	ASSERT(entity_data.valid);
-	for (Entity first_child = getFirstChild(entity); first_child.isValid(); first_child = getFirstChild(entity))
+	GameObjectData& gameobject_data = m_entities[gameobject.index];
+	ASSERT(gameobject_data.valid);
+	for (GameObject first_child = getFirstChild(gameobject); first_child.isValid(); first_child = getFirstChild(gameobject))
 	{
-		setParent(INVALID_ENTITY, first_child);
+		setParent(INVALID_GAMEOBJECT, first_child);
 	}
-	setParent(INVALID_ENTITY, entity);
+	setParent(INVALID_GAMEOBJECT, gameobject);
 	
 
-	u64 mask = entity_data.components;
+	u64 mask = gameobject_data.components;
 	for (int i = 0; i < ComponentType::MAX_TYPES_COUNT; ++i)
 	{
 		if ((mask & ((u64)1 << i)) != 0)
@@ -433,82 +433,82 @@ void Project::destroyEntity(Entity entity)
 			auto original_mask = mask;
 			IScene* scene = m_component_type_map[i].scene;
 			auto destroy_method = m_component_type_map[i].destroy;
-			(scene->*destroy_method)(entity);
-			mask = entity_data.components;
+			(scene->*destroy_method)(gameobject);
+			mask = gameobject_data.components;
 			ASSERT(original_mask != mask);
 		}
 	}
 
-	entity_data.next = m_first_free_slot;
-	entity_data.prev = -1;
-	entity_data.hierarchy = -1;
+	gameobject_data.next = m_first_free_slot;
+	gameobject_data.prev = -1;
+	gameobject_data.hierarchy = -1;
 	
-	entity_data.valid = false;
+	gameobject_data.valid = false;
 	if (m_first_free_slot >= 0)
 	{
-		m_entities[m_first_free_slot].prev = entity.index;
+		m_entities[m_first_free_slot].prev = gameobject.index;
 	}
 
-	if (entity_data.name >= 0)
+	if (gameobject_data.name >= 0)
 	{
-		m_entities[m_names.back().entity.index].name = entity_data.name;
-		m_names.eraseFast(entity_data.name);
-		entity_data.name = -1;
+		m_entities[m_names.back().gameobject.index].name = gameobject_data.name;
+		m_names.eraseFast(gameobject_data.name);
+		gameobject_data.name = -1;
 	}
 
-	m_first_free_slot = entity.index;
-	m_entity_destroyed.invoke(entity);
+	m_first_free_slot = gameobject.index;
+	m_gameobject_destroyed.invoke(gameobject);
 }
 
 
-Entity Project::getFirstEntity() const
+GameObject Project::getFirstGameObject() const
 {
 	for (int i = 0; i < m_entities.size(); ++i)
 	{
 		if (m_entities[i].valid) return {i};
 	}
-	return INVALID_ENTITY;
+	return INVALID_GAMEOBJECT;
 }
 
 
-Entity Project::getNextEntity(Entity entity) const
+GameObject Project::getNextGameObject(GameObject gameobject) const
 {
-	for (int i = entity.index + 1; i < m_entities.size(); ++i)
+	for (int i = gameobject.index + 1; i < m_entities.size(); ++i)
 	{
 		if (m_entities[i].valid) return {i};
 	}
-	return INVALID_ENTITY;
+	return INVALID_GAMEOBJECT;
 }
 
 
-Entity Project::getParent(Entity entity) const
+GameObject Project::getParent(GameObject gameobject) const
 {
-	int idx = m_entities[entity.index].hierarchy;
-	if (idx < 0) return INVALID_ENTITY;
+	int idx = m_entities[gameobject.index].hierarchy;
+	if (idx < 0) return INVALID_GAMEOBJECT;
 	return m_hierarchy[idx].parent;
 }
 
 
-Entity Project::getFirstChild(Entity entity) const
+GameObject Project::getFirstChild(GameObject gameobject) const
 {
-	int idx = m_entities[entity.index].hierarchy;
-	if (idx < 0) return INVALID_ENTITY;
+	int idx = m_entities[gameobject.index].hierarchy;
+	if (idx < 0) return INVALID_GAMEOBJECT;
 	return m_hierarchy[idx].first_child;
 }
 
 
-Entity Project::getNextSibling(Entity entity) const
+GameObject Project::getNextSibling(GameObject gameobject) const
 {
-	int idx = m_entities[entity.index].hierarchy;
-	if (idx < 0) return INVALID_ENTITY;
+	int idx = m_entities[gameobject.index].hierarchy;
+	if (idx < 0) return INVALID_GAMEOBJECT;
 	return m_hierarchy[idx].next_sibling;
 }
 
 
-bool Project::isDescendant(Entity ancestor, Entity descendant) const
+bool Project::isDescendant(GameObject ancestor, GameObject descendant) const
 {
 	if (!ancestor.isValid()) return false;
-	for(Entity e = getFirstChild(ancestor); e.isValid(); e = getNextSibling(e))
+	for(GameObject e = getFirstChild(ancestor); e.isValid(); e = getNextSibling(e))
 	{
 		if (e == descendant) return true;
 		if (isDescendant(e, descendant)) return true;
@@ -518,7 +518,7 @@ bool Project::isDescendant(Entity ancestor, Entity descendant) const
 }
 
 
-void Project::setParent(Entity new_parent, Entity child)
+void Project::setParent(GameObject new_parent, GameObject child)
 {
 	bool would_create_cycle = isDescendant(child, new_parent);
 	if (would_create_cycle)
@@ -527,14 +527,14 @@ void Project::setParent(Entity new_parent, Entity child)
 		return;
 	}
 
-	auto collectGarbage = [this](Entity entity) {
-		Hierarchy& h = m_hierarchy[m_entities[entity.index].hierarchy];
+	auto collectGarbage = [this](GameObject gameobject) {
+		Hierarchy& h = m_hierarchy[m_entities[gameobject.index].hierarchy];
 		if (h.parent.isValid()) return;
 		if (h.first_child.isValid()) return;
 
 		const Hierarchy& last = m_hierarchy.back();
-		m_entities[last.entity.index].hierarchy = m_entities[entity.index].hierarchy;
-		m_entities[entity.index].hierarchy = -1;
+		m_entities[last.gameobject.index].hierarchy = m_entities[gameobject.index].hierarchy;
+		m_entities[gameobject.index].hierarchy = -1;
 		h = last;
 		m_hierarchy.pop();
 	};
@@ -543,12 +543,12 @@ void Project::setParent(Entity new_parent, Entity child)
 	
 	if (child_idx >= 0)
 	{
-		Entity old_parent = m_hierarchy[child_idx].parent;
+		GameObject old_parent = m_hierarchy[child_idx].parent;
 
 		if (old_parent.isValid())
 		{
 			Hierarchy& old_parent_h = m_hierarchy[m_entities[old_parent.index].hierarchy];
-			Entity* x = &old_parent_h.first_child;
+			GameObject* x = &old_parent_h.first_child;
 			while (x->isValid())
 			{
 				if (*x == child)
@@ -558,8 +558,8 @@ void Project::setParent(Entity new_parent, Entity child)
 				}
 				x = &m_hierarchy[m_entities[x->index].hierarchy].next_sibling;
 			}
-			m_hierarchy[child_idx].parent = INVALID_ENTITY;
-			m_hierarchy[child_idx].next_sibling = INVALID_ENTITY;
+			m_hierarchy[child_idx].parent = INVALID_GAMEOBJECT;
+			m_hierarchy[child_idx].next_sibling = INVALID_GAMEOBJECT;
 			collectGarbage(old_parent);
 			child_idx = m_entities[child.index].hierarchy;
 		}
@@ -569,10 +569,10 @@ void Project::setParent(Entity new_parent, Entity child)
 		child_idx = m_hierarchy.size();
 		m_entities[child.index].hierarchy = child_idx;
 		Hierarchy& h = m_hierarchy.emplace();
-		h.entity = child;
-		h.parent = INVALID_ENTITY;
-		h.first_child = INVALID_ENTITY;
-		h.next_sibling = INVALID_ENTITY;
+		h.gameobject = child;
+		h.parent = INVALID_GAMEOBJECT;
+		h.first_child = INVALID_GAMEOBJECT;
+		h.next_sibling = INVALID_GAMEOBJECT;
 	}
 
 	if (new_parent.isValid())
@@ -583,10 +583,10 @@ void Project::setParent(Entity new_parent, Entity child)
 			new_parent_idx = m_hierarchy.size();
 			m_entities[new_parent.index].hierarchy = new_parent_idx;
 			Hierarchy& h = m_hierarchy.emplace();
-			h.entity = new_parent;
-			h.parent = INVALID_ENTITY;
-			h.first_child = INVALID_ENTITY;
-			h.next_sibling = INVALID_ENTITY;
+			h.gameobject = new_parent;
+			h.parent = INVALID_GAMEOBJECT;
+			h.first_child = INVALID_GAMEOBJECT;
+			h.next_sibling = INVALID_GAMEOBJECT;
 		}
 
 		m_hierarchy[child_idx].parent = new_parent;
@@ -603,83 +603,83 @@ void Project::setParent(Entity new_parent, Entity child)
 }
 
 
-void Project::updateGlobalTransform(Entity entity)
+void Project::updateGlobalTransform(GameObject gameobject)
 {
-	const Hierarchy& h = m_hierarchy[m_entities[entity.index].hierarchy];
+	const Hierarchy& h = m_hierarchy[m_entities[gameobject.index].hierarchy];
 	Transform parent_tr = getTransform(h.parent);
 	
 	Transform new_tr = parent_tr * h.local_transform;
-	setTransform(entity, new_tr);
+	setTransform(gameobject, new_tr);
 }
 
 
-void Project::setLocalPosition(Entity entity, const Vec3& pos)
+void Project::setLocalPosition(GameObject gameobject, const Vec3& pos)
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
 	if (hierarchy_idx < 0)
 	{
-		setPosition(entity, pos);
+		setPosition(gameobject, pos);
 		return;
 	}
 
 	m_hierarchy[hierarchy_idx].local_transform.pos = pos;
-	updateGlobalTransform(entity);
+	updateGlobalTransform(gameobject);
 }
 
 
-void Project::setLocalRotation(Entity entity, const Quat& rot)
+void Project::setLocalRotation(GameObject gameobject, const Quat& rot)
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
 	if (hierarchy_idx < 0)
 	{
-		setRotation(entity, rot);
+		setRotation(gameobject, rot);
 		return;
 	}
 	m_hierarchy[hierarchy_idx].local_transform.rot = rot;
-	updateGlobalTransform(entity);
+	updateGlobalTransform(gameobject);
 }
 
 
-Transform Project::computeLocalTransform(Entity parent, const Transform& global_transform) const
+Transform Project::computeLocalTransform(GameObject parent, const Transform& global_transform) const
 {
 	Transform parent_tr = getTransform(parent);
 	return parent_tr.inverted() * global_transform;
 }
 
 
-void Project::setLocalTransform(Entity entity, const Transform& transform)
+void Project::setLocalTransform(GameObject gameobject, const Transform& transform)
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
 	if (hierarchy_idx < 0)
 	{
-		setTransform(entity, transform);
+		setTransform(gameobject, transform);
 		return;
 	}
 
 	Hierarchy& h = m_hierarchy[hierarchy_idx];
 	h.local_transform = transform;
-	updateGlobalTransform(entity);
+	updateGlobalTransform(gameobject);
 }
 
 
-Transform Project::getLocalTransform(Entity entity) const
+Transform Project::getLocalTransform(GameObject gameobject) const
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
 	if (hierarchy_idx < 0)
 	{
-		return getTransform(entity);
+		return getTransform(gameobject);
 	}
 
 	return m_hierarchy[hierarchy_idx].local_transform;
 }
 
 
-float Project::getLocalScale(Entity entity) const
+float Project::getLocalScale(GameObject gameobject) const
 {
-	int hierarchy_idx = m_entities[entity.index].hierarchy;
+	int hierarchy_idx = m_entities[gameobject.index].hierarchy;
 	if (hierarchy_idx < 0)
 	{
-		return getScale(entity);
+		return getScale(gameobject);
 	}
 
 	return m_hierarchy[hierarchy_idx].local_transform.scale;
@@ -687,19 +687,19 @@ float Project::getLocalScale(Entity entity) const
 
 
 
-void Project::serializeComponent(ISerializer& serializer, ComponentType type, Entity entity)
+void Project::serializeComponent(ISerializer& serializer, ComponentType type, GameObject gameobject)
 {
 	auto* scene = m_component_type_map[type.index].scene;
 	auto& method = m_component_type_map[type.index].serialize;
-	(scene->*method)(serializer, entity);
+	(scene->*method)(serializer, gameobject);
 }
 
 
-void Project::deserializeComponent(IDeserializer& serializer, Entity entity, ComponentType type, int scene_version)
+void Project::deserializeComponent(IDeserializer& serializer, GameObject gameobject, ComponentType type, int scene_version)
 {
 	auto* scene = m_component_type_map[type.index].scene;
 	auto& method = m_component_type_map[type.index].deserialize;
-	(scene->*method)(serializer, entity, scene_version);
+	(scene->*method)(serializer, gameobject, scene_version);
 }
 
 
@@ -708,9 +708,9 @@ void Project::serialize(OutputBlob& serializer)
 	serializer.write((i32)m_entities.size());
 	serializer.write(&m_entities[0], sizeof(m_entities[0]) * m_entities.size());
 	serializer.write((i32)m_names.size());
-	for (const EntityName& name : m_names)
+	for (const GameObjectName& name : m_names)
 	{
-		serializer.write(name.entity);
+		serializer.write(name.gameobject);
 		serializer.writeString(name.name);
 	}
 	serializer.write(m_first_free_slot);
@@ -731,10 +731,10 @@ void Project::deserialize(InputBlob& serializer)
 	serializer.read(count);
 	for (int i = 0; i < count; ++i)
 	{
-		EntityName& name = m_names.emplace();
-		serializer.read(name.entity);
+		GameObjectName& name = m_names.emplace();
+		serializer.read(name.gameobject);
 		serializer.readString(name.name, lengthOf(name.name));
-		m_entities[name.entity.index].name = m_names.size() - 1;
+		m_entities[name.gameobject.index].name = m_names.size() - 1;
 	}
 
 	serializer.read(m_first_free_slot);
@@ -745,58 +745,58 @@ void Project::deserialize(InputBlob& serializer)
 }
 
 
-struct PrefabEntityGUIDMap : public ILoadEntityGUIDMap
+struct PrefabGameObjectGUIDMap : public ILoadGameObjectGUIDMap
 {
-	explicit PrefabEntityGUIDMap(const Array<Entity>& _entities)
+	explicit PrefabGameObjectGUIDMap(const Array<GameObject>& _entities)
 		: entities(_entities)
 	{
 	}
 
 
-	Entity get(EntityGUID guid) override
+	GameObject get(GameObjectGUID guid) override
 	{
-		if (guid.value >= entities.size()) return INVALID_ENTITY;
+		if (guid.value >= entities.size()) return INVALID_GAMEOBJECT;
 		return entities[(int)guid.value];
 	}
 
 
-	const Array<Entity>& entities;
+	const Array<GameObject>& entities;
 };
 
 
-Entity Project::instantiatePrefab(const PrefabResource& prefab,
+GameObject Project::instantiatePrefab(const PrefabResource& prefab,
 	const Vec3& pos,
 	const Quat& rot,
 	float scale)
 {
 	InputBlob blob(prefab.blob.getData(), prefab.blob.getPos());
-	Array<Entity> entities(m_allocator);
-	PrefabEntityGUIDMap entity_map(entities);
-	TextDeserializer deserializer(blob, entity_map);
+	Array<GameObject> entities(m_allocator);
+	PrefabGameObjectGUIDMap gameobject_map(entities);
+	TextDeserializer deserializer(blob, gameobject_map);
 	u32 version;
 	deserializer.read(&version);
 	if (version > (int)PrefabVersion::LAST)
 	{
 		g_log_error.log("Engine") << "Prefab " << prefab.getPath() << " has unsupported version.";
-		return INVALID_ENTITY;
+		return INVALID_GAMEOBJECT;
 	}
 	int count;
 	deserializer.read(&count);
-	int entity_idx = 0;
+	int gameobject_idx = 0;
 	entities.reserve(count);
 	for (int i = 0; i < count; ++i)
 	{
-		entities.push(createEntity({0, 0, 0}, {0, 0, 0, 1}));
+		entities.push(createGameObject({0, 0, 0}, {0, 0, 0, 1}));
 	}
-	while (blob.getPosition() < blob.getSize() && entity_idx < count)
+	while (blob.getPosition() < blob.getSize() && gameobject_idx < count)
 	{
 		u64 prefab;
 		deserializer.read(&prefab);
-		Entity entity = entities[entity_idx];
-		setTransform(entity, {pos, rot, scale});
+		GameObject gameobject = entities[gameobject_idx];
+		setTransform(gameobject, {pos, rot, scale});
 		if (version > (int)PrefabVersion::WITH_HIERARCHY)
 		{
-			Entity parent;
+			GameObject parent;
 
 			deserializer.read(&parent);
 			if (parent.isValid())
@@ -805,8 +805,8 @@ Entity Project::instantiatePrefab(const PrefabResource& prefab,
 				deserializer.read(&local_tr);
 				float scale;
 				deserializer.read(&scale);
-				setParent(parent, entity);
-				setLocalTransform(entity, {local_tr.pos, local_tr.rot, scale});
+				setParent(parent, gameobject);
+				setLocalTransform(gameobject, {local_tr.pos, local_tr.rot, scale});
 			}
 		}
 		u32 cmp_type_hash;
@@ -816,39 +816,39 @@ Entity Project::instantiatePrefab(const PrefabResource& prefab,
 			ComponentType cmp_type = Reflection::getComponentTypeFromHash(cmp_type_hash);
 			int scene_version;
 			deserializer.read(&scene_version);
-			deserializeComponent(deserializer, entity, cmp_type, scene_version);
+			deserializeComponent(deserializer, gameobject, cmp_type, scene_version);
 			deserializer.read(&cmp_type_hash);
 		}
-		++entity_idx;
+		++gameobject_idx;
 	}
 	return entities[0];
 }
 
 
-void Project::setScale(Entity entity, float scale)
+void Project::setScale(GameObject gameobject, float scale)
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	transform.scale = scale;
-	transformEntity(entity, true);
+	transformGameObject(gameobject, true);
 }
 
 
-float Project::getScale(Entity entity) const
+float Project::getScale(GameObject gameobject) const
 {
-	auto& transform = m_entities[entity.index];
+	auto& transform = m_entities[gameobject.index];
 	return transform.scale;
 }
 
 
-ComponentUID Project::getFirstComponent(Entity entity) const
+ComponentUID Project::getFirstComponent(GameObject gameobject) const
 {
-	u64 mask = m_entities[entity.index].components;
+	u64 mask = m_entities[gameobject.index].components;
 	for (int i = 0; i < ComponentType::MAX_TYPES_COUNT; ++i)
 	{
 		if ((mask & (u64(1) << i)) != 0)
 		{
 			IScene* scene = m_component_type_map[i].scene;
-			return ComponentUID(entity, {i}, scene);
+			return ComponentUID(gameobject, {i}, scene);
 		}
 	}
 	return ComponentUID::INVALID;
@@ -857,66 +857,66 @@ ComponentUID Project::getFirstComponent(Entity entity) const
 
 ComponentUID Project::getNextComponent(const ComponentUID& cmp) const
 {
-	u64 mask = m_entities[cmp.entity.index].components;
+	u64 mask = m_entities[cmp.gameobject.index].components;
 	for (int i = cmp.type.index + 1; i < ComponentType::MAX_TYPES_COUNT; ++i)
 	{
 		if ((mask & (u64(1) << i)) != 0)
 		{
 			IScene* scene = m_component_type_map[i].scene;
-			return ComponentUID(cmp.entity, {i}, scene);
+			return ComponentUID(cmp.gameobject, {i}, scene);
 		}
 	}
 	return ComponentUID::INVALID;
 }
 
 
-ComponentUID Project::getComponent(Entity entity, ComponentType component_type) const
+ComponentUID Project::getComponent(GameObject gameobject, ComponentType component_type) const
 {
-	u64 mask = m_entities[entity.index].components;
+	u64 mask = m_entities[gameobject.index].components;
 	if ((mask & (u64(1) << component_type.index)) == 0) return ComponentUID::INVALID;
 	IScene* scene = m_component_type_map[component_type.index].scene;
-	return ComponentUID(entity, component_type, scene);
+	return ComponentUID(gameobject, component_type, scene);
 }
 
 
-bool Project::hasComponent(Entity entity, ComponentType component_type) const
+bool Project::hasComponent(GameObject gameobject, ComponentType component_type) const
 {
-	u64 mask = m_entities[entity.index].components;
+	u64 mask = m_entities[gameobject.index].components;
 	return (mask & (u64(1) << component_type.index)) != 0;
 }
 
 
-void Project::onComponentDestroyed(Entity entity, ComponentType component_type, IScene* scene)
+void Project::onComponentDestroyed(GameObject gameobject, ComponentType component_type, IScene* scene)
 {
-	auto mask = m_entities[entity.index].components;
+	auto mask = m_entities[gameobject.index].components;
 	auto old_mask = mask;
 	mask &= ~((u64)1 << component_type.index);
 	ASSERT(old_mask != mask);
-	m_entities[entity.index].components = mask;
-	m_component_destroyed.invoke(ComponentUID(entity, component_type, scene));
+	m_entities[gameobject.index].components = mask;
+	m_component_destroyed.invoke(ComponentUID(gameobject, component_type, scene));
 }
 
 
-void Project::createComponent(ComponentType type, Entity entity)
+void Project::createComponent(ComponentType type, GameObject gameobject)
 {
 	IScene* scene = m_component_type_map[type.index].scene;
 	auto& create_method = m_component_type_map[type.index].create;
-	(scene->*create_method)(entity);
+	(scene->*create_method)(gameobject);
 }
 
 
-void Project::destroyComponent(Entity entity, ComponentType type)
+void Project::destroyComponent(GameObject gameobject, ComponentType type)
 {
 	IScene* scene = m_component_type_map[type.index].scene;
 	auto& destroy_method = m_component_type_map[type.index].destroy;
-	(scene->*destroy_method)(entity);
+	(scene->*destroy_method)(gameobject);
 }
 
 
-void Project::onComponentCreated(Entity entity, ComponentType component_type, IScene* scene)
+void Project::onComponentCreated(GameObject gameobject, ComponentType component_type, IScene* scene)
 {
-	ComponentUID cmp(entity, component_type, scene);
-	m_entities[entity.index].components |= (u64)1 << component_type.index;
+	ComponentUID cmp(gameobject, component_type, scene);
+	m_entities[gameobject.index].components |= (u64)1 << component_type.index;
 	m_component_added.invoke(cmp);
 }
 

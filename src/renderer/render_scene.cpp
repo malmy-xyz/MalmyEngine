@@ -109,7 +109,7 @@ struct LambdaStorage
 
 struct Decal : public DecalInfo
 {
-	Entity entity;
+	GameObject gameobject;
 	Vec3 scale;
 };
 
@@ -120,7 +120,7 @@ struct PointLight
 	Vec3 m_specular_color;
 	float m_diffuse_intensity;
 	float m_specular_intensity;
-	Entity m_entity;
+	GameObject m_gameobject;
 	float m_fov;
 	float m_attenuation_param;
 	float m_range;
@@ -137,7 +137,7 @@ struct GlobalLight
 	float m_fog_density;
 	float m_fog_bottom;
 	float m_fog_height;
-	Entity m_entity;
+	GameObject m_gameobject;
 	Vec4 m_cascades;
 };
 
@@ -146,7 +146,7 @@ struct Camera
 {
 	static const int MAX_SLOT_LENGTH = 30;
 
-	Entity entity;
+	GameObject gameobject;
 	float fov;
 	float aspect;
 	float near;
@@ -180,8 +180,8 @@ struct EnvironmentProbe
 
 struct BoneAttachment
 {
-	Entity entity;
-	Entity parent_entity;
+	GameObject gameobject;
+	GameObject parent_gameobject;
 	int bone_index;
 	RigidTransform relative_transform;
 };
@@ -282,8 +282,8 @@ public:
 
 	~RenderSceneImpl()
 	{
-		m_project.entityTransformed().unbind<RenderSceneImpl, &RenderSceneImpl::onEntityMoved>(this);
-		m_project.entityDestroyed().unbind<RenderSceneImpl, &RenderSceneImpl::onEntityDestroyed>(this);
+		m_project.gameobjectTransformed().unbind<RenderSceneImpl, &RenderSceneImpl::onGameObjectMoved>(this);
+		m_project.gameobjectDestroyed().unbind<RenderSceneImpl, &RenderSceneImpl::onGameObjectDestroyed>(this);
 		CullingSystem::destroy(*m_culling_system);
 	}
 
@@ -342,7 +342,7 @@ public:
 
 		for (auto& i : m_model_instances)
 		{
-			if (i.entity != INVALID_ENTITY && i.model)
+			if (i.gameobject != INVALID_GAMEOBJECT && i.model)
 			{
 				freeCustomMeshes(i, material_manager);
 				i.model->getResourceManager().unload(*i.model);
@@ -362,21 +362,21 @@ public:
 	}
 
 
-	void resetParticleEmitter(Entity entity) override
+	void resetParticleEmitter(GameObject gameobject) override
 	{
-		m_particle_emitters[entity]->reset();
+		m_particle_emitters[gameobject]->reset();
 	}
 
 
-	ParticleEmitter* getParticleEmitter(Entity entity) override
+	ParticleEmitter* getParticleEmitter(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity];
+		return m_particle_emitters[gameobject];
 	}
 
 
-	void updateEmitter(Entity entity, float time_delta) override
+	void updateEmitter(GameObject gameobject, float time_delta) override
 	{
-		m_particle_emitters[entity]->update(time_delta);
+		m_particle_emitters[gameobject]->update(time_delta);
 	}
 
 
@@ -386,46 +386,46 @@ public:
 	IPlugin& getPlugin() const override { return m_renderer; }
 
 
-	Int2 getParticleEmitterSpawnCount(Entity entity) override
+	Int2 getParticleEmitterSpawnCount(GameObject gameobject) override
 	{
 		Int2 ret;
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		ret.x = emitter->m_spawn_count.from;
 		ret.y = emitter->m_spawn_count.to;
 		return ret;
 	}
 
 
-	void setParticleEmitterSpawnCount(Entity entity, const Int2& value) override
+	void setParticleEmitterSpawnCount(GameObject gameobject, const Int2& value) override
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		emitter->m_spawn_count.from = value.x;
 		emitter->m_spawn_count.to = Math::maximum(value.x, value.y);
 	}
 
 
 
-	void getRay(Entity camera_entity,
+	void getRay(GameObject camera_gameobject,
 		const Vec2& screen_pos,
 		Vec3& origin,
 		Vec3& dir) override
 	{
-		Camera& camera = m_cameras[camera_entity];
-		origin = m_project.getPosition(camera_entity);
+		Camera& camera = m_cameras[camera_gameobject];
+		origin = m_project.getPosition(camera_gameobject);
 
 		float width = camera.screen_width;
 		float height = camera.screen_height;
 		if (width <= 0 || height <= 0)
 		{
-			dir = m_project.getRotation(camera_entity).rotate(Vec3(0, 0, 1));
+			dir = m_project.getRotation(camera_gameobject).rotate(Vec3(0, 0, 1));
 			return;
 		}
 
 		float nx = 2 * (screen_pos.x / width) - 1;
 		float ny = 2 * ((height - screen_pos.y) / height) - 1;
 
-		Matrix projection_matrix = getCameraProjection(camera_entity);
-		Matrix view_matrix = m_project.getMatrix(camera_entity);
+		Matrix projection_matrix = getCameraProjection(camera_gameobject);
+		Matrix view_matrix = m_project.getMatrix(camera_gameobject);
 
 		if (camera.is_ortho)
 		{
@@ -447,10 +447,10 @@ public:
 	}
 
 
-	Frustum getCameraFrustum(Entity entity) const override
+	Frustum getCameraFrustum(GameObject gameobject) const override
 	{
-		const Camera& camera = m_cameras[entity];
-		Matrix mtx = m_project.getMatrix(entity);
+		const Camera& camera = m_cameras[gameobject];
+		Matrix mtx = m_project.getMatrix(gameobject);
 		Frustum ret;
 		float ratio = camera.screen_height > 0 ? camera.screen_width / camera.screen_height : 1;
 		if (camera.is_ortho)
@@ -476,10 +476,10 @@ public:
 	}
 
 
-	Frustum getCameraFrustum(Entity entity, const Vec2& viewport_min_px, const Vec2& viewport_max_px) const override
+	Frustum getCameraFrustum(GameObject gameobject, const Vec2& viewport_min_px, const Vec2& viewport_max_px) const override
 	{
-		const Camera& camera = m_cameras[entity];
-		Matrix mtx = m_project.getMatrix(entity);
+		const Camera& camera = m_cameras[gameobject];
+		Matrix mtx = m_project.getMatrix(gameobject);
 		Frustum ret;
 		float ratio = camera.screen_height > 0 ? camera.screen_width / camera.screen_height : 1;
 		Vec2 viewport_min = { viewport_min_px.x / camera.screen_width * 2 - 1, (1 - viewport_max_px.y / camera.screen_height) * 2 - 1 };
@@ -513,41 +513,41 @@ public:
 
 	void updateBoneAttachment(const BoneAttachment& bone_attachment)
 	{
-		if (!bone_attachment.parent_entity.isValid()) return;
-		Entity model_instance = bone_attachment.parent_entity;
+		if (!bone_attachment.parent_gameobject.isValid()) return;
+		GameObject model_instance = bone_attachment.parent_gameobject;
 		if (!model_instance.isValid()) return;
 		if (!m_project.hasComponent(model_instance, MODEL_INSTANCE_TYPE)) return;
 		const Pose* parent_pose = lockPose(model_instance);
 		if (!parent_pose) return;
 
-		Transform parent_entity_transform = m_project.getTransform(bone_attachment.parent_entity);
+		Transform parent_gameobject_transform = m_project.getTransform(bone_attachment.parent_gameobject);
 		int idx = bone_attachment.bone_index;
 		if (idx < 0 || idx > parent_pose->count)
 		{
 			unlockPose(model_instance, false);
 			return;
 		}
-		float original_scale = m_project.getScale(bone_attachment.entity);
+		float original_scale = m_project.getScale(bone_attachment.gameobject);
 		Transform bone_transform = {parent_pose->positions[idx], parent_pose->rotations[idx], 1.0f};
 		Transform relative_transform = { bone_attachment.relative_transform.pos, bone_attachment.relative_transform.rot, 1.0f};
-		Transform result = parent_entity_transform * bone_transform * relative_transform;
+		Transform result = parent_gameobject_transform * bone_transform * relative_transform;
 		result.scale = original_scale;
-		m_project.setTransform(bone_attachment.entity, result);
+		m_project.setTransform(bone_attachment.gameobject, result);
 		unlockPose(model_instance, false);
 	}
 
 
-	Entity getBoneAttachmentParent(Entity entity) override
+	GameObject getBoneAttachmentParent(GameObject gameobject) override
 	{
-		return m_bone_attachments[entity].parent_entity;
+		return m_bone_attachments[gameobject].parent_gameobject;
 	}
 
 
 	void updateRelativeMatrix(BoneAttachment& attachment)
 	{
-		if (attachment.parent_entity == INVALID_ENTITY) return;
+		if (attachment.parent_gameobject == INVALID_GAMEOBJECT) return;
 		if (attachment.bone_index < 0) return;
-		Entity model_instance = attachment.parent_entity;
+		GameObject model_instance = attachment.parent_gameobject;
 		if (!model_instance.isValid()) return;
 		if (!m_project.hasComponent(model_instance, MODEL_INSTANCE_TYPE)) return;
 		const Pose* pose = lockPose(model_instance);
@@ -560,24 +560,24 @@ public:
 		}
 		Transform bone_transform = {pose->positions[attachment.bone_index], pose->rotations[attachment.bone_index], 1.0f};
 
-		Transform inv_parent_transform = m_project.getTransform(attachment.parent_entity) * bone_transform;
+		Transform inv_parent_transform = m_project.getTransform(attachment.parent_gameobject) * bone_transform;
 		inv_parent_transform = inv_parent_transform.inverted();
-		Transform child_transform = m_project.getTransform(attachment.entity);
+		Transform child_transform = m_project.getTransform(attachment.gameobject);
 		Transform res = inv_parent_transform * child_transform;
 		attachment.relative_transform = {res.pos, res.rot};
 		unlockPose(model_instance, false);
 	}
 
 
-	Vec3 getBoneAttachmentPosition(Entity entity) override
+	Vec3 getBoneAttachmentPosition(GameObject gameobject) override
 	{
-		return m_bone_attachments[entity].relative_transform.pos;
+		return m_bone_attachments[gameobject].relative_transform.pos;
 	}
 
 
-	void setBoneAttachmentPosition(Entity entity, const Vec3& pos) override
+	void setBoneAttachmentPosition(GameObject gameobject, const Vec3& pos) override
 	{
-		BoneAttachment& attachment = m_bone_attachments[entity];
+		BoneAttachment& attachment = m_bone_attachments[gameobject];
 		attachment.relative_transform.pos = pos;
 		m_is_updating_attachments = true;
 		updateBoneAttachment(attachment);
@@ -585,15 +585,15 @@ public:
 	}
 
 
-	Vec3 getBoneAttachmentRotation(Entity entity) override
+	Vec3 getBoneAttachmentRotation(GameObject gameobject) override
 	{
-		return m_bone_attachments[entity].relative_transform.rot.toEuler();
+		return m_bone_attachments[gameobject].relative_transform.rot.toEuler();
 	}
 
 
-	void setBoneAttachmentRotation(Entity entity, const Vec3& rot) override
+	void setBoneAttachmentRotation(GameObject gameobject, const Vec3& rot) override
 	{
-		BoneAttachment& attachment = m_bone_attachments[entity];
+		BoneAttachment& attachment = m_bone_attachments[gameobject];
 		Vec3 euler = rot;
 		euler.x = Math::clamp(euler.x, -Math::PI * 0.5f, Math::PI * 0.5f);
 		attachment.relative_transform.rot.fromEuler(euler);
@@ -603,9 +603,9 @@ public:
 	}
 
 
-	void setBoneAttachmentRotationQuat(Entity entity, const Quat& rot) override
+	void setBoneAttachmentRotationQuat(GameObject gameobject, const Quat& rot) override
 	{
-		BoneAttachment& attachment = m_bone_attachments[entity];
+		BoneAttachment& attachment = m_bone_attachments[gameobject];
 		attachment.relative_transform.rot = rot;
 		m_is_updating_attachments = true;
 		updateBoneAttachment(attachment);
@@ -613,24 +613,24 @@ public:
 	}
 
 
-	int getBoneAttachmentBone(Entity entity) override
+	int getBoneAttachmentBone(GameObject gameobject) override
 	{
-		return m_bone_attachments[entity].bone_index;
+		return m_bone_attachments[gameobject].bone_index;
 	}
 
 
-	void setBoneAttachmentBone(Entity entity, int value) override
+	void setBoneAttachmentBone(GameObject gameobject, int value) override
 	{
-		BoneAttachment& ba = m_bone_attachments[entity];
+		BoneAttachment& ba = m_bone_attachments[gameobject];
 		ba.bone_index = value;
 		updateRelativeMatrix(ba);
 	}
 
 
-	void setBoneAttachmentParent(Entity entity, Entity parent) override
+	void setBoneAttachmentParent(GameObject gameobject, GameObject parent) override
 	{
-		BoneAttachment& ba = m_bone_attachments[entity];
-		ba.parent_entity = parent;
+		BoneAttachment& ba = m_bone_attachments[gameobject];
+		ba.parent_gameobject = parent;
 		if (parent.isValid() && parent.index < m_model_instances.size())
 		{
 			ModelInstance& mi = m_model_instances[parent.index];
@@ -713,10 +713,10 @@ public:
 	}
 
 
-	void serializeModelInstance(ISerializer& serialize, Entity entity)
+	void serializeModelInstance(ISerializer& serialize, GameObject gameobject)
 	{
-		ModelInstance& r = m_model_instances[entity.index];
-		ASSERT(r.entity != INVALID_ENTITY);
+		ModelInstance& r = m_model_instances[gameobject.index];
+		ASSERT(r.gameobject != INVALID_GAMEOBJECT);
 
 		serialize.write("source", r.model ? r.model->getPath().c_str() : "");
 		serialize.write("flags", u8(r.flags.base & ModelInstance::PERSISTENT_FLAGS));
@@ -738,19 +738,19 @@ public:
 	}
 
 
-	void deserializeModelInstance(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeModelInstance(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
-		while (entity.index >= m_model_instances.size())
+		while (gameobject.index >= m_model_instances.size())
 		{
 			auto& r = m_model_instances.emplace();
-			r.entity = INVALID_ENTITY;
+			r.gameobject = INVALID_GAMEOBJECT;
 			r.pose = nullptr;
 			r.model = nullptr;
 			r.meshes = nullptr;
 			r.mesh_count = 0;
 		}
-		auto& r = m_model_instances[entity.index];
-		r.entity = entity;
+		auto& r = m_model_instances[gameobject.index];
+		r.gameobject = gameobject;
 		r.model = nullptr;
 		r.pose = nullptr;
 		r.flags.clear();
@@ -758,7 +758,7 @@ public:
 		r.meshes = nullptr;
 		r.mesh_count = 0;
 
-		r.matrix = m_project.getMatrix(r.entity);
+		r.matrix = m_project.getMatrix(r.gameobject);
 
 		char path[MAX_PATH_LENGTH];
 		serializer.read(path, lengthOf(path));
@@ -776,7 +776,7 @@ public:
 		if (path[0] != 0)
 		{
 			auto* model = static_cast<Model*>(m_engine.getResourceManager().get(Model::TYPE)->load(Path(path)));
-			setModel(r.entity, model);
+			setModel(r.gameobject, model);
 		}
 
 		int material_count;
@@ -788,17 +788,17 @@ public:
 			{
 				char path[MAX_PATH_LENGTH];
 				serializer.read(path, lengthOf(path));
-				setModelInstanceMaterial(r.entity, j, Path(path));
+				setModelInstanceMaterial(r.gameobject, j, Path(path));
 			}
 		}
 
-		m_project.onComponentCreated(r.entity, MODEL_INSTANCE_TYPE, this);
+		m_project.onComponentCreated(r.gameobject, MODEL_INSTANCE_TYPE, this);
 	}
 
 
-	void serializeGlobalLight(ISerializer& serializer, Entity entity)
+	void serializeGlobalLight(ISerializer& serializer, GameObject gameobject)
 	{
-		GlobalLight& light = m_global_lights[entity];
+		GlobalLight& light = m_global_lights[gameobject];
 		serializer.write("cascades", light.m_cascades);
 		serializer.write("diffuse_color", light.m_diffuse_color);
 		serializer.write("diffuse_intensity", light.m_diffuse_intensity);
@@ -810,10 +810,10 @@ public:
 	}
 
 
-	void deserializeGlobalLight(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeGlobalLight(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		GlobalLight light;
-		light.m_entity = entity;
+		light.m_gameobject = gameobject;
 		serializer.read(&light.m_cascades);
 		if (scene_version <= (int)RenderSceneVersion::GLOBAL_LIGHT_REFACTOR)
 		{
@@ -834,15 +834,15 @@ public:
 		serializer.read(&light.m_fog_color);
 		serializer.read(&light.m_fog_density);
 		serializer.read(&light.m_fog_height);
-		m_global_lights.insert(entity, light);
-		m_project.onComponentCreated(light.m_entity, GLOBAL_LIGHT_TYPE, this);
-		m_active_global_light_entity = entity;
+		m_global_lights.insert(gameobject, light);
+		m_project.onComponentCreated(light.m_gameobject, GLOBAL_LIGHT_TYPE, this);
+		m_active_global_light_gameobject = gameobject;
 	}
 	
 	
-	void serializePointLight(ISerializer& serializer, Entity entity)
+	void serializePointLight(ISerializer& serializer, GameObject gameobject)
 	{
-		PointLight& light = m_point_lights[m_point_lights_map[entity]];
+		PointLight& light = m_point_lights[m_point_lights_map[gameobject]];
 		serializer.write("attenuation", light.m_attenuation_param);
 		serializer.write("cast_shadow", light.m_cast_shadows);
 		serializer.write("diffuse_color", light.m_diffuse_color);
@@ -854,11 +854,11 @@ public:
 	}
 
 
-	void deserializePointLight(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializePointLight(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		m_light_influenced_geometry.emplace(m_allocator);
 		PointLight& light = m_point_lights.emplace();
-		light.m_entity = entity;
+		light.m_gameobject = gameobject;
 		serializer.read(&light.m_attenuation_param);
 		serializer.read(&light.m_cast_shadows);
 		
@@ -873,37 +873,37 @@ public:
 		serializer.read(&light.m_range);
 		serializer.read(&light.m_specular_color);
 		serializer.read(&light.m_specular_intensity);
-		m_point_lights_map.insert(light.m_entity, m_point_lights.size() - 1);
+		m_point_lights_map.insert(light.m_gameobject, m_point_lights.size() - 1);
 
-		m_project.onComponentCreated(light.m_entity, POINT_LIGHT_TYPE, this);
+		m_project.onComponentCreated(light.m_gameobject, POINT_LIGHT_TYPE, this);
 	}
 
 
-	void serializeDecal(ISerializer& serializer, Entity entity)
+	void serializeDecal(ISerializer& serializer, GameObject gameobject)
 	{
-		const Decal& decal = m_decals[entity];
+		const Decal& decal = m_decals[gameobject];
 		serializer.write("scale", decal.scale);
 		serializer.write("material", decal.material ? decal.material->getPath().c_str() : "");
 	}
 
 
-	void deserializeDecal(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeDecal(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
 		ResourceManagerBase* material_manager = m_engine.getResourceManager().get(Material::TYPE);
-		Decal& decal = m_decals.insert(entity);
+		Decal& decal = m_decals.insert(gameobject);
 		char tmp[MAX_PATH_LENGTH];
-		decal.entity = entity;
+		decal.gameobject = gameobject;
 		serializer.read(&decal.scale);
 		serializer.read(tmp, lengthOf(tmp));
 		decal.material = tmp[0] == '\0' ? nullptr : static_cast<Material*>(material_manager->load(Path(tmp)));
 		updateDecalInfo(decal);
-		m_project.onComponentCreated(decal.entity, DECAL_TYPE, this);
+		m_project.onComponentCreated(decal.gameobject, DECAL_TYPE, this);
 	}
 
 
-	void serializeTextMesh(ISerializer& serializer, Entity entity)
+	void serializeTextMesh(ISerializer& serializer, GameObject gameobject)
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		serializer.write("font", text.getFontResource() ? text.getFontResource()->getPath().c_str() : "");
 		serializer.write("color", text.color);
 		serializer.write("font_size", text.getFontSize());
@@ -911,42 +911,42 @@ public:
 	}
 
 
-	void setTextMeshText(Entity entity, const char* text) override
+	void setTextMeshText(GameObject gameobject, const char* text) override
 	{
-		m_text_meshes.get(entity)->text = text;
+		m_text_meshes.get(gameobject)->text = text;
 	}
 
 
-	const char* getTextMeshText(Entity entity) override
+	const char* getTextMeshText(GameObject gameobject) override
 	{
-		return m_text_meshes.get(entity)->text.c_str();
+		return m_text_meshes.get(gameobject)->text.c_str();
 	}
 
 
-	bool isTextMeshCameraOriented(Entity entity) override
+	bool isTextMeshCameraOriented(GameObject gameobject) override
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		return text.m_flags.isSet(TextMesh::CAMERA_ORIENTED);
 	}
 
 
-	void setTextMeshCameraOriented(Entity entity, bool is_oriented) override
+	void setTextMeshCameraOriented(GameObject gameobject, bool is_oriented) override
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		text.m_flags.set(TextMesh::CAMERA_ORIENTED, is_oriented);
 	}
 
 
-	void setTextMeshFontSize(Entity entity, int value) override
+	void setTextMeshFontSize(GameObject gameobject, int value) override
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		text.setFontSize(value);
 	}
 
 
-	int getTextMeshFontSize(Entity entity) override
+	int getTextMeshFontSize(GameObject gameobject) override
 	{
-		return m_text_meshes.get(entity)->getFontSize();
+		return m_text_meshes.get(gameobject)->getFontSize();
 	}
 
 
@@ -972,26 +972,26 @@ public:
 	}
 
 
-	Vec4 getTextMeshColorRGBA(Entity entity) override
+	Vec4 getTextMeshColorRGBA(GameObject gameobject) override
 	{
-		return ABGRu32ToRGBAVec4(m_text_meshes.get(entity)->color);
+		return ABGRu32ToRGBAVec4(m_text_meshes.get(gameobject)->color);
 	}
 
 
-	void setTextMeshColorRGBA(Entity entity, const Vec4& color) override
+	void setTextMeshColorRGBA(GameObject gameobject, const Vec4& color) override
 	{
-		m_text_meshes.get(entity)->color = RGBAVec4ToABGRu32(color);
+		m_text_meshes.get(gameobject)->color = RGBAVec4ToABGRu32(color);
 	}
 
 
-	Path getTextMeshFontPath(Entity entity) override
+	Path getTextMeshFontPath(GameObject gameobject) override
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		return text.getFontResource() == nullptr ? Path() : text.getFontResource()->getPath();
 	}
 
 
-	void getTextMeshesVertices(Array<TextMeshVertex>& vertices, Entity camera) override
+	void getTextMeshesVertices(Array<TextMeshVertex>& vertices, GameObject camera) override
 	{
 		Matrix camera_mtx = m_project.getMatrix(camera);
 		Vec3 cam_right = camera_mtx.getXVector();
@@ -1001,11 +1001,11 @@ public:
 			TextMesh& text = *m_text_meshes.at(j);
 			Font* font = text.getFont();
 			if (!font) font = m_renderer.getFontManager().getDefaultFont();
-			Entity entity = m_text_meshes.getKey(j);
+			GameObject gameobject = m_text_meshes.getKey(j);
 			const char* str = text.text.c_str();
-			Vec3 base = m_project.getPosition(entity);
-			Quat rot = m_project.getRotation(entity);
-			float scale = m_project.getScale(entity);
+			Vec3 base = m_project.getPosition(gameobject);
+			Quat rot = m_project.getRotation(gameobject);
+			float scale = m_project.getScale(gameobject);
 			Vec3 right = rot.rotate({ 1, 0, 0 }) * scale;
 			Vec3 up = rot.rotate({ 0, -1, 0 }) * scale;
 			if (text.m_flags.isSet(TextMesh::CAMERA_ORIENTED))
@@ -1042,19 +1042,19 @@ public:
 	}
 
 
-	void setTextMeshFontPath(Entity entity, const Path& path) override
+	void setTextMeshFontPath(GameObject gameobject, const Path& path) override
 	{
-		TextMesh& text = *m_text_meshes.get(entity);
+		TextMesh& text = *m_text_meshes.get(gameobject);
 		FontManager& manager = m_renderer.getFontManager();
 		FontResource* res = path.isValid() ? (FontResource*)manager.load(path) : nullptr;
 		text.setFontResource(res);
 	}
 
 	
-	void deserializeTextMesh(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeTextMesh(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
 		TextMesh& text = *MALMY_NEW(m_allocator, TextMesh)(m_allocator);
-		m_text_meshes.insert(entity, &text);
+		m_text_meshes.insert(gameobject, &text);
 
 		char tmp[MAX_PATH_LENGTH];
 		serializer.read(tmp, lengthOf(tmp));
@@ -1066,13 +1066,13 @@ public:
 		FontManager& manager = m_renderer.getFontManager();
 		FontResource* res = tmp[0] ? (FontResource*)manager.load(Path(tmp)) : nullptr;
 		text.setFontResource(res);
-		m_project.onComponentCreated(entity, TEXT_MESH_TYPE, this);
+		m_project.onComponentCreated(gameobject, TEXT_MESH_TYPE, this);
 	}
 
 
-	void serializeCamera(ISerializer& serialize, Entity entity)
+	void serializeCamera(ISerializer& serialize, GameObject gameobject)
 	{
-		Camera& camera = m_cameras[entity];
+		Camera& camera = m_cameras[gameobject];
 		serialize.write("far", camera.far);
 		serialize.write("fov", camera.fov);
 		serialize.write("is_ortho", camera.is_ortho);
@@ -1082,50 +1082,50 @@ public:
 	}
 
 
-	void deserializeCamera(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeCamera(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
 		Camera camera;
-		camera.entity = entity;
+		camera.gameobject = gameobject;
 		serializer.read(&camera.far);
 		serializer.read(&camera.fov);
 		serializer.read(&camera.is_ortho);
 		serializer.read(&camera.ortho_size);
 		serializer.read(&camera.near);
 		serializer.read(camera.slot, lengthOf(camera.slot));
-		m_cameras.insert(camera.entity, camera);
-		m_project.onComponentCreated(camera.entity, CAMERA_TYPE, this);
+		m_cameras.insert(camera.gameobject, camera);
+		m_project.onComponentCreated(camera.gameobject, CAMERA_TYPE, this);
 	}
 
 
-	void serializeBoneAttachment(ISerializer& serializer, Entity entity) 
+	void serializeBoneAttachment(ISerializer& serializer, GameObject gameobject) 
 	{
-		BoneAttachment& attachment = m_bone_attachments[entity];
+		BoneAttachment& attachment = m_bone_attachments[gameobject];
 		serializer.write("bone_index", attachment.bone_index);
-		serializer.write("parent", attachment.parent_entity);
+		serializer.write("parent", attachment.parent_gameobject);
 		serializer.write("relative_transform", attachment.relative_transform);
 	}
 
 
-	void deserializeBoneAttachment(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeBoneAttachment(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		BoneAttachment& bone_attachment = m_bone_attachments.emplace(entity);
-		bone_attachment.entity = entity;
+		BoneAttachment& bone_attachment = m_bone_attachments.emplace(gameobject);
+		bone_attachment.gameobject = gameobject;
 		serializer.read(&bone_attachment.bone_index);
-		serializer.read(&bone_attachment.parent_entity);
+		serializer.read(&bone_attachment.parent_gameobject);
 		serializer.read(&bone_attachment.relative_transform);
-		m_project.onComponentCreated(bone_attachment.entity, BONE_ATTACHMENT_TYPE, this);
-		Entity parent_entity = bone_attachment.parent_entity;
-		if (parent_entity.isValid() && parent_entity.index < m_model_instances.size())
+		m_project.onComponentCreated(bone_attachment.gameobject, BONE_ATTACHMENT_TYPE, this);
+		GameObject parent_gameobject = bone_attachment.parent_gameobject;
+		if (parent_gameobject.isValid() && parent_gameobject.index < m_model_instances.size())
 		{
-			ModelInstance& mi = m_model_instances[parent_entity.index];
+			ModelInstance& mi = m_model_instances[parent_gameobject.index];
 			mi.flags.set(ModelInstance::IS_BONE_ATTACHMENT_PARENT);
 		}
 	}
 
 
-	void serializeTerrain(ISerializer& serializer, Entity entity)
+	void serializeTerrain(ISerializer& serializer, GameObject gameobject)
 	{
-		Terrain* terrain = m_terrains[entity];
+		Terrain* terrain = m_terrains[gameobject];
 		serializer.write("layer_mask", terrain->m_layer_mask);
 		serializer.write("scale", terrain->m_scale);
 		serializer.write("material", terrain->m_material ? terrain->m_material->getPath().c_str() : "");
@@ -1139,11 +1139,11 @@ public:
 		}
 	}
 
-	void deserializeTerrain(IDeserializer& serializer, Entity entity, int version)
+	void deserializeTerrain(IDeserializer& serializer, GameObject gameobject, int version)
 	{
-		Terrain* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, entity, *this, m_allocator);
-		m_terrains.insert(entity, terrain);
-		terrain->m_entity = entity;
+		Terrain* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, gameobject, *this, m_allocator);
+		m_terrains.insert(gameobject, terrain);
+		terrain->m_gameobject = gameobject;
 		serializer.read(&terrain->m_layer_mask);
 		serializer.read(&terrain->m_scale);
 		char tmp[MAX_PATH_LENGTH];
@@ -1168,12 +1168,12 @@ public:
 			terrain->setGrassTypePath(terrain->m_grass_types.size() - 1, Path(tmp));
 		}
 
-		m_project.onComponentCreated(entity, TERRAIN_TYPE, this);
+		m_project.onComponentCreated(gameobject, TERRAIN_TYPE, this);
 	}
 
-	void serializeEnvironmentProbe(ISerializer& serializer, Entity entity) 
+	void serializeEnvironmentProbe(ISerializer& serializer, GameObject gameobject) 
 	{
-		EnvironmentProbe& probe = m_environment_probes[entity];
+		EnvironmentProbe& probe = m_environment_probes[gameobject];
 		serializer.write("guid", probe.guid);
 		serializer.write("flags", probe.flags.base);
 		serializer.write("radiance_size", probe.radiance_size);
@@ -1185,11 +1185,11 @@ public:
 	int getVersion() const override { return (int)RenderSceneVersion::LATEST; }
 
 
-	void deserializeEnvironmentProbe(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeEnvironmentProbe(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
 		auto* texture_manager = m_engine.getResourceManager().get(Texture::TYPE);
 		StaticString<MAX_PATH_LENGTH> probe_dir("projects/", m_project.getName(), "/probes/");
-		EnvironmentProbe& probe = m_environment_probes.insert(entity);
+		EnvironmentProbe& probe = m_environment_probes.insert(gameobject);
 		serializer.read(&probe.guid);
 		if (scene_version > (int)RenderSceneVersion::ENVIRONMENT_PROBE_FLAGS)
 		{
@@ -1219,22 +1219,22 @@ public:
 		probe.radiance->setFlag(BGFX_TEXTURE_MIN_ANISOTROPIC, true);
 		probe.radiance->setFlag(BGFX_TEXTURE_MAG_ANISOTROPIC, true);
 
-		m_project.onComponentCreated(entity, ENVIRONMENT_PROBE_TYPE, this);
+		m_project.onComponentCreated(gameobject, ENVIRONMENT_PROBE_TYPE, this);
 	}
 
 
-	void serializeScriptedParticleEmitter(ISerializer& serializer, Entity entity)
+	void serializeScriptedParticleEmitter(ISerializer& serializer, GameObject gameobject)
 	{
-		ScriptedParticleEmitter* emitter = m_scripted_particle_emitters[entity];
+		ScriptedParticleEmitter* emitter = m_scripted_particle_emitters[gameobject];
 		const Material* material = emitter->getMaterial();
 		serializer.write("material", material ? material->getPath().c_str() : "");
 	}
 
 
-	void deserializeScriptedParticleEmitter(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeScriptedParticleEmitter(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
-		ScriptedParticleEmitter* emitter = MALMY_NEW(m_allocator, ScriptedParticleEmitter)(entity, m_allocator);
-		emitter->m_entity = entity;
+		ScriptedParticleEmitter* emitter = MALMY_NEW(m_allocator, ScriptedParticleEmitter)(gameobject, m_allocator);
+		emitter->m_gameobject = gameobject;
 
 		char tmp[MAX_PATH_LENGTH];
 		serializer.read(tmp, lengthOf(tmp));
@@ -1242,14 +1242,14 @@ public:
 		Material* material = (Material*)material_manager->load(Path(tmp));
 		emitter->setMaterial(material);
 
-		m_scripted_particle_emitters.insert(entity, emitter);
-		m_project.onComponentCreated(entity, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
+		m_scripted_particle_emitters.insert(gameobject, emitter);
+		m_project.onComponentCreated(gameobject, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
 	}
 
 
-	void serializeParticleEmitter(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitter(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		serializer.write("autoemit", emitter->m_autoemit);
 		serializer.write("local_space", emitter->m_local_space);
 		serializer.write("spawn_period_from", emitter->m_spawn_period.from);
@@ -1265,10 +1265,10 @@ public:
 	}
 
 
-	void deserializeParticleEmitter(IDeserializer& serializer, Entity entity, int scene_version)
+	void deserializeParticleEmitter(IDeserializer& serializer, GameObject gameobject, int scene_version)
 	{
-		ParticleEmitter* emitter = MALMY_NEW(m_allocator, ParticleEmitter)(entity, m_project, m_allocator);
-		emitter->m_entity = entity;
+		ParticleEmitter* emitter = MALMY_NEW(m_allocator, ParticleEmitter)(gameobject, m_project, m_allocator);
+		emitter->m_gameobject = gameobject;
 		serializer.read(&emitter->m_autoemit);
 		serializer.read(&emitter->m_local_space);
 		serializer.read(&emitter->m_spawn_period.from);
@@ -1288,13 +1288,13 @@ public:
 			emitter->setMaterial(material);
 		}
 
-		m_particle_emitters.insert(entity, emitter);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_TYPE, this);
+		m_particle_emitters.insert(gameobject, emitter);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_TYPE, this);
 	}
 
-	void serializeParticleEmitterAlpha(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterAlpha(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::AlphaModule*)emitter->getModule(PARTICLE_EMITTER_ALPHA_TYPE);
 		serializer.write("count", module->m_values.size());
 		for (Vec2 v : module->m_values)
@@ -1305,9 +1305,9 @@ public:
 	}
 	
 	
-	void deserializeParticleEmitterAlpha(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterAlpha(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::AlphaModule)(*emitter);
 		int count;
@@ -1321,13 +1321,13 @@ public:
 		}
 		module->sample();
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_ALPHA_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_ALPHA_TYPE, this);
 	}
 
 
-	void serializeParticleEmitterAttractor(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterAttractor(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::AttractorModule*)emitter->getModule(PARTICLE_EMITTER_ATTRACTOR_TYPE);
 		serializer.write("force", module->m_force);
 		serializer.write("count", module->m_count);
@@ -1338,9 +1338,9 @@ public:
 	}
 
 
-	void deserializeParticleEmitterAttractor(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterAttractor(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::AttractorModule)(*emitter);
@@ -1351,32 +1351,32 @@ public:
 			serializer.read(&module->m_entities[i]);
 		}
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
 	}
 
-	void serializeParticleEmitterForce(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterForce(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::ForceModule*)emitter->getModule(PARTICLE_EMITTER_FORCE_HASH);
 		serializer.write("acceleration", module->m_acceleration);
 	}
 
 
-	void deserializeParticleEmitterForce(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterForce(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::ForceModule)(*emitter);
 		serializer.read(&module->m_acceleration);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_FORCE_HASH, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_FORCE_HASH, this);
 	}
 
 
-	void serializeParticleEmitterLinearMovement(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterLinearMovement(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::LinearMovementModule*)emitter->getModule(PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE);
 		serializer.write("x_from", module->m_x.from);
 		serializer.write("x_to", module->m_x.to);
@@ -1387,9 +1387,9 @@ public:
 	}
 
 
-	void deserializeParticleEmitterLinearMovement(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterLinearMovement(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::LinearMovementModule)(*emitter);
@@ -1400,13 +1400,13 @@ public:
 		serializer.read(&module->m_z.from);
 		serializer.read(&module->m_z.to);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
 	}
 
 
-	void serializeParticleEmitterPlane(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterPlane(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::PlaneModule*)emitter->getModule(PARTICLE_EMITTER_PLANE_TYPE);
 		serializer.write("bounce", module->m_bounce);
 		serializer.write("entities_count", module->m_count);
@@ -1417,9 +1417,9 @@ public:
 	}
 
 
-	void deserializeParticleEmitterPlane(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterPlane(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::PlaneModule)(*emitter);
@@ -1430,33 +1430,33 @@ public:
 			serializer.read(&module->m_entities[i]);
 		}
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_PLANE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_PLANE_TYPE, this);
 	}
 
-	void serializeParticleEmitterSpawnShape(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterSpawnShape(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::SpawnShapeModule*)emitter->getModule(PARTICLE_EMITTER_SPAWN_SHAPE_TYPE);
 		serializer.write("shape", (u8)module->m_shape);
 		serializer.write("radius", module->m_radius);
 	}
 
 
-	void deserializeParticleEmitterSpawnShape(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterSpawnShape(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::SpawnShapeModule)(*emitter);
 		serializer.read((u8*)&module->m_shape);
 		serializer.read(&module->m_radius);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
 	}
 
-	void serializeParticleEmitterSize(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterSize(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::SizeModule*)emitter->getModule(PARTICLE_EMITTER_SIZE_TYPE);
 		serializer.write("count", module->m_values.size());
 		for (Vec2 v : module->m_values)
@@ -1467,9 +1467,9 @@ public:
 	}
 
 
-	void deserializeParticleEmitterSize(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterSize(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::SizeModule)(*emitter);
@@ -1484,43 +1484,43 @@ public:
 		}
 		module->sample();
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SIZE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SIZE_TYPE, this);
 	}
 
 
-	void serializeParticleEmitterRandomRotation(ISerializer& serialize, Entity entity) {}
+	void serializeParticleEmitterRandomRotation(ISerializer& serialize, GameObject gameobject) {}
 
 
-	void deserializeParticleEmitterRandomRotation(IDeserializer& serialize, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterRandomRotation(IDeserializer& serialize, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::RandomRotationModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
 	}
 
 
-	void serializeParticleEmitterSubimage(ISerializer& serializer, Entity entity)
+	void serializeParticleEmitterSubimage(ISerializer& serializer, GameObject gameobject)
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		auto* module = (ParticleEmitter::SubimageModule*)emitter->getModule(PARTICLE_EMITTER_SUBIMAGE_TYPE);
 		serializer.write("rows", module->rows);
 		serializer.write("cols", module->cols);
 	}
 
 
-	void deserializeParticleEmitterSubimage(IDeserializer& serializer, Entity entity, int /*scene_version*/)
+	void deserializeParticleEmitterSubimage(IDeserializer& serializer, GameObject gameobject, int /*scene_version*/)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		ParticleEmitter* emitter = m_particle_emitters.at(index);
 
 		auto* module = MALMY_NEW(m_allocator, ParticleEmitter::SubimageModule)(*emitter);
 		serializer.read(&module->rows);
 		serializer.read(&module->cols);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
 	}
 
 
@@ -1530,8 +1530,8 @@ public:
 		for (auto& attachment : m_bone_attachments)
 		{
 			serializer.write(attachment.bone_index);
-			serializer.write(attachment.entity);
-			serializer.write(attachment.parent_entity);
+			serializer.write(attachment.gameobject);
+			serializer.write(attachment.parent_gameobject);
 			serializer.write(attachment.relative_transform);
 		}
 	}
@@ -1541,7 +1541,7 @@ public:
 		serializer.write((i32)m_cameras.size());
 		for (auto& camera : m_cameras)
 		{
-			serializer.write(camera.entity);
+			serializer.write(camera.gameobject);
 			serializer.write(camera.far);
 			serializer.write(camera.fov);
 			serializer.write(camera.is_ortho);
@@ -1564,7 +1564,7 @@ public:
 		{
 			serializer.write(light);
 		}
-		serializer.write(m_active_global_light_entity);
+		serializer.write(m_active_global_light_gameobject);
 	}
 
 	void serializeModelInstances(OutputBlob& serializer)
@@ -1572,9 +1572,9 @@ public:
 		serializer.write((i32)m_model_instances.size());
 		for (auto& r : m_model_instances)
 		{
-			serializer.write(r.entity);
+			serializer.write(r.gameobject);
 			serializer.write(u8(r.flags.base & ModelInstance::PERSISTENT_FLAGS));
-			if(r.entity != INVALID_ENTITY)
+			if(r.gameobject != INVALID_GAMEOBJECT)
 			{
 				serializer.write(r.model ? r.model->getPath().getHash() : 0);
 				bool has_changed_materials = r.model && r.model->isReady() && r.meshes != &r.model->getMesh(0);
@@ -1606,7 +1606,7 @@ public:
 		for (int i = 0, n = m_text_meshes.size(); i < n; ++i)
 		{
 			TextMesh& text = *m_text_meshes.at(i);
-			Entity e = m_text_meshes.getKey(i);
+			GameObject e = m_text_meshes.getKey(i);
 			serializer.write(e);
 			serializer.writeString(text.getFontResource() ? text.getFontResource()->getPath().c_str() : "");
 			serializer.write(text.color);
@@ -1622,7 +1622,7 @@ public:
 		FontManager& manager = m_renderer.getFontManager();
 		for (int i = 0; i < count; ++i)
 		{
-			Entity e;
+			GameObject e;
 			serializer.read(e);
 			TextMesh& text = *MALMY_NEW(m_allocator, TextMesh)(m_allocator);
 			m_text_meshes.insert(e, &text);
@@ -1650,13 +1650,13 @@ public:
 		{
 			char tmp[MAX_PATH_LENGTH];
 			Decal decal;
-			serializer.read(decal.entity);
+			serializer.read(decal.gameobject);
 			serializer.read(decal.scale);
 			serializer.readString(tmp, lengthOf(tmp));
 			decal.material = tmp[0] == '\0' ? nullptr : static_cast<Material*>(material_manager->load(Path(tmp)));
 			updateDecalInfo(decal);
-			m_decals.insert(decal.entity, decal);
-			m_project.onComponentCreated(decal.entity, DECAL_TYPE, this);
+			m_decals.insert(decal.gameobject, decal);
+			m_project.onComponentCreated(decal.gameobject, DECAL_TYPE, this);
 		}
 	}
 
@@ -1666,7 +1666,7 @@ public:
 		serializer.write(m_decals.size());
 		for (auto& decal : m_decals)
 		{
-			serializer.write(decal.entity);
+			serializer.write(decal.gameobject);
 			serializer.write(decal.scale);
 			serializer.writeString(decal.material ? decal.material->getPath().c_str() : "");
 		}
@@ -1679,8 +1679,8 @@ public:
 		serializer.write(count);
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity = m_environment_probes.getKey(i);
-			serializer.write(entity);
+			GameObject gameobject = m_environment_probes.getKey(i);
+			serializer.write(gameobject);
 			const EnvironmentProbe& probe = m_environment_probes.at(i);
 			serializer.write(probe.guid);
 			serializer.write(probe.flags.base);
@@ -1700,9 +1700,9 @@ public:
 		StaticString<MAX_PATH_LENGTH> probe_dir("projects/", m_project.getName(), "/probes/");
 		for (int i = 0; i < count; ++i)
 		{
-			Entity entity;
-			serializer.read(entity);
-			EnvironmentProbe& probe = m_environment_probes.insert(entity);
+			GameObject gameobject;
+			serializer.read(gameobject);
+			EnvironmentProbe& probe = m_environment_probes.insert(gameobject);
 			serializer.read(probe.guid);
 			serializer.read(probe.flags.base);
 			serializer.read(probe.radiance_size);
@@ -1726,7 +1726,7 @@ public:
 			probe.radiance->setFlag(BGFX_TEXTURE_MIN_ANISOTROPIC, true);
 			probe.radiance->setFlag(BGFX_TEXTURE_MAG_ANISOTROPIC, true);
 
-			m_project.onComponentCreated(entity, ENVIRONMENT_PROBE_TYPE, this);
+			m_project.onComponentCreated(gameobject, ENVIRONMENT_PROBE_TYPE, this);
 		}
 	}
 
@@ -1741,11 +1741,11 @@ public:
 		{
 			BoneAttachment bone_attachment;
 			serializer.read(bone_attachment.bone_index);
-			serializer.read(bone_attachment.entity);
-			serializer.read(bone_attachment.parent_entity);
+			serializer.read(bone_attachment.gameobject);
+			serializer.read(bone_attachment.parent_gameobject);
 			serializer.read(bone_attachment.relative_transform);
-			m_bone_attachments.insert(bone_attachment.entity, bone_attachment);
-			m_project.onComponentCreated(bone_attachment.entity, BONE_ATTACHMENT_TYPE, this);
+			m_bone_attachments.insert(bone_attachment.gameobject, bone_attachment);
+			m_project.onComponentCreated(bone_attachment.gameobject, BONE_ATTACHMENT_TYPE, this);
 		}
 	}
 
@@ -1757,49 +1757,49 @@ public:
 		m_particle_emitters.reserve(count);
 		for(int i = 0; i < count; ++i)
 		{
-			ParticleEmitter* emitter = MALMY_NEW(m_allocator, ParticleEmitter)(INVALID_ENTITY, m_project, m_allocator);
+			ParticleEmitter* emitter = MALMY_NEW(m_allocator, ParticleEmitter)(INVALID_GAMEOBJECT, m_project, m_allocator);
 			serializer.read(emitter->m_is_valid);
 			if (emitter->m_is_valid)
 			{
 				emitter->deserialize(serializer, m_engine.getResourceManager());
-				if (emitter->m_is_valid) m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_TYPE, this);
+				if (emitter->m_is_valid) m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_TYPE, this);
 				for (auto* module : emitter->m_modules)
 				{
 					if (module->getType() == ParticleEmitter::AlphaModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_ALPHA_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_ALPHA_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::ForceModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_FORCE_HASH, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_FORCE_HASH, this);
 					}
 					else if (module->getType() == ParticleEmitter::SubimageModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::SpawnShapeModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::AttractorModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::LinearMovementModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::PlaneModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_PLANE_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_PLANE_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::RandomRotationModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
 					}
 					else if (module->getType() == ParticleEmitter::SizeModule::s_type)
 					{
-						m_project.onComponentCreated(emitter->m_entity, PARTICLE_EMITTER_SIZE_TYPE, this);
+						m_project.onComponentCreated(emitter->m_gameobject, PARTICLE_EMITTER_SIZE_TYPE, this);
 					}
 				}
 			}
@@ -1809,7 +1809,7 @@ public:
 			}
 			else
 			{
-				m_particle_emitters.insert(emitter->m_entity, emitter);
+				m_particle_emitters.insert(emitter->m_gameobject, emitter);
 			}
 		}
 
@@ -1817,10 +1817,10 @@ public:
 		m_scripted_particle_emitters.reserve(count);
 		for (int i = 0; i < count; ++i)
 		{
-			ScriptedParticleEmitter* emitter = MALMY_NEW(m_allocator, ScriptedParticleEmitter)(INVALID_ENTITY, m_allocator);
+			ScriptedParticleEmitter* emitter = MALMY_NEW(m_allocator, ScriptedParticleEmitter)(INVALID_GAMEOBJECT, m_allocator);
 			emitter->deserialize(serializer, m_engine.getResourceManager());
-			m_scripted_particle_emitters.insert(emitter->m_entity, emitter);
-			m_project.onComponentCreated(emitter->m_entity, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
+			m_scripted_particle_emitters.insert(emitter->m_gameobject, emitter);
+			m_project.onComponentCreated(emitter->m_gameobject, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
 		}
 	}
 
@@ -1864,7 +1864,7 @@ public:
 		for (int i = 0; i < size; ++i)
 		{
 			Camera camera;
-			serializer.read(camera.entity);
+			serializer.read(camera.gameobject);
 			serializer.read(camera.far);
 			serializer.read(camera.fov);
 			serializer.read(camera.is_ortho);
@@ -1872,8 +1872,8 @@ public:
 			serializer.read(camera.near);
 			serializer.readString(camera.slot, lengthOf(camera.slot));
 
-			m_cameras.insert(camera.entity, camera);
-			m_project.onComponentCreated(camera.entity, CAMERA_TYPE, this);
+			m_cameras.insert(camera.gameobject, camera);
+			m_project.onComponentCreated(camera.gameobject, CAMERA_TYPE, this);
 		}
 	}
 
@@ -1885,18 +1885,18 @@ public:
 		for (int i = 0; i < size; ++i)
 		{
 			auto& r = m_model_instances.emplace();
-			serializer.read(r.entity);
+			serializer.read(r.gameobject);
 			serializer.read(r.flags);
 			r.flags.base &= ModelInstance::PERSISTENT_FLAGS;
-			ASSERT(r.entity.index == i || !r.entity.isValid());
+			ASSERT(r.gameobject.index == i || !r.gameobject.isValid());
 			r.model = nullptr;
 			r.pose = nullptr;
 			r.meshes = nullptr;
 			r.mesh_count = 0;
 
-			if(r.entity != INVALID_ENTITY)
+			if(r.gameobject != INVALID_GAMEOBJECT)
 			{
-				r.matrix = m_project.getMatrix(r.entity);
+				r.matrix = m_project.getMatrix(r.gameobject);
 
 				u32 path;
 				serializer.read(path);
@@ -1904,7 +1904,7 @@ public:
 				if (path != 0)
 				{
 					auto* model = static_cast<Model*>(m_engine.getResourceManager().get(Model::TYPE)->load(Path(path)));
-					setModel(r.entity, model);
+					setModel(r.gameobject, model);
 				}
 
 				int material_count;
@@ -1916,11 +1916,11 @@ public:
 					{
 						char path[MAX_PATH_LENGTH];
 						serializer.readString(path, lengthOf(path));
-						setModelInstanceMaterial(r.entity, j, Path(path));
+						setModelInstanceMaterial(r.gameobject, j, Path(path));
 					}
 				}
 
-				m_project.onComponentCreated(r.entity, MODEL_INSTANCE_TYPE, this);
+				m_project.onComponentCreated(r.gameobject, MODEL_INSTANCE_TYPE, this);
 			}
 		}
 	}
@@ -1935,9 +1935,9 @@ public:
 			m_light_influenced_geometry.emplace(m_allocator);
 			PointLight& light = m_point_lights[i];
 			serializer.read(light);
-			m_point_lights_map.insert(light.m_entity, i);
+			m_point_lights_map.insert(light.m_gameobject, i);
 
-			m_project.onComponentCreated(light.m_entity, POINT_LIGHT_TYPE, this);
+			m_project.onComponentCreated(light.m_gameobject, POINT_LIGHT_TYPE, this);
 		}
 
 		serializer.read(size);
@@ -1945,10 +1945,10 @@ public:
 		{
 			GlobalLight light;
 			serializer.read(light);
-			m_global_lights.insert(light.m_entity, light);
-			m_project.onComponentCreated(light.m_entity, GLOBAL_LIGHT_TYPE, this);
+			m_global_lights.insert(light.m_gameobject, light);
+			m_project.onComponentCreated(light.m_gameobject, GLOBAL_LIGHT_TYPE, this);
 		}
-		serializer.read(m_active_global_light_entity);
+		serializer.read(m_active_global_light_gameobject);
 	}
 
 	void deserializeTerrains(InputBlob& serializer)
@@ -1957,9 +1957,9 @@ public:
 		serializer.read(size);
 		for (int i = 0; i < size; ++i)
 		{
-			auto* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, INVALID_ENTITY, *this, m_allocator);
+			auto* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, INVALID_GAMEOBJECT, *this, m_allocator);
 			terrain->deserialize(serializer, m_project, *this);
-			m_terrains.insert(terrain->getEntity(), terrain);
+			m_terrains.insert(terrain->getGameObject(), terrain);
 		}
 	}
 
@@ -1978,39 +1978,39 @@ public:
 	}
 
 
-	void destroyBoneAttachment(Entity entity)
+	void destroyBoneAttachment(GameObject gameobject)
 	{
-		const BoneAttachment& bone_attachment = m_bone_attachments[entity];
-		Entity parent_entity = bone_attachment.parent_entity;
-		if (parent_entity.isValid() && parent_entity.index < m_model_instances.size())
+		const BoneAttachment& bone_attachment = m_bone_attachments[gameobject];
+		GameObject parent_gameobject = bone_attachment.parent_gameobject;
+		if (parent_gameobject.isValid() && parent_gameobject.index < m_model_instances.size())
 		{
-			ModelInstance& mi = m_model_instances[bone_attachment.parent_entity.index];
+			ModelInstance& mi = m_model_instances[bone_attachment.parent_gameobject.index];
 			mi.flags.unset(ModelInstance::IS_BONE_ATTACHMENT_PARENT);
 		}
-		m_bone_attachments.erase(entity);
-		m_project.onComponentDestroyed(entity, BONE_ATTACHMENT_TYPE, this);
+		m_bone_attachments.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, BONE_ATTACHMENT_TYPE, this);
 	}
 
 
-	void destroyEnvironmentProbe(Entity entity)
+	void destroyEnvironmentProbe(GameObject gameobject)
 	{
-		auto& probe = m_environment_probes[entity];
+		auto& probe = m_environment_probes[gameobject];
 		if (probe.texture) probe.texture->getResourceManager().unload(*probe.texture);
 		if (probe.irradiance) probe.irradiance->getResourceManager().unload(*probe.irradiance);
 		if (probe.radiance) probe.radiance->getResourceManager().unload(*probe.radiance);
-		m_environment_probes.erase(entity);
-		m_project.onComponentDestroyed(entity, ENVIRONMENT_PROBE_TYPE, this);
+		m_environment_probes.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, ENVIRONMENT_PROBE_TYPE, this);
 	}
 
 
-	void destroyModelInstance(Entity entity)
+	void destroyModelInstance(GameObject gameobject)
 	{
 		for (int i = 0; i < m_light_influenced_geometry.size(); ++i)
 		{
-			Array<Entity>& influenced_geometry = m_light_influenced_geometry[i];
+			Array<GameObject>& influenced_geometry = m_light_influenced_geometry[i];
 			for (int j = 0; j < influenced_geometry.size(); ++j)
 			{
-				if (influenced_geometry[j] == entity)
+				if (influenced_geometry[j] == gameobject)
 				{
 					influenced_geometry.erase(j);
 					break;
@@ -2018,87 +2018,87 @@ public:
 			}
 		}
 
-		setModel(entity, nullptr);
-		auto& model_instance = m_model_instances[entity.index];
+		setModel(gameobject, nullptr);
+		auto& model_instance = m_model_instances[gameobject.index];
 		MALMY_DELETE(m_allocator, model_instance.pose);
 		model_instance.pose = nullptr;
-		model_instance.entity = INVALID_ENTITY;
-		m_project.onComponentDestroyed(entity, MODEL_INSTANCE_TYPE, this);
+		model_instance.gameobject = INVALID_GAMEOBJECT;
+		m_project.onComponentDestroyed(gameobject, MODEL_INSTANCE_TYPE, this);
 	}
 
 
-	void destroyGlobalLight(Entity entity)
+	void destroyGlobalLight(GameObject gameobject)
 	{
-		m_project.onComponentDestroyed(entity, GLOBAL_LIGHT_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, GLOBAL_LIGHT_TYPE, this);
 
-		if (entity == m_active_global_light_entity)
+		if (gameobject == m_active_global_light_gameobject)
 		{
-			m_active_global_light_entity = INVALID_ENTITY;
+			m_active_global_light_gameobject = INVALID_GAMEOBJECT;
 		}
-		m_global_lights.erase(entity);
+		m_global_lights.erase(gameobject);
 	}
 
 
-	void destroyDecal(Entity entity)
+	void destroyDecal(GameObject gameobject)
 	{
-		m_decals.erase(entity);
-		m_project.onComponentDestroyed(entity, DECAL_TYPE, this);
+		m_decals.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, DECAL_TYPE, this);
 	}
 
 
-	void destroyPointLight(Entity entity)
+	void destroyPointLight(GameObject gameobject)
 	{
-		int index = m_point_lights_map[entity];
+		int index = m_point_lights_map[gameobject];
 		m_point_lights.eraseFast(index);
-		m_point_lights_map.erase(entity);
+		m_point_lights_map.erase(gameobject);
 		m_light_influenced_geometry.eraseFast(index);
 		if (index < m_point_lights.size())
 		{
-			m_point_lights_map[{m_point_lights[index].m_entity.index}] = index;
+			m_point_lights_map[{m_point_lights[index].m_gameobject.index}] = index;
 		}
-		m_project.onComponentDestroyed(entity, POINT_LIGHT_TYPE, this);
+		m_project.onComponentDestroyed(gameobject, POINT_LIGHT_TYPE, this);
 	}
 
 
-	void destroyTextMesh(Entity entity)
+	void destroyTextMesh(GameObject gameobject)
 	{
-		TextMesh* text = m_text_meshes[entity];
+		TextMesh* text = m_text_meshes[gameobject];
 		MALMY_DELETE(m_allocator, text);
-		m_text_meshes.erase(entity);
-		m_project.onComponentDestroyed(entity, TEXT_MESH_TYPE, this);
+		m_text_meshes.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, TEXT_MESH_TYPE, this);
 	}
 
 
-	void destroyCamera(Entity entity)
+	void destroyCamera(GameObject gameobject)
 	{
-		m_cameras.erase(entity);
-		m_project.onComponentDestroyed(entity, CAMERA_TYPE, this);
+		m_cameras.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, CAMERA_TYPE, this);
 	}
 
 
-	void destroyTerrain(Entity entity)
+	void destroyTerrain(GameObject gameobject)
 	{
-		MALMY_DELETE(m_allocator, m_terrains[entity]);
-		m_terrains.erase(entity);
-		m_project.onComponentDestroyed(entity, TERRAIN_TYPE, this);
+		MALMY_DELETE(m_allocator, m_terrains[gameobject]);
+		m_terrains.erase(gameobject);
+		m_project.onComponentDestroyed(gameobject, TERRAIN_TYPE, this);
 	}
 
 
-	void destroyParticleEmitter(Entity entity)
+	void destroyParticleEmitter(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		emitter->reset();
 		emitter->m_is_valid = false;
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyScriptedParticleEmitter(Entity entity)
+	void destroyScriptedParticleEmitter(GameObject gameobject)
 	{
-		auto* emitter = m_scripted_particle_emitters[entity];
-		m_project.onComponentDestroyed(emitter->m_entity, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
-		m_scripted_particle_emitters.erase(emitter->m_entity);
+		auto* emitter = m_scripted_particle_emitters[gameobject];
+		m_project.onComponentDestroyed(emitter->m_gameobject, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
+		m_scripted_particle_emitters.erase(emitter->m_gameobject);
 		MALMY_DELETE(m_allocator, emitter);
 	}
 
@@ -2108,41 +2108,41 @@ public:
 		if (emitter->m_is_valid) return;
 		if (!emitter->m_modules.empty()) return;
 
-		m_particle_emitters.erase(emitter->m_entity);
+		m_particle_emitters.erase(emitter->m_gameobject);
 		MALMY_DELETE(m_allocator, emitter);
 	}
 
 
-	void destroyParticleEmitterAlpha(Entity entity)
+	void destroyParticleEmitterAlpha(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_ALPHA_TYPE);
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_ALPHA_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_ALPHA_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterForce(Entity entity)
+	void destroyParticleEmitterForce(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_FORCE_HASH);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_FORCE_HASH, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_FORCE_HASH, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterSubimage(Entity entity)
+	void destroyParticleEmitterSubimage(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_SUBIMAGE_TYPE);
 
 		ASSERT(module);
@@ -2150,43 +2150,43 @@ public:
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
 		emitter->m_subimage_module = nullptr;
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterAttractor(Entity entity)
+	void destroyParticleEmitterAttractor(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_ATTRACTOR_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterSize(Entity entity)
+	void destroyParticleEmitterSize(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_SIZE_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_SIZE_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_SIZE_TYPE, this);
 		cleanup(emitter);
 
 	}
 
 
-	float getParticleEmitterPlaneBounce(Entity entity) override
+	float getParticleEmitterPlaneBounce(GameObject gameobject) override
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		for(auto* module : emitter->m_modules)
 		{
 			if(module->getType() == ParticleEmitter::PlaneModule::s_type)
@@ -2198,9 +2198,9 @@ public:
 	}
 
 
-	void setParticleEmitterPlaneBounce(Entity entity, float value) override
+	void setParticleEmitterPlaneBounce(GameObject gameobject, float value) override
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		for (auto* module : emitter->m_modules)
 		{
 			if (module->getType() == ParticleEmitter::PlaneModule::s_type)
@@ -2212,9 +2212,9 @@ public:
 	}
 
 
-	float getParticleEmitterAttractorForce(Entity entity) override
+	float getParticleEmitterAttractorForce(GameObject gameobject) override
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		for (auto* module : emitter->m_modules)
 		{
 			if (module->getType() == ParticleEmitter::AttractorModule::s_type)
@@ -2226,9 +2226,9 @@ public:
 	}
 
 
-	void setParticleEmitterAttractorForce(Entity entity, float value) override
+	void setParticleEmitterAttractorForce(GameObject gameobject, float value) override
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		for (auto* module : emitter->m_modules)
 		{
 			if (module->getType() == ParticleEmitter::AttractorModule::s_type)
@@ -2240,71 +2240,71 @@ public:
 	}
 
 
-	void destroyParticleEmitterPlane(Entity entity)
+	void destroyParticleEmitterPlane(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_PLANE_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_PLANE_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_PLANE_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterLinearMovement(Entity entity)
+	void destroyParticleEmitterLinearMovement(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
 		cleanup(emitter);
 	}
 
 
-	void destroyParticleEmitterSpawnShape(Entity entity)
+	void destroyParticleEmitterSpawnShape(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_SPAWN_SHAPE_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
 		cleanup(emitter);
 
 	}
 
 
-	void destroyParticleEmitterRandomRotation(Entity entity)
+	void destroyParticleEmitterRandomRotation(GameObject gameobject)
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		auto* module = emitter->getModule(PARTICLE_EMITTER_RANDOM_ROTATION_TYPE);
 
 		ASSERT(module);
 
 		MALMY_DELETE(m_allocator, module);
 		emitter->m_modules.eraseItem(module);
-		m_project.onComponentDestroyed(emitter->m_entity, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
+		m_project.onComponentDestroyed(emitter->m_gameobject, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
 		cleanup(emitter);
 
 	}
 
 
-	void setParticleEmitterAlpha(Entity entity, const Vec2* values, int count) override
+	void setParticleEmitterAlpha(GameObject gameobject, const Vec2* values, int count) override
 	{
 		ASSERT(count > 0);
 		ASSERT(values[1].x < 0.001f);
 		ASSERT(values[count - 2].x > 0.999f);
 
-		auto* alpha_module = getEmitterModule<ParticleEmitter::AlphaModule>(entity);
+		auto* alpha_module = getEmitterModule<ParticleEmitter::AlphaModule>(gameobject);
 		if (!alpha_module) return;
 
 		alpha_module->m_values.resize(count);
@@ -2316,93 +2316,93 @@ public:
 	}
 
 
-	void setParticleEmitterSubimageRows(Entity entity, const int& value) override
+	void setParticleEmitterSubimageRows(GameObject gameobject, const int& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(gameobject);
 		if (module) module->rows = value;
 	}
 
 
-	void setParticleEmitterSubimageCols(Entity entity, const int& value) override
+	void setParticleEmitterSubimageCols(GameObject gameobject, const int& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(gameobject);
 		if (module) module->cols = value;
 	}
 
 
-	int getParticleEmitterSubimageRows(Entity entity) override
+	int getParticleEmitterSubimageRows(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(gameobject);
 		return module ? module->rows : 1;
 	}
 
 
-	int getParticleEmitterSubimageCols(Entity entity) override
+	int getParticleEmitterSubimageCols(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SubimageModule>(gameobject);
 		return module ? module->cols : 1;
 	}
 
 
-	void setParticleEmitterAcceleration(Entity entity, const Vec3& value) override
+	void setParticleEmitterAcceleration(GameObject gameobject, const Vec3& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::ForceModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::ForceModule>(gameobject);
 		if (module) module->m_acceleration = value;
 	}
 
 
-	void setParticleEmitterAutoemit(Entity entity, bool autoemit) override
+	void setParticleEmitterAutoemit(GameObject gameobject, bool autoemit) override
 	{
-		m_particle_emitters[entity]->m_autoemit = autoemit;
+		m_particle_emitters[gameobject]->m_autoemit = autoemit;
 	}
 
 
-	bool getParticleEmitterAutoemit(Entity entity) override
+	bool getParticleEmitterAutoemit(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity]->m_autoemit;
+		return m_particle_emitters[gameobject]->m_autoemit;
 	}
 
 
-	void setParticleEmitterLocalSpace(Entity entity, bool local_space) override
+	void setParticleEmitterLocalSpace(GameObject gameobject, bool local_space) override
 	{
-		m_particle_emitters[entity]->m_local_space = local_space;
+		m_particle_emitters[gameobject]->m_local_space = local_space;
 	}
 
 
-	bool getParticleEmitterLocalSpace(Entity entity) override
+	bool getParticleEmitterLocalSpace(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity]->m_local_space;
+		return m_particle_emitters[gameobject]->m_local_space;
 	}
 
 
-	Vec3 getParticleEmitterAcceleration(Entity entity) override
+	Vec3 getParticleEmitterAcceleration(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::ForceModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::ForceModule>(gameobject);
 		return module ? module->m_acceleration : Vec3();
 	}
 
 
-	int getParticleEmitterSizeCount(Entity entity) override
+	int getParticleEmitterSizeCount(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(gameobject);
 		return module ? module->m_values.size() : 0; 
 	}
 
 
-	const Vec2* getParticleEmitterSize(Entity entity) override
+	const Vec2* getParticleEmitterSize(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(gameobject);
 		return module ? &module->m_values[0] : nullptr;
 	}
 
 
-	void setParticleEmitterSize(Entity entity, const Vec2* values, int count) override
+	void setParticleEmitterSize(GameObject gameobject, const Vec2* values, int count) override
 	{
 		ASSERT(count > 0);
 		ASSERT(values[0].x < 0.001f);
 		ASSERT(values[count-1].x > 0.999f);
 
-		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SizeModule>(gameobject);
 		if (!module) return;
 
 		auto size_module = static_cast<ParticleEmitter::SizeModule*>(module);
@@ -2416,9 +2416,9 @@ public:
 
 
 	template <typename T>
-	T* getEmitterModule(Entity entity) const
+	T* getEmitterModule(GameObject gameobject) const
 	{
-		auto& modules = m_particle_emitters[entity]->m_modules;
+		auto& modules = m_particle_emitters[gameobject]->m_modules;
 		for (auto* module : modules)
 		{
 			if (module->getType() == T::s_type)
@@ -2430,30 +2430,30 @@ public:
 	}
 
 
-	int getParticleEmitterAlphaCount(Entity entity) override 
+	int getParticleEmitterAlphaCount(GameObject gameobject) override 
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AlphaModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::AlphaModule>(gameobject);
 		return module ? module->m_values.size() : 0;
 	}
 
 
-	const Vec2* getParticleEmitterAlpha(Entity entity) override
+	const Vec2* getParticleEmitterAlpha(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AlphaModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::AlphaModule>(gameobject);
 		return module ? &module->m_values[0] : 0;
 	}
 
 
-	Vec2 getParticleEmitterLinearMovementX(Entity entity) override
+	Vec2 getParticleEmitterLinearMovementX(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		return module ? Vec2(module->m_x.from, module->m_x.to) : Vec2(0, 0);
 	}
 
 
-	void setParticleEmitterLinearMovementX(Entity entity, const Vec2& value) override
+	void setParticleEmitterLinearMovementX(GameObject gameobject, const Vec2& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		if (module)
 		{
 			module->m_x = value;
@@ -2462,16 +2462,16 @@ public:
 	}
 
 
-	Vec2 getParticleEmitterLinearMovementY(Entity entity) override
+	Vec2 getParticleEmitterLinearMovementY(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		return module ? Vec2(module->m_y.from, module->m_y.to) : Vec2(0, 0);
 	}
 
 
-	void setParticleEmitterLinearMovementY(Entity entity, const Vec2& value) override
+	void setParticleEmitterLinearMovementY(GameObject gameobject, const Vec2& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		if (module)
 		{
 			module->m_y = value;
@@ -2480,16 +2480,16 @@ public:
 	}
 
 
-	Vec2 getParticleEmitterLinearMovementZ(Entity entity) override
+	Vec2 getParticleEmitterLinearMovementZ(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		return module ? Vec2(module->m_z.from, module->m_z.to) : Vec2(0, 0);
 	}
 
 
-	void setParticleEmitterLinearMovementZ(Entity entity, const Vec2& value) override
+	void setParticleEmitterLinearMovementZ(GameObject gameobject, const Vec2& value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::LinearMovementModule>(gameobject);
 		if (module)
 		{
 			module->m_z = value;
@@ -2498,61 +2498,61 @@ public:
 	}
 
 
-	Vec2 getParticleEmitterInitialLife(Entity entity) override
+	Vec2 getParticleEmitterInitialLife(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity]->m_initial_life;
+		return m_particle_emitters[gameobject]->m_initial_life;
 	}
 
 
-	Vec2 getParticleEmitterSpawnPeriod(Entity entity) override
+	Vec2 getParticleEmitterSpawnPeriod(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity]->m_spawn_period;
+		return m_particle_emitters[gameobject]->m_spawn_period;
 	}
 
 
-	void setParticleEmitterInitialLife(Entity entity, const Vec2& value) override
+	void setParticleEmitterInitialLife(GameObject gameobject, const Vec2& value) override
 	{
-		m_particle_emitters[entity]->m_initial_life = value;
-		m_particle_emitters[entity]->m_initial_life.checkZero();
+		m_particle_emitters[gameobject]->m_initial_life = value;
+		m_particle_emitters[gameobject]->m_initial_life.checkZero();
 	}
 
 
-	void setParticleEmitterInitialSize(Entity entity, const Vec2& value) override
+	void setParticleEmitterInitialSize(GameObject gameobject, const Vec2& value) override
 	{
-		m_particle_emitters[entity]->m_initial_size = value;
-		m_particle_emitters[entity]->m_initial_size.checkZero();
+		m_particle_emitters[gameobject]->m_initial_size = value;
+		m_particle_emitters[gameobject]->m_initial_size.checkZero();
 	}
 
 
-	Vec2 getParticleEmitterInitialSize(Entity entity) override
+	Vec2 getParticleEmitterInitialSize(GameObject gameobject) override
 	{
-		return m_particle_emitters[entity]->m_initial_size;
+		return m_particle_emitters[gameobject]->m_initial_size;
 	}
 
 
-	void setParticleEmitterSpawnPeriod(Entity entity, const Vec2& value) override
+	void setParticleEmitterSpawnPeriod(GameObject gameobject, const Vec2& value) override
 	{
-		auto* emitter = m_particle_emitters[entity];
+		auto* emitter = m_particle_emitters[gameobject];
 		emitter->m_spawn_period = value;
 		emitter->m_spawn_period.from = Math::maximum(0.01f, emitter->m_spawn_period.from);
 		emitter->m_spawn_period.checkZero();
 	}
 
 
-	void createTextMesh(Entity entity)
+	void createTextMesh(GameObject gameobject)
 	{
 		TextMesh* text = MALMY_NEW(m_allocator, TextMesh)(m_allocator);
-		m_text_meshes.insert(entity, text);
-		m_project.onComponentCreated(entity, TEXT_MESH_TYPE, this);
+		m_text_meshes.insert(gameobject, text);
+		m_project.onComponentCreated(gameobject, TEXT_MESH_TYPE, this);
 	}
 
 
-	void createCamera(Entity entity)
+	void createCamera(GameObject gameobject)
 	{
 		Camera camera;
 		camera.is_ortho = false;
 		camera.ortho_size = 10;
-		camera.entity = entity;
+		camera.gameobject = gameobject;
 		camera.fov = Math::degreesToRadians(60);
 		camera.screen_width = 800;
 		camera.screen_height = 600;
@@ -2561,130 +2561,130 @@ public:
 		camera.far = 10000.0f;
 		camera.slot[0] = '\0';
 		if (!getCameraInSlot("main").isValid()) copyString(camera.slot, "main");
-		m_cameras.insert(entity, camera);
-		m_project.onComponentCreated(entity, CAMERA_TYPE, this);
+		m_cameras.insert(gameobject, camera);
+		m_project.onComponentCreated(gameobject, CAMERA_TYPE, this);
 	}
 
 
-	void createTerrain(Entity entity)
+	void createTerrain(GameObject gameobject)
 	{
-		Terrain* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, entity, *this, m_allocator);
-		m_terrains.insert(entity, terrain);
-		m_project.onComponentCreated(entity, TERRAIN_TYPE, this);
+		Terrain* terrain = MALMY_NEW(m_allocator, Terrain)(m_renderer, gameobject, *this, m_allocator);
+		m_terrains.insert(gameobject, terrain);
+		m_project.onComponentCreated(gameobject, TERRAIN_TYPE, this);
 	}
 
 
-	void createParticleEmitterRandomRotation(Entity entity)
+	void createParticleEmitterRandomRotation(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::RandomRotationModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_RANDOM_ROTATION_TYPE, this);
 	}
 
 
-	void createParticleEmitterPlane(Entity entity)
+	void createParticleEmitterPlane(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::PlaneModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_PLANE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_PLANE_TYPE, this);
 	}
 
 
-	void createParticleEmitterLinearMovement(Entity entity)
+	void createParticleEmitterLinearMovement(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::LinearMovementModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_LINEAR_MOVEMENT_TYPE, this);
 	}
 
 
-	void createParticleEmitterSpawnShape(Entity entity)
+	void createParticleEmitterSpawnShape(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::SpawnShapeModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SPAWN_SHAPE_TYPE, this);
 	}
 
 
-	void createParticleEmitterAlpha(Entity entity)
+	void createParticleEmitterAlpha(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::AlphaModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_ALPHA_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_ALPHA_TYPE, this);
 	}
 
 
-	void createParticleEmitterForce(Entity entity)
+	void createParticleEmitterForce(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::ForceModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_FORCE_HASH, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_FORCE_HASH, this);
 	}
 
 
-	void createParticleEmitterSubimage(Entity entity)
+	void createParticleEmitterSubimage(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::SubimageModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SUBIMAGE_TYPE, this);
 	}
 
 
-	void createParticleEmitterAttractor(Entity entity)
+	void createParticleEmitterAttractor(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::AttractorModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_ATTRACTOR_TYPE, this);
 	}
 
 
-	void createParticleEmitterSize(Entity entity)
+	void createParticleEmitterSize(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		auto* emitter = m_particle_emitters.at(index);
 		auto module = MALMY_NEW(m_allocator, ParticleEmitter::SizeModule)(*emitter);
 		emitter->addModule(module);
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_SIZE_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_SIZE_TYPE, this);
 	}
 
 
-	void createScriptedParticleEmitter(Entity entity)
+	void createScriptedParticleEmitter(GameObject gameobject)
 	{
-		m_scripted_particle_emitters.insert(entity, MALMY_NEW(m_allocator, ScriptedParticleEmitter)(entity, m_allocator));
-		m_project.onComponentCreated(entity, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
+		m_scripted_particle_emitters.insert(gameobject, MALMY_NEW(m_allocator, ScriptedParticleEmitter)(gameobject, m_allocator));
+		m_project.onComponentCreated(gameobject, SCRIPTED_PARTICLE_EMITTER_TYPE, this);
 	}
 
 
-	void createParticleEmitter(Entity entity)
+	void createParticleEmitter(GameObject gameobject)
 	{
-		int index = allocateParticleEmitter(entity);
+		int index = allocateParticleEmitter(gameobject);
 		m_particle_emitters.at(index)->init();
 
-		m_project.onComponentCreated(entity, PARTICLE_EMITTER_TYPE, this);
+		m_project.onComponentCreated(gameobject, PARTICLE_EMITTER_TYPE, this);
 	}
 
 
-	int allocateParticleEmitter(Entity entity)
+	int allocateParticleEmitter(GameObject gameobject)
 	{
-		int index = m_particle_emitters.find(entity);
+		int index = m_particle_emitters.find(gameobject);
 		if (index >= 0) return index;
-		return m_particle_emitters.insert(entity, MALMY_NEW(m_allocator, ParticleEmitter)(entity, m_project, m_allocator));
+		return m_particle_emitters.insert(gameobject, MALMY_NEW(m_allocator, ParticleEmitter)(gameobject, m_project, m_allocator));
 	}
 
 
@@ -2694,13 +2694,13 @@ public:
 	}
 
 
-	ModelInstance* getModelInstance(Entity entity) override
+	ModelInstance* getModelInstance(GameObject gameobject) override
 	{
-		return &m_model_instances[entity.index];
+		return &m_model_instances[gameobject.index];
 	}
 
 
-	Vec3 getPoseBonePosition(Entity model_instance, int bone_index)
+	Vec3 getPoseBonePosition(GameObject model_instance, int bone_index)
 	{
 		Pose* pose = m_model_instances[model_instance.index].pose;
 		return pose->positions[bone_index];
@@ -2711,7 +2711,7 @@ public:
 	{
 		const PointLight& light = m_point_lights[light_idx];
 		Frustum frustum;
-		frustum.computeOrtho(m_project.getPosition(light.m_entity),
+		frustum.computeOrtho(m_project.getPosition(light.m_gameobject),
 			Vec3(1, 0, 0),
 			Vec3(0, 1, 0),
 			light.m_range,
@@ -2723,33 +2723,33 @@ public:
 	}
 
 
-	void onEntityDestroyed(Entity entity)
+	void onGameObjectDestroyed(GameObject gameobject)
 	{
 		for (auto& i : m_bone_attachments)
 		{
-			if (i.parent_entity == entity)
+			if (i.parent_gameobject == gameobject)
 			{
-				i.parent_entity = INVALID_ENTITY;
+				i.parent_gameobject = INVALID_GAMEOBJECT;
 				break;
 			}
 		}
 	}
 
 
-	void onEntityMoved(Entity entity)
+	void onGameObjectMoved(GameObject gameobject)
 	{
-		int index = entity.index;
+		int index = gameobject.index;
 
-		if (index < m_model_instances.size() && m_model_instances[index].entity.isValid() &&
+		if (index < m_model_instances.size() && m_model_instances[index].gameobject.isValid() &&
 			m_model_instances[index].model && m_model_instances[index].model->isReady())
 		{
 			ModelInstance& r = m_model_instances[index];
-			r.matrix = m_project.getMatrix(entity);
+			r.matrix = m_project.getMatrix(gameobject);
 			if (r.model && r.model->isReady())
 			{
-				float radius = m_project.getScale(entity) * r.model->getBoundingRadius();
-				Vec3 position = m_project.getPosition(entity);
-				m_culling_system->updateBoundingSphere({position, radius}, entity);
+				float radius = m_project.getScale(gameobject) * r.model->getBoundingRadius();
+				Vec3 position = m_project.getPosition(gameobject);
+				m_culling_system->updateBoundingSphere({position, radius}, gameobject);
 			}
 
 			float bounding_radius = r.model ? r.model->getBoundingRadius() : 1;
@@ -2757,23 +2757,23 @@ public:
 			{
 				for (int j = 0, c2 = m_light_influenced_geometry[light_idx].size(); j < c2; ++j)
 				{
-					if(m_light_influenced_geometry[light_idx][j] == entity)
+					if(m_light_influenced_geometry[light_idx][j] == gameobject)
 					{
 						m_light_influenced_geometry[light_idx].eraseFast(j);
 						break;
 					}
 				}
 
-				Vec3 pos = m_project.getPosition(r.entity);
+				Vec3 pos = m_project.getPosition(r.gameobject);
 				Frustum frustum = getPointLightFrustum(light_idx);
 				if(frustum.isSphereInside(pos, bounding_radius))
 				{
-					m_light_influenced_geometry[light_idx].push(entity);
+					m_light_influenced_geometry[light_idx].push(gameobject);
 				}
 			}
 		}
 
-		int decal_idx = m_decals.find(entity);
+		int decal_idx = m_decals.find(gameobject);
 		if (decal_idx >= 0)
 		{
 			updateDecalInfo(m_decals.at(decal_idx));
@@ -2781,9 +2781,9 @@ public:
 
 		for (int i = 0, c = m_point_lights.size(); i < c; ++i)
 		{
-			if (m_point_lights[i].m_entity == entity)
+			if (m_point_lights[i].m_gameobject == gameobject)
 			{
-				detectLightInfluencedGeometry({ m_point_lights[i].m_entity.index });
+				detectLightInfluencedGeometry({ m_point_lights[i].m_gameobject.index });
 				break;
 			}
 		}
@@ -2792,7 +2792,7 @@ public:
 		m_is_updating_attachments = true;
 		for (auto& attachment : m_bone_attachments)
 		{
-			if (attachment.parent_entity == entity)
+			if (attachment.parent_gameobject == gameobject)
 			{
 				updateBoneAttachment(attachment);
 			}
@@ -2802,7 +2802,7 @@ public:
 		if (m_is_updating_attachments || m_is_game_running) return;
 		for (auto& attachment : m_bone_attachments)
 		{
-			if (attachment.entity == entity)
+			if (attachment.gameobject == gameobject)
 			{
 				updateRelativeMatrix(attachment);
 				break;
@@ -2814,88 +2814,88 @@ public:
 	Engine& getEngine() const override { return m_engine; }
 
 
-	Entity getTerrainEntity(Entity entity) override
+	GameObject getTerrainGameObject(GameObject gameobject) override
 	{
-		return entity;
+		return gameobject;
 	}
 
 
-	Vec2 getTerrainResolution(Entity entity) override
+	Vec2 getTerrainResolution(GameObject gameobject) override
 	{
-		auto* terrain = m_terrains[entity];
+		auto* terrain = m_terrains[gameobject];
 		return Vec2((float)terrain->getWidth(), (float)terrain->getHeight());
 	}
 
 
-	Entity getFirstTerrain() override
+	GameObject getFirstTerrain() override
 	{
-		if (m_terrains.empty()) return INVALID_ENTITY;
+		if (m_terrains.empty()) return INVALID_GAMEOBJECT;
 		auto iter = m_terrains.begin();
-		return iter.value()->getEntity();
+		return iter.value()->getGameObject();
 	}
 
 
-	Entity getNextTerrain(Entity entity) override
+	GameObject getNextTerrain(GameObject gameobject) override
 	{
-		auto iter = m_terrains.find(entity);
+		auto iter = m_terrains.find(gameobject);
 		++iter;
-		if (!iter.isValid()) return INVALID_ENTITY;
-		return iter.value()->getEntity();
+		if (!iter.isValid()) return INVALID_GAMEOBJECT;
+		return iter.value()->getGameObject();
 	}
 
 
-	Vec3 getTerrainNormalAt(Entity entity, float x, float z) override
+	Vec3 getTerrainNormalAt(GameObject gameobject, float x, float z) override
 	{
-		return m_terrains[entity]->getNormal(x, z);
+		return m_terrains[gameobject]->getNormal(x, z);
 	}
 
 
-	float getTerrainHeightAt(Entity entity, float x, float z) override
+	float getTerrainHeightAt(GameObject gameobject, float x, float z) override
 	{
-		return m_terrains[entity]->getHeight(x, z);
+		return m_terrains[gameobject]->getHeight(x, z);
 	}
 
 
-	AABB getTerrainAABB(Entity entity) override
+	AABB getTerrainAABB(GameObject gameobject) override
 	{
-		return m_terrains[entity]->getAABB();
+		return m_terrains[gameobject]->getAABB();
 	}
 
 
-	Vec2 getTerrainSize(Entity entity) override
+	Vec2 getTerrainSize(GameObject gameobject) override
 	{
-		return m_terrains[entity]->getSize();
+		return m_terrains[gameobject]->getSize();
 	}
 
 
-	void setTerrainMaterialPath(Entity entity, const Path& path) override
+	void setTerrainMaterialPath(GameObject gameobject, const Path& path) override
 	{
 		if (path.isValid())
 		{
 			Material* material = static_cast<Material*>(m_engine.getResourceManager().get(Material::TYPE)->load(path));
-			m_terrains[entity]->setMaterial(material);
+			m_terrains[gameobject]->setMaterial(material);
 		}
 		else
 		{
-			m_terrains[entity]->setMaterial(nullptr);
+			m_terrains[gameobject]->setMaterial(nullptr);
 		}
 	}
 
 
-	Material* getTerrainMaterial(Entity entity) override { return m_terrains[entity]->getMaterial(); }
+	Material* getTerrainMaterial(GameObject gameobject) override { return m_terrains[gameobject]->getMaterial(); }
 
 
-	void setDecalScale(Entity entity, const Vec3& value) override
+	void setDecalScale(GameObject gameobject, const Vec3& value) override
 	{
-		Decal& decal = m_decals[entity];
+		Decal& decal = m_decals[gameobject];
 		decal.scale = value;
 		updateDecalInfo(decal);
 	}
 
 
-	Vec3 getDecalScale(Entity entity) override
+	Vec3 getDecalScale(GameObject gameobject) override
 	{
-		return m_decals[entity].scale;
+		return m_decals[gameobject].scale;
 	}
 
 
@@ -2910,10 +2910,10 @@ public:
 	}
 
 
-	void setDecalMaterialPath(Entity entity, const Path& path) override
+	void setDecalMaterialPath(GameObject gameobject, const Path& path) override
 	{
 		ResourceManagerBase* material_manager = m_engine.getResourceManager().get(Material::TYPE);
-		Decal& decal = m_decals[entity];
+		Decal& decal = m_decals[gameobject];
 		if (decal.material)
 		{
 			material_manager->unload(*decal.material);
@@ -2929,16 +2929,16 @@ public:
 	}
 
 
-	Path getDecalMaterialPath(Entity entity) override
+	Path getDecalMaterialPath(GameObject gameobject) override
 	{
-		Decal& decal = m_decals[entity];
+		Decal& decal = m_decals[gameobject];
 		return decal.material ? decal.material->getPath() : Path("");
 	}
 
 
-	Path getTerrainMaterialPath(Entity entity) override
+	Path getTerrainMaterialPath(GameObject gameobject) override
 	{
-		Terrain* terrain = m_terrains[entity];
+		Terrain* terrain = m_terrains[gameobject];
 		if (terrain->getMaterial())
 		{
 			return terrain->getMaterial()->getPath();
@@ -2950,36 +2950,36 @@ public:
 	}
 
 
-	void setTerrainXZScale(Entity entity, float scale) override
+	void setTerrainXZScale(GameObject gameobject, float scale) override
 	{
-		m_terrains[entity]->setXZScale(scale);
+		m_terrains[gameobject]->setXZScale(scale);
 	}
 
-	float getTerrainXZScale(Entity entity) override { return m_terrains[entity]->getXZScale(); }
+	float getTerrainXZScale(GameObject gameobject) override { return m_terrains[gameobject]->getXZScale(); }
 
 
-	void setTerrainYScale(Entity entity, float scale) override
+	void setTerrainYScale(GameObject gameobject, float scale) override
 	{
-		m_terrains[entity]->setYScale(scale);
+		m_terrains[gameobject]->setYScale(scale);
 	}
 
-	float getTerrainYScale(Entity entity) override { return m_terrains[entity]->getYScale(); }
+	float getTerrainYScale(GameObject gameobject) override { return m_terrains[gameobject]->getYScale(); }
 
 
-	Pose* lockPose(Entity entity) override { return m_model_instances[entity.index].pose; }
-	void unlockPose(Entity entity, bool changed) override
+	Pose* lockPose(GameObject gameobject) override { return m_model_instances[gameobject.index].pose; }
+	void unlockPose(GameObject gameobject, bool changed) override
 	{
 		if (!changed) return;
-		if (entity.index < m_model_instances.size()
-			&& (m_model_instances[entity.index].flags.isSet(ModelInstance::IS_BONE_ATTACHMENT_PARENT)) == 0)
+		if (gameobject.index < m_model_instances.size()
+			&& (m_model_instances[gameobject.index].flags.isSet(ModelInstance::IS_BONE_ATTACHMENT_PARENT)) == 0)
 		{
 			return;
 		}
 
-		Entity parent = entity;
+		GameObject parent = gameobject;
 		for (BoneAttachment& ba : m_bone_attachments)
 		{
-			if (ba.parent_entity != parent) continue;
+			if (ba.parent_gameobject != parent) continue;
 			m_is_updating_attachments = true;
 			updateBoneAttachment(ba);
 			m_is_updating_attachments = false;
@@ -2987,7 +2987,7 @@ public:
 	}
 
 
-	Model* getModelInstanceModel(Entity entity) override { return m_model_instances[entity.index].model; }
+	Model* getModelInstanceModel(GameObject gameobject) override { return m_model_instances[gameobject.index].model; }
 
 
 	static u64 getLayerMask(ModelInstance& model_instance)
@@ -3003,63 +3003,63 @@ public:
 	}
 
 
-	bool isModelInstanceEnabled(Entity entity) override
+	bool isModelInstanceEnabled(GameObject gameobject) override
 	{
-		ModelInstance& model_instance = m_model_instances[entity.index];
+		ModelInstance& model_instance = m_model_instances[gameobject.index];
 		return model_instance.flags.isSet(ModelInstance::ENABLED);
 	}
 
 
-	void enableModelInstance(Entity entity, bool enable) override
+	void enableModelInstance(GameObject gameobject, bool enable) override
 	{
-		ModelInstance& model_instance = m_model_instances[entity.index];
+		ModelInstance& model_instance = m_model_instances[gameobject.index];
 		model_instance.flags.set(ModelInstance::ENABLED, enable);
 		if (enable)
 		{
 			if (!model_instance.model || !model_instance.model->isReady()) return;
 
-			Sphere sphere(m_project.getPosition(model_instance.entity), model_instance.model->getBoundingRadius());
+			Sphere sphere(m_project.getPosition(model_instance.gameobject), model_instance.model->getBoundingRadius());
 			u64 layer_mask = getLayerMask(model_instance);
-			if (!m_culling_system->isAdded(entity)) m_culling_system->addStatic(entity, sphere, layer_mask);
+			if (!m_culling_system->isAdded(gameobject)) m_culling_system->addStatic(gameobject, sphere, layer_mask);
 		}
 		else
 		{
-			m_culling_system->removeStatic(entity);
+			m_culling_system->removeStatic(gameobject);
 		}
 	}
 
 
-	Path getModelInstancePath(Entity entity) override
+	Path getModelInstancePath(GameObject gameobject) override
 	{
-		return m_model_instances[entity.index].model ? m_model_instances[entity.index].model->getPath() : Path("");
+		return m_model_instances[gameobject.index].model ? m_model_instances[gameobject.index].model->getPath() : Path("");
 	}
 
 
-	int getModelInstanceMaterialsCount(Entity entity) override
+	int getModelInstanceMaterialsCount(GameObject gameobject) override
 	{
-		return m_model_instances[entity.index].model ? m_model_instances[entity.index].mesh_count : 0;
+		return m_model_instances[gameobject.index].model ? m_model_instances[gameobject.index].mesh_count : 0;
 	}
 
 
-	void setModelInstancePath(Entity entity, const Path& path) override
+	void setModelInstancePath(GameObject gameobject, const Path& path) override
 	{
-		ModelInstance& r = m_model_instances[entity.index];
+		ModelInstance& r = m_model_instances[gameobject.index];
 
 		auto* manager = m_engine.getResourceManager().get(Model::TYPE);
 		if (path.isValid())
 		{
 			Model* model = static_cast<Model*>(manager->load(path));
-			setModel(entity, model);
+			setModel(gameobject, model);
 		}
 		else
 		{
-			setModel(entity, nullptr);
+			setModel(gameobject, nullptr);
 		}
-		r.matrix = m_project.getMatrix(r.entity);
+		r.matrix = m_project.getMatrix(r.gameobject);
 	}
 
 
-	void forceGrassUpdate(Entity entity) override { m_terrains[entity]->forceGrassUpdate(); }
+	void forceGrassUpdate(GameObject gameobject) override { m_terrains[gameobject]->forceGrassUpdate(); }
 
 
 	void getTerrainInfos(const Frustum& frustum, const Vec3& lod_ref_point, Array<TerrainInfo>& infos) override
@@ -3073,7 +3073,7 @@ public:
 	}
 
 
-	void getGrassInfos(const Frustum& frustum, Entity camera, Array<GrassInfo>& infos) override
+	void getGrassInfos(const Frustum& frustum, GameObject camera, Array<GrassInfo>& infos) override
 	{
 		PROFILE_FUNCTION();
 
@@ -3091,8 +3091,8 @@ public:
 		auto* scene = LuaWrapper::checkArg<RenderSceneImpl*>(L, 1);
 		const char* slot = LuaWrapper::checkArg<const char*>(L, 2);
 		float x, y;
-		Entity camera_entity = scene->getCameraInSlot(slot);
-		if (!camera_entity.isValid()) return 0;
+		GameObject camera_gameobject = scene->getCameraInSlot(slot);
+		if (!camera_gameobject.isValid()) return 0;
 		if (lua_gettop(L) > 3)
 		{
 			x = LuaWrapper::checkArg<float>(L, 3);
@@ -3100,14 +3100,14 @@ public:
 		}
 		else
 		{
-			x = scene->getCameraScreenWidth(camera_entity) * 0.5f;
-			y = scene->getCameraScreenHeight(camera_entity) * 0.5f;
+			x = scene->getCameraScreenWidth(camera_gameobject) * 0.5f;
+			y = scene->getCameraScreenHeight(camera_gameobject) * 0.5f;
 		}
 
 		Vec3 origin, dir;
-		scene->getRay(camera_entity, {x, y}, origin, dir);
+		scene->getRay(camera_gameobject, {x, y}, origin, dir);
 
-		RayCastModelHit hit = scene->castRay(origin, dir, INVALID_ENTITY);
+		RayCastModelHit hit = scene->castRay(origin, dir, INVALID_GAMEOBJECT);
 		LuaWrapper::push(L, hit.m_is_hit);
 		LuaWrapper::push(L, hit.m_is_hit ? hit.m_origin + hit.m_dir * hit.m_t : Vec3(0, 0, 0));
 
@@ -3165,13 +3165,13 @@ public:
 	}
 
 
-	static float LUA_getTerrainHeightAt(RenderSceneImpl* render_scene, Entity entity, int x, int z)
+	static float LUA_getTerrainHeightAt(RenderSceneImpl* render_scene, GameObject gameobject, int x, int z)
 	{
-		return render_scene->m_terrains[entity]->getHeight(x, z);
+		return render_scene->m_terrains[gameobject]->getHeight(x, z);
 	}
 
 
-	static void LUA_emitParticle(RenderSceneImpl* render_scene, Entity emitter)
+	static void LUA_emitParticle(RenderSceneImpl* render_scene, GameObject emitter)
 	{
 		int idx = render_scene->m_particle_emitters.find(emitter);
 		if (idx < 0) return;
@@ -3179,9 +3179,9 @@ public:
 	}
 
 
-	void setTerrainHeightAt(Entity entity, int x, int z, float height)
+	void setTerrainHeightAt(GameObject gameobject, int x, int z, float height)
 	{
-		m_terrains[entity]->setHeight(x, z, height);
+		m_terrains[gameobject]->setHeight(x, z, height);
 	}
 
 	static u32 LUA_getTexturePixel(Texture* texture, int x, int y)
@@ -3293,11 +3293,11 @@ public:
 
 
 	static void LUA_setModelInstanceMaterial(RenderScene* scene,
-		Entity entity,
+		GameObject gameobject,
 		int index,
 		const char* path)
 	{
-		scene->setModelInstanceMaterial(entity, index, Path(path));
+		scene->setModelInstanceMaterial(gameobject, index, Path(path));
 	}
 
 
@@ -3307,93 +3307,93 @@ public:
 	}
 
 
-	int getGrassRotationMode(Entity entity, int index) override
+	int getGrassRotationMode(GameObject gameobject, int index) override
 	{
-		return (int)m_terrains[entity]->getGrassTypeRotationMode(index);
+		return (int)m_terrains[gameobject]->getGrassTypeRotationMode(index);
 	}
 
 
-	void setGrassRotationMode(Entity entity, int index, int value) override
+	void setGrassRotationMode(GameObject gameobject, int index, int value) override
 	{
-		m_terrains[entity]->setGrassTypeRotationMode(index, (Terrain::GrassType::RotationMode)value);
+		m_terrains[gameobject]->setGrassTypeRotationMode(index, (Terrain::GrassType::RotationMode)value);
 	}
 
 
-	float getGrassDistance(Entity entity, int index) override
+	float getGrassDistance(GameObject gameobject, int index) override
 	{
-		return m_terrains[entity]->getGrassTypeDistance(index);
+		return m_terrains[gameobject]->getGrassTypeDistance(index);
 	}
 
 
-	void setGrassDistance(Entity entity, int index, float value) override
+	void setGrassDistance(GameObject gameobject, int index, float value) override
 	{
-		m_terrains[entity]->setGrassTypeDistance(index, value);
+		m_terrains[gameobject]->setGrassTypeDistance(index, value);
 	}
 
 
 	void enableGrass(bool enabled) override { m_is_grass_enabled = enabled; }
 
 
-	void setGrassDensity(Entity entity, int index, int density) override
+	void setGrassDensity(GameObject gameobject, int index, int density) override
 	{
-		m_terrains[entity]->setGrassTypeDensity(index, density);
+		m_terrains[gameobject]->setGrassTypeDensity(index, density);
 	}
 
 
-	int getGrassDensity(Entity entity, int index) override
+	int getGrassDensity(GameObject gameobject, int index) override
 	{
-		return m_terrains[entity]->getGrassTypeDensity(index);
+		return m_terrains[gameobject]->getGrassTypeDensity(index);
 	}
 
 
-	void setGrassPath(Entity entity, int index, const Path& path) override
+	void setGrassPath(GameObject gameobject, int index, const Path& path) override
 	{
-		m_terrains[entity]->setGrassTypePath(index, path);
+		m_terrains[gameobject]->setGrassTypePath(index, path);
 	}
 
 
-	Path getGrassPath(Entity entity, int index) override
+	Path getGrassPath(GameObject gameobject, int index) override
 	{
-		return m_terrains[entity]->getGrassTypePath(index);
+		return m_terrains[gameobject]->getGrassTypePath(index);
 	}
 
 
-	int getGrassCount(Entity entity) override
+	int getGrassCount(GameObject gameobject) override
 	{
-		return m_terrains[entity]->getGrassTypeCount();
+		return m_terrains[gameobject]->getGrassTypeCount();
 	}
 
 
-	void addGrass(Entity entity, int index) override
+	void addGrass(GameObject gameobject, int index) override
 	{
-		m_terrains[entity]->addGrassType(index);
+		m_terrains[gameobject]->addGrassType(index);
 	}
 
 
-	void removeGrass(Entity entity, int index) override
+	void removeGrass(GameObject gameobject, int index) override
 	{
-		m_terrains[entity]->removeGrassType(index);
+		m_terrains[gameobject]->removeGrassType(index);
 	}
 
 
-	Entity getFirstModelInstance() override
+	GameObject getFirstModelInstance() override
 	{
-		return getNextModelInstance(INVALID_ENTITY);
+		return getNextModelInstance(INVALID_GAMEOBJECT);
 	}
 
 
-	Entity getNextModelInstance(Entity entity) override
+	GameObject getNextModelInstance(GameObject gameobject) override
 	{
-		for(int i = entity.index + 1; i < m_model_instances.size(); ++i)
+		for(int i = gameobject.index + 1; i < m_model_instances.size(); ++i)
 		{
-			if (m_model_instances[i].entity != INVALID_ENTITY) return {i};
+			if (m_model_instances[i].gameobject != INVALID_GAMEOBJECT) return {i};
 		}
-		return INVALID_ENTITY;
+		return INVALID_GAMEOBJECT;
 	}
 
 	
 	int getClosestPointLights(const Vec3& reference_pos,
-		Entity* lights,
+		GameObject* lights,
 		int max_lights) override
 	{
 
@@ -3405,11 +3405,11 @@ public:
 		int light_count = 0;
 		for (auto light : m_point_lights)
 		{
-			Vec3 light_pos = m_project.getPosition(light.m_entity);
+			Vec3 light_pos = m_project.getPosition(light.m_gameobject);
 			float dist_squared = (reference_pos - light_pos).squaredLength();
 
 			dists[light_count] = dist_squared;
-			lights[light_count] = { light.m_entity.index };
+			lights[light_count] = { light.m_gameobject.index };
 
 			for (int i = light_count; i > 0 && dists[i - 1] > dists[i]; --i)
 			{
@@ -3417,7 +3417,7 @@ public:
 				dists[i] = dists[i - 1];
 				dists[i - 1] = tmp;
 
-				Entity tmp2 = lights[i];
+				GameObject tmp2 = lights[i];
 				lights[i] = lights[i - 1];
 				lights[i - 1] = tmp2;
 			}
@@ -3431,13 +3431,13 @@ public:
 		for (int i = max_lights; i < m_point_lights.size(); ++i)
 		{
 			PointLight& light = m_point_lights[i];
-			Vec3 light_pos = m_project.getPosition(light.m_entity);
+			Vec3 light_pos = m_project.getPosition(light.m_gameobject);
 			float dist_squared = (reference_pos - light_pos).squaredLength();
 
 			if (dist_squared < dists[max_lights - 1])
 			{
 				dists[max_lights - 1] = dist_squared;
-				lights[max_lights - 1] = { light.m_entity.index };
+				lights[max_lights - 1] = { light.m_gameobject.index };
 
 				for (int i = max_lights - 1; i > 0 && dists[i - 1] > dists[i];
 					 --i)
@@ -3446,7 +3446,7 @@ public:
 					dists[i] = dists[i - 1];
 					dists[i - 1] = tmp;
 
-					Entity tmp2 = lights[i];
+					GameObject tmp2 = lights[i];
 					lights[i] = lights[i - 1];
 					lights[i - 1] = tmp2;
 				}
@@ -3457,34 +3457,34 @@ public:
 	}
 
 
-	void getPointLights(const Frustum& frustum, Array<Entity>& lights) override
+	void getPointLights(const Frustum& frustum, Array<GameObject>& lights) override
 	{
 		for (int i = 0, ci = m_point_lights.size(); i < ci; ++i)
 		{
 			PointLight& light = m_point_lights[i];
 
-			if (frustum.isSphereInside(m_project.getPosition(light.m_entity), light.m_range))
+			if (frustum.isSphereInside(m_project.getPosition(light.m_gameobject), light.m_range))
 			{
-				lights.push(light.m_entity);
+				lights.push(light.m_gameobject);
 			}
 		}
 	}
 
 
-	void setLightCastShadows(Entity entity, bool cast_shadows) override
+	void setLightCastShadows(GameObject gameobject, bool cast_shadows) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_cast_shadows = cast_shadows;
+		m_point_lights[m_point_lights_map[gameobject]].m_cast_shadows = cast_shadows;
 	}
 
 
-	bool getLightCastShadows(Entity entity) override
+	bool getLightCastShadows(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_cast_shadows;
+		return m_point_lights[m_point_lights_map[gameobject]].m_cast_shadows;
 	}
 
 
-	void getPointLightInfluencedGeometry(Entity light,
-		Entity camera,
+	void getPointLightInfluencedGeometry(GameObject light,
+		GameObject camera,
 		const Vec3& lod_ref_point,
 		const Frustum& frustum,
 		Array<MeshInstance>& infos) override
@@ -3496,9 +3496,9 @@ public:
 		float final_lod_multiplier = m_lod_multiplier * lod_multiplier;
 		for (int j = 0, cj = m_light_influenced_geometry[light_index].size(); j < cj; ++j)
 		{
-			Entity model_instance_entity = m_light_influenced_geometry[light_index][j];
-			ModelInstance& model_instance = m_model_instances[model_instance_entity.index];
-			const Sphere& sphere = m_culling_system->getSphere(model_instance_entity);
+			GameObject model_instance_gameobject = m_light_influenced_geometry[light_index][j];
+			ModelInstance& model_instance = m_model_instances[model_instance_gameobject.index];
+			const Sphere& sphere = m_culling_system->getSphere(model_instance_gameobject);
 			float squared_distance = (model_instance.matrix.getTranslation() - lod_ref_point).squaredLength();
 			squared_distance *= final_lod_multiplier;
 
@@ -3509,15 +3509,15 @@ public:
 				{
 					auto& info = infos.emplace();
 					info.mesh = &model_instance.model->getMesh(k);
-					info.owner = model_instance_entity;
+					info.owner = model_instance_gameobject;
 				}
 			}
 		}
 	}
 
 
-	void getPointLightInfluencedGeometry(Entity light, 
-		Entity camera, 
+	void getPointLightInfluencedGeometry(GameObject light, 
+		GameObject camera, 
 		const Vec3& lod_ref_point,
 		Array<MeshInstance>& infos) override
 	{
@@ -3543,7 +3543,7 @@ public:
 	}
 
 
-	void getModelInstanceEntities(const Frustum& frustum, Array<Entity>& entities) override
+	void getModelInstanceEntities(const Frustum& frustum, Array<GameObject>& entities) override
 	{
 		PROFILE_FUNCTION();
 
@@ -3551,7 +3551,7 @@ public:
 
 		for (auto& subresults : results)
 		{
-			for (Entity model_instance : subresults)
+			for (GameObject model_instance : subresults)
 			{
 				entities.push(model_instance);
 			}
@@ -3559,7 +3559,7 @@ public:
 	}
 
 
-	float getCameraLODMultiplier(Entity camera)
+	float getCameraLODMultiplier(GameObject camera)
 	{
 		float lod_multiplier;
 		if (isCameraOrtho(camera))
@@ -3577,7 +3577,7 @@ public:
 
 	Array<Array<MeshInstance>>& getModelInstanceInfos(const Frustum& frustum,
 		const Vec3& lod_ref_point,
-		Entity camera,
+		GameObject camera,
 		u64 layer_mask) override
 	{
 		for (auto& i : m_temporary_infos) i.clear();
@@ -3608,7 +3608,7 @@ public:
 				float lod_multiplier = getCameraLODMultiplier(camera);
 				Vec3 ref_point = lod_ref_point;
 				float final_lod_multiplier = m_lod_multiplier * lod_multiplier;
-				const Entity* MALMY_RESTRICT raw_subresults = &results[subresult_index][0];
+				const GameObject* MALMY_RESTRICT raw_subresults = &results[subresult_index][0];
 				ModelInstance* MALMY_RESTRICT model_instances = &m_model_instances[0];
 				for (int i = 0, c = results[subresult_index].size(); i < c; ++i)
 				{
@@ -3650,39 +3650,39 @@ public:
 	}
 
 
-	void setCameraSlot(Entity entity, const char* slot) override
+	void setCameraSlot(GameObject gameobject, const char* slot) override
 	{
-		auto& camera = m_cameras[entity];
+		auto& camera = m_cameras[gameobject];
 		copyString(camera.slot, lengthOf(camera.slot), slot);
 	}
 
 
-	const char* getCameraSlot(Entity camera) override { return m_cameras[camera].slot; }
-	float getCameraFOV(Entity camera) override { return m_cameras[camera].fov; }
-	void setCameraFOV(Entity camera, float fov) override { m_cameras[camera].fov = fov; }
-	void setCameraNearPlane(Entity camera, float near_plane) override { m_cameras[camera].near = Math::maximum(near_plane, 0.00001f); }
-	float getCameraNearPlane(Entity camera) override { return m_cameras[camera].near; }
-	void setCameraFarPlane(Entity camera, float far_plane) override { m_cameras[camera].far = far_plane; }
-	float getCameraFarPlane(Entity camera) override { return m_cameras[camera].far; }
-	float getCameraScreenWidth(Entity camera) override { return m_cameras[camera].screen_width; }
-	float getCameraScreenHeight(Entity camera) override { return m_cameras[camera].screen_height; }
+	const char* getCameraSlot(GameObject camera) override { return m_cameras[camera].slot; }
+	float getCameraFOV(GameObject camera) override { return m_cameras[camera].fov; }
+	void setCameraFOV(GameObject camera, float fov) override { m_cameras[camera].fov = fov; }
+	void setCameraNearPlane(GameObject camera, float near_plane) override { m_cameras[camera].near = Math::maximum(near_plane, 0.00001f); }
+	float getCameraNearPlane(GameObject camera) override { return m_cameras[camera].near; }
+	void setCameraFarPlane(GameObject camera, float far_plane) override { m_cameras[camera].far = far_plane; }
+	float getCameraFarPlane(GameObject camera) override { return m_cameras[camera].far; }
+	float getCameraScreenWidth(GameObject camera) override { return m_cameras[camera].screen_width; }
+	float getCameraScreenHeight(GameObject camera) override { return m_cameras[camera].screen_height; }
 
 
 	void setGlobalLODMultiplier(float multiplier) { m_lod_multiplier = multiplier; }
 	float getGlobalLODMultiplier() const { return m_lod_multiplier; }
 
 
-	Matrix getCameraViewProjection(Entity entity) override
+	Matrix getCameraViewProjection(GameObject gameobject) override
 	{
-		Matrix view = m_project.getMatrix(entity);
+		Matrix view = m_project.getMatrix(gameobject);
 		view.fastInverse();
-		return getCameraProjection(entity) * view;
+		return getCameraProjection(gameobject) * view;
 	}
 
 
-	Matrix getCameraProjection(Entity entity) override
+	Matrix getCameraProjection(GameObject gameobject) override
 	{
-		Camera& camera = m_cameras[entity];
+		Camera& camera = m_cameras[gameobject];
 		Matrix mtx;
 		float ratio = camera.screen_height > 0 ? camera.screen_width / camera.screen_height : 1;
 		bool is_homogenous_depth = bgfx::getCaps()->homogeneousDepth;
@@ -3705,7 +3705,7 @@ public:
 	}
 
 
-	void setCameraScreenSize(Entity camera, int w, int h) override
+	void setCameraScreenSize(GameObject camera, int w, int h) override
 	{
 		auto& cam = m_cameras[{camera.index}];
 		cam.screen_width = (float)w;
@@ -3714,17 +3714,17 @@ public:
 	}
 
 
-	Vec2 getCameraScreenSize(Entity camera) override
+	Vec2 getCameraScreenSize(GameObject camera) override
 	{
 		auto& cam = m_cameras[{camera.index}];
 		return Vec2(cam.screen_width, cam.screen_height);
 	}
 
 
-	float getCameraOrthoSize(Entity camera) override { return m_cameras[{camera.index}].ortho_size; }
-	void setCameraOrthoSize(Entity camera, float value) override { m_cameras[{camera.index}].ortho_size = value; }
-	bool isCameraOrtho(Entity camera) override { return m_cameras[{camera.index}].is_ortho; }
-	void setCameraOrtho(Entity camera, bool is_ortho) override { m_cameras[{camera.index}].is_ortho = is_ortho; }
+	float getCameraOrthoSize(GameObject camera) override { return m_cameras[{camera.index}].ortho_size; }
+	void setCameraOrthoSize(GameObject camera, float value) override { m_cameras[{camera.index}].ortho_size = value; }
+	bool isCameraOrtho(GameObject camera) override { return m_cameras[{camera.index}].is_ortho; }
+	void setCameraOrtho(GameObject camera, bool is_ortho) override { m_cameras[{camera.index}].is_ortho = is_ortho; }
 
 
 	const Array<DebugTriangle>& getDebugTriangles() const override { return m_debug_triangles; }
@@ -4225,22 +4225,22 @@ public:
 	}
 
 
-	RayCastModelHit castRayTerrain(Entity entity, const Vec3& origin, const Vec3& dir) override
+	RayCastModelHit castRayTerrain(GameObject gameobject, const Vec3& origin, const Vec3& dir) override
 	{
 		RayCastModelHit hit;
 		hit.m_is_hit = false;
-		auto iter = m_terrains.find(entity);
+		auto iter = m_terrains.find(gameobject);
 		if (!iter.isValid()) return hit;
 
 		auto* terrain = iter.value();
 		hit = terrain->castRay(origin, dir);
 		hit.m_component_type = TERRAIN_TYPE;
-		hit.m_entity = terrain->getEntity();
+		hit.m_gameobject = terrain->getGameObject();
 		return hit;
 	}
 
 
-	RayCastModelHit castRay(const Vec3& origin, const Vec3& dir, Entity ignored_model_instance) override
+	RayCastModelHit castRay(const Vec3& origin, const Vec3& dir, GameObject ignored_model_instance) override
 	{
 		PROFILE_FUNCTION();
 		RayCastModelHit hit;
@@ -4256,7 +4256,7 @@ public:
 			if (!r.flags.isSet(ModelInstance::ENABLED)) continue;
 
 			const Vec3& pos = r.matrix.getTranslation();
-			float scale = project.getScale(r.entity);
+			float scale = project.getScale(r.gameobject);
 			float radius = r.model->getBoundingRadius() * scale;
 			float dist = (pos - origin).length();
 			if (dist - radius > cur_dist) continue;
@@ -4267,7 +4267,7 @@ public:
 				RayCastModelHit new_hit = r.model->castRay(origin, dir, r.matrix, r.pose);
 				if (new_hit.m_is_hit && (!hit.m_is_hit || new_hit.m_t < hit.m_t))
 				{
-					new_hit.m_entity = r.entity;
+					new_hit.m_gameobject = r.gameobject;
 					new_hit.m_component_type = MODEL_INSTANCE_TYPE;
 					hit = new_hit;
 					hit.m_is_hit = true;
@@ -4282,7 +4282,7 @@ public:
 			if (terrain_hit.m_is_hit && (!hit.m_is_hit || terrain_hit.m_t < hit.m_t))
 			{
 				terrain_hit.m_component_type = TERRAIN_TYPE;
-				terrain_hit.m_entity = terrain->getEntity();
+				terrain_hit.m_gameobject = terrain->getGameObject();
 				terrain_hit.m_mesh = nullptr;
 				hit = terrain_hit;
 			}
@@ -4292,13 +4292,13 @@ public:
 	}
 
 	
-	Vec4 getShadowmapCascades(Entity entity) override
+	Vec4 getShadowmapCascades(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_cascades;
+		return m_global_lights[gameobject].m_cascades;
 	}
 
 
-	void setShadowmapCascades(Entity entity, const Vec4& value) override
+	void setShadowmapCascades(GameObject gameobject, const Vec4& value) override
 	{
 		Vec4 valid_value = value;
 		valid_value.x = Math::maximum(valid_value.x, 0.02f);
@@ -4306,194 +4306,194 @@ public:
 		valid_value.z = Math::maximum(valid_value.y + 0.01f, valid_value.z);
 		valid_value.w = Math::maximum(valid_value.z + 0.01f, valid_value.w);
 
-		m_global_lights[entity].m_cascades = valid_value;
+		m_global_lights[gameobject].m_cascades = valid_value;
 	}
 
 
-	void setFogDensity(Entity entity, float density) override
+	void setFogDensity(GameObject gameobject, float density) override
 	{
-		m_global_lights[entity].m_fog_density = density;
+		m_global_lights[gameobject].m_fog_density = density;
 	}
 
 
-	void setFogColor(Entity entity, const Vec3& color) override
+	void setFogColor(GameObject gameobject, const Vec3& color) override
 	{
-		m_global_lights[entity].m_fog_color = color;
+		m_global_lights[gameobject].m_fog_color = color;
 	}
 
 
-	float getFogDensity(Entity entity) override
+	float getFogDensity(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_fog_density;
+		return m_global_lights[gameobject].m_fog_density;
 	}
 
 
-	float getFogBottom(Entity entity) override
+	float getFogBottom(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_fog_bottom;
+		return m_global_lights[gameobject].m_fog_bottom;
 	}
 
 
-	void setFogBottom(Entity entity, float bottom) override
+	void setFogBottom(GameObject gameobject, float bottom) override
 	{
-		m_global_lights[entity].m_fog_bottom = bottom;
+		m_global_lights[gameobject].m_fog_bottom = bottom;
 	}
 
 
-	float getFogHeight(Entity entity) override
+	float getFogHeight(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_fog_height;
+		return m_global_lights[gameobject].m_fog_height;
 	}
 
 
-	void setFogHeight(Entity entity, float height) override
+	void setFogHeight(GameObject gameobject, float height) override
 	{
-		m_global_lights[entity].m_fog_height = height;
+		m_global_lights[gameobject].m_fog_height = height;
 	}
 
 
-	Vec3 getFogColor(Entity entity) override
+	Vec3 getFogColor(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_fog_color;
+		return m_global_lights[gameobject].m_fog_color;
 	}
 
 
-	float getLightAttenuation(Entity entity) override
+	float getLightAttenuation(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_attenuation_param;
+		return m_point_lights[m_point_lights_map[gameobject]].m_attenuation_param;
 	}
 
 
-	void setLightAttenuation(Entity entity, float attenuation) override
+	void setLightAttenuation(GameObject gameobject, float attenuation) override
 	{
-		int index = m_point_lights_map[entity];
+		int index = m_point_lights_map[gameobject];
 		m_point_lights[index].m_attenuation_param = attenuation;
 	}
 
 
-	float getLightRange(Entity entity) override
+	float getLightRange(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_range;
+		return m_point_lights[m_point_lights_map[gameobject]].m_range;
 	}
 
 
-	void setLightRange(Entity entity, float value) override
+	void setLightRange(GameObject gameobject, float value) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_range = value;
+		m_point_lights[m_point_lights_map[gameobject]].m_range = value;
 	}
 
 
-	void setPointLightIntensity(Entity entity, float intensity) override
+	void setPointLightIntensity(GameObject gameobject, float intensity) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_diffuse_intensity = intensity;
+		m_point_lights[m_point_lights_map[gameobject]].m_diffuse_intensity = intensity;
 	}
 
 
-	void setGlobalLightIntensity(Entity entity, float intensity) override
+	void setGlobalLightIntensity(GameObject gameobject, float intensity) override
 	{
-		m_global_lights[entity].m_diffuse_intensity = intensity;
+		m_global_lights[gameobject].m_diffuse_intensity = intensity;
 	}
 
 
-	void setGlobalLightIndirectIntensity(Entity entity, float intensity) override
+	void setGlobalLightIndirectIntensity(GameObject gameobject, float intensity) override
 	{
-		m_global_lights[entity].m_indirect_intensity = intensity;
+		m_global_lights[gameobject].m_indirect_intensity = intensity;
 	}
 
 
-	void setPointLightColor(Entity entity, const Vec3& color) override
+	void setPointLightColor(GameObject gameobject, const Vec3& color) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_diffuse_color = color;
+		m_point_lights[m_point_lights_map[gameobject]].m_diffuse_color = color;
 	}
 
 
-	void setGlobalLightColor(Entity entity, const Vec3& color) override
+	void setGlobalLightColor(GameObject gameobject, const Vec3& color) override
 	{
-		m_global_lights[entity].m_diffuse_color = color;
+		m_global_lights[gameobject].m_diffuse_color = color;
 	}
 
 	
-	float getPointLightIntensity(Entity entity) override
+	float getPointLightIntensity(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_diffuse_intensity;
+		return m_point_lights[m_point_lights_map[gameobject]].m_diffuse_intensity;
 	}
 
 
-	float getGlobalLightIntensity(Entity entity) override
+	float getGlobalLightIntensity(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_diffuse_intensity;
+		return m_global_lights[gameobject].m_diffuse_intensity;
 	}
 
 
-	float getGlobalLightIndirectIntensity(Entity entity) override
+	float getGlobalLightIndirectIntensity(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_indirect_intensity;
+		return m_global_lights[gameobject].m_indirect_intensity;
 	}
 
 
-	Vec3 getPointLightColor(Entity entity) override
+	Vec3 getPointLightColor(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_diffuse_color;
+		return m_point_lights[m_point_lights_map[gameobject]].m_diffuse_color;
 	}
 
 
-	void setPointLightSpecularColor(Entity entity, const Vec3& color) override
+	void setPointLightSpecularColor(GameObject gameobject, const Vec3& color) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_specular_color = color;
+		m_point_lights[m_point_lights_map[gameobject]].m_specular_color = color;
 	}
 
 
-	Vec3 getPointLightSpecularColor(Entity entity) override
+	Vec3 getPointLightSpecularColor(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_specular_color;
+		return m_point_lights[m_point_lights_map[gameobject]].m_specular_color;
 	}
 
 
-	void setPointLightSpecularIntensity(Entity entity, float intensity) override
+	void setPointLightSpecularIntensity(GameObject gameobject, float intensity) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_specular_intensity = intensity;
+		m_point_lights[m_point_lights_map[gameobject]].m_specular_intensity = intensity;
 	}
 
 
-	float getPointLightSpecularIntensity(Entity entity) override
+	float getPointLightSpecularIntensity(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_specular_intensity;
+		return m_point_lights[m_point_lights_map[gameobject]].m_specular_intensity;
 	}
 
 
-	Vec3 getGlobalLightColor(Entity entity) override
+	Vec3 getGlobalLightColor(GameObject gameobject) override
 	{
-		return m_global_lights[entity].m_diffuse_color;
+		return m_global_lights[gameobject].m_diffuse_color;
 	}
 
 
-	void setActiveGlobalLight(Entity entity) override
+	void setActiveGlobalLight(GameObject gameobject) override
 	{
-		m_active_global_light_entity = entity;
+		m_active_global_light_gameobject = gameobject;
 	}
 
 
-	Entity getActiveGlobalLight() override
+	GameObject getActiveGlobalLight() override
 	{
-		return m_active_global_light_entity;
+		return m_active_global_light_gameobject;
 	}
 
 
-	Entity getPointLightEntity(Entity entity) const override
+	GameObject getPointLightGameObject(GameObject gameobject) const override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_entity;
+		return m_point_lights[m_point_lights_map[gameobject]].m_gameobject;
 	}
 
 
-	Entity getGlobalLightEntity(Entity entity) const override
+	GameObject getGlobalLightGameObject(GameObject gameobject) const override
 	{
-		return m_global_lights[entity].m_entity;
+		return m_global_lights[gameobject].m_gameobject;
 	}
 
 
-	void reloadEnvironmentProbe(Entity entity) override
+	void reloadEnvironmentProbe(GameObject gameobject) override
 	{
-		auto& probe = m_environment_probes[entity];
+		auto& probe = m_environment_probes[gameobject];
 		auto* texture_manager = m_engine.getResourceManager().get(Texture::TYPE);
 		if (probe.texture) texture_manager->unload(*probe.texture);
 		probe.texture = nullptr;
@@ -4519,129 +4519,129 @@ public:
 	}
 
 
-	Entity getNearestEnvironmentProbe(const Vec3& pos) const override
+	GameObject getNearestEnvironmentProbe(const Vec3& pos) const override
 	{
 		float nearest_dist_squared = FLT_MAX;
-		Entity nearest = INVALID_ENTITY;
+		GameObject nearest = INVALID_GAMEOBJECT;
 		for (int i = 0, c = m_environment_probes.size(); i < c; ++i)
 		{
-			Entity probe_entity = m_environment_probes.getKey(i);
-			Vec3 probe_pos = m_project.getPosition(probe_entity);
+			GameObject probe_gameobject = m_environment_probes.getKey(i);
+			Vec3 probe_pos = m_project.getPosition(probe_gameobject);
 			float dist_squared = (pos - probe_pos).squaredLength();
 			if (dist_squared < nearest_dist_squared)
 			{
-				nearest = probe_entity;
+				nearest = probe_gameobject;
 				nearest_dist_squared = dist_squared;
 			}
 		}
-		if (!nearest.isValid()) return INVALID_ENTITY;
+		if (!nearest.isValid()) return INVALID_GAMEOBJECT;
 		return nearest;
 	}
 
 
-	int getEnvironmentProbeIrradianceSize(Entity entity)
+	int getEnvironmentProbeIrradianceSize(GameObject gameobject)
 	{
-		return m_environment_probes[entity].irradiance_size;
+		return m_environment_probes[gameobject].irradiance_size;
 	}
 
 
-	void setEnvironmentProbeIrradianceSize(Entity entity, int size)
+	void setEnvironmentProbeIrradianceSize(GameObject gameobject, int size)
 	{
-		m_environment_probes[entity].irradiance_size = size;
+		m_environment_probes[gameobject].irradiance_size = size;
 	}
 
 
-	int getEnvironmentProbeRadianceSize(Entity entity)
+	int getEnvironmentProbeRadianceSize(GameObject gameobject)
 	{
-		return m_environment_probes[entity].radiance_size;
+		return m_environment_probes[gameobject].radiance_size;
 	}
 
 
-	void setEnvironmentProbeRadianceSize(Entity entity, int size)
+	void setEnvironmentProbeRadianceSize(GameObject gameobject, int size)
 	{
-		m_environment_probes[entity].radiance_size = size;
+		m_environment_probes[gameobject].radiance_size = size;
 	}
 
 
-	int getEnvironmentProbeReflectionSize(Entity entity)
+	int getEnvironmentProbeReflectionSize(GameObject gameobject)
 	{
-		return m_environment_probes[entity].reflection_size;
+		return m_environment_probes[gameobject].reflection_size;
 	}
 
 
-	void setEnvironmentProbeReflectionSize(Entity entity, int size)
+	void setEnvironmentProbeReflectionSize(GameObject gameobject, int size)
 	{
-		m_environment_probes[entity].reflection_size = size;
+		m_environment_probes[gameobject].reflection_size = size;
 	}
 
 
-	bool isEnvironmentProbeCustomSize(Entity entity) override
+	bool isEnvironmentProbeCustomSize(GameObject gameobject) override
 	{
-		return m_environment_probes[entity].flags.isSet(EnvironmentProbe::OVERRIDE_GLOBAL_SIZE);
+		return m_environment_probes[gameobject].flags.isSet(EnvironmentProbe::OVERRIDE_GLOBAL_SIZE);
 	}
 
 
-	void enableEnvironmentProbeCustomSize(Entity entity, bool enable) override
+	void enableEnvironmentProbeCustomSize(GameObject gameobject, bool enable) override
 	{
-		m_environment_probes[entity].flags.set(EnvironmentProbe::OVERRIDE_GLOBAL_SIZE, enable);
+		m_environment_probes[gameobject].flags.set(EnvironmentProbe::OVERRIDE_GLOBAL_SIZE, enable);
 	}
 
 
-	bool isEnvironmentProbeReflectionEnabled(Entity entity) override
+	bool isEnvironmentProbeReflectionEnabled(GameObject gameobject) override
 	{
-		return m_environment_probes[entity].flags.isSet(EnvironmentProbe::REFLECTION);
+		return m_environment_probes[gameobject].flags.isSet(EnvironmentProbe::REFLECTION);
 	}
 
 
-	void enableEnvironmentProbeReflection(Entity entity, bool enable) override
+	void enableEnvironmentProbeReflection(GameObject gameobject, bool enable) override
 	{
-		m_environment_probes[entity].flags.set(EnvironmentProbe::REFLECTION, enable);
+		m_environment_probes[gameobject].flags.set(EnvironmentProbe::REFLECTION, enable);
 	}
 
 
-	Texture* getEnvironmentProbeTexture(Entity entity) const override
+	Texture* getEnvironmentProbeTexture(GameObject gameobject) const override
 	{
-		return m_environment_probes[entity].texture;
+		return m_environment_probes[gameobject].texture;
 	}
 
 
-	Texture* getEnvironmentProbeIrradiance(Entity entity) const override
+	Texture* getEnvironmentProbeIrradiance(GameObject gameobject) const override
 	{
-		return m_environment_probes[entity].irradiance;
+		return m_environment_probes[gameobject].irradiance;
 	}
 
 
-	Texture* getEnvironmentProbeRadiance(Entity entity) const override
+	Texture* getEnvironmentProbeRadiance(GameObject gameobject) const override
 	{
-		return m_environment_probes[entity].radiance;
+		return m_environment_probes[gameobject].radiance;
 	}
 
 
-	u64 getEnvironmentProbeGUID(Entity entity) const override
+	u64 getEnvironmentProbeGUID(GameObject gameobject) const override
 	{
-		return m_environment_probes[entity].guid;
+		return m_environment_probes[gameobject].guid;
 	}
 
 
-	Entity getCameraInSlot(const char* slot) override
+	GameObject getCameraInSlot(const char* slot) override
 	{
 		for (const auto& camera : m_cameras)
 		{
 			if (equalStrings(camera.slot, slot))
 			{
-				return camera.entity;
+				return camera.gameobject;
 			}
 		}
-		return INVALID_ENTITY;
+		return INVALID_GAMEOBJECT;
 	}
 
 
 	float getTime() const override { return m_time; }
 
 
-	void modelUnloaded(Model*, Entity entity)
+	void modelUnloaded(Model*, GameObject gameobject)
 	{
-		auto& r = m_model_instances[entity.index];
+		auto& r = m_model_instances[gameobject.index];
 		if (!hasCustomMeshes(r))
 		{
 			r.meshes = nullptr;
@@ -4652,9 +4652,9 @@ public:
 
 		for (int i = 0; i < m_point_lights.size(); ++i)
 		{
-			m_light_influenced_geometry[i].eraseItemFast(entity);
+			m_light_influenced_geometry[i].eraseItemFast(gameobject);
 		}
-		m_culling_system->removeStatic(entity);
+		m_culling_system->removeStatic(gameobject);
 	}
 
 
@@ -4673,17 +4673,17 @@ public:
 	}
 
 
-	void modelLoaded(Model* model, Entity entity)
+	void modelLoaded(Model* model, GameObject gameobject)
 	{
 		auto& rm = m_engine.getResourceManager();
 		auto* material_manager = static_cast<MaterialManager*>(rm.get(Material::TYPE));
 
-		auto& r = m_model_instances[entity.index];
+		auto& r = m_model_instances[gameobject.index];
 
 		float bounding_radius = r.model->getBoundingRadius();
-		float scale = m_project.getScale(r.entity);
+		float scale = m_project.getScale(r.gameobject);
 		Sphere sphere(r.matrix.getTranslation(), bounding_radius * scale);
-		if(r.flags.isSet(ModelInstance::ENABLED)) m_culling_system->addStatic(entity, sphere, getLayerMask(r));
+		if(r.flags.isSet(ModelInstance::ENABLED)) m_culling_system->addStatic(gameobject, sphere, getLayerMask(r));
 		ASSERT(!r.pose);
 		if (model->getBoneCount() > 0)
 		{
@@ -4697,7 +4697,7 @@ public:
 				mesh.material->setDefine(skinned_define_idx, !mesh.skin.empty());
 			}
 		}
-		r.matrix = m_project.getMatrix(r.entity);
+		r.matrix = m_project.getMatrix(r.gameobject);
 		ASSERT(!r.meshes || hasCustomMeshes(r));
 		if (r.meshes)
 		{
@@ -4721,7 +4721,7 @@ public:
 
 		if (r.flags.isSet(ModelInstance::IS_BONE_ATTACHMENT_PARENT))
 		{
-			updateBoneAttachment(m_bone_attachments[r.entity]);
+			updateBoneAttachment(m_bone_attachments[r.gameobject]);
 		}
 
 		for (int i = 0; i < m_point_lights.size(); ++i)
@@ -4729,10 +4729,10 @@ public:
 			PointLight& light = m_point_lights[i];
 			Vec3 t = r.matrix.getTranslation();
 			float radius = r.model->getBoundingRadius();
-			if ((t - m_project.getPosition(light.m_entity)).squaredLength() <
+			if ((t - m_project.getPosition(light.m_gameobject)).squaredLength() <
 				(radius + light.m_range) * (radius + light.m_range))
 			{
-				m_light_influenced_geometry[i].push(entity);
+				m_light_influenced_geometry[i].push(gameobject);
 			}
 		}
 	}
@@ -4742,7 +4742,7 @@ public:
 	{
 		for (int i = 0, c = m_model_instances.size(); i < c; ++i)
 		{
-			if (m_model_instances[i].entity != INVALID_ENTITY && m_model_instances[i].model == model)
+			if (m_model_instances[i].gameobject != INVALID_GAMEOBJECT && m_model_instances[i].model == model)
 			{
 				modelUnloaded(model, {i});
 			}
@@ -4754,7 +4754,7 @@ public:
 	{
 		for (int i = 0, c = m_model_instances.size(); i < c; ++i)
 		{
-			if (m_model_instances[i].entity != INVALID_ENTITY && m_model_instances[i].model == model)
+			if (m_model_instances[i].gameobject != INVALID_GAMEOBJECT && m_model_instances[i].model == model)
 			{
 				modelLoaded(model, {i});
 			}
@@ -4817,9 +4817,9 @@ public:
 	}
 
 
-	void setModelInstanceMaterial(Entity entity, int index, const Path& path) override
+	void setModelInstanceMaterial(GameObject gameobject, int index, const Path& path) override
 	{
-		auto& r = m_model_instances[entity.index];
+		auto& r = m_model_instances[gameobject.index];
 		if (r.meshes && r.mesh_count > index && r.meshes[index].material && path == r.meshes[index].material->getPath()) return;
 
 		auto& rm = r.model->getResourceManager();
@@ -4838,19 +4838,19 @@ public:
 	}
 
 
-	Path getModelInstanceMaterial(Entity entity, int index) override
+	Path getModelInstanceMaterial(GameObject gameobject, int index) override
 	{
-		auto& r = m_model_instances[entity.index];
+		auto& r = m_model_instances[gameobject.index];
 		if (!r.meshes) return Path("");
 
 		return r.meshes[index].material->getPath();
 	}
 
 
-	void setModel(Entity entity, Model* model)
+	void setModel(GameObject gameobject, Model* model)
 	{
-		auto& model_instance = m_model_instances[entity.index];
-		ASSERT(model_instance.entity.isValid());
+		auto& model_instance = m_model_instances[gameobject.index];
+		ASSERT(model_instance.gameobject.isValid());
 		Model* old_model = model_instance.model;
 		bool no_change = model == old_model && old_model;
 		if (no_change)
@@ -4872,7 +4872,7 @@ public:
 
 			if (old_model->isReady())
 			{
-				m_culling_system->removeStatic(entity);
+				m_culling_system->removeStatic(gameobject);
 			}
 			old_model->getResourceManager().unload(*old_model);
 		}
@@ -4888,7 +4888,7 @@ public:
 
 			if (model->isReady())
 			{
-				modelLoaded(model, entity);
+				modelLoaded(model, gameobject);
 			}
 		}
 	}
@@ -4896,9 +4896,9 @@ public:
 	IAllocator& getAllocator() override { return m_allocator; }
 
 
-	void detectLightInfluencedGeometry(Entity entity)
+	void detectLightInfluencedGeometry(GameObject gameobject)
 	{
-		int light_idx = m_point_lights_map[entity];
+		int light_idx = m_point_lights_map[gameobject];
 		Frustum frustum = getPointLightFrustum(light_idx);
 		const CullingSystem::Results& results = m_culling_system->cull(frustum, ~0ULL);
 		auto& influenced_geometry = m_light_influenced_geometry[light_idx];
@@ -4915,16 +4915,16 @@ public:
 	}
 
 
-	int getParticleEmitterAttractorCount(Entity entity) override
+	int getParticleEmitterAttractorCount(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(gameobject);
 		return module ? module->m_count : 0;
 	}
 
 
-	void addParticleEmitterAttractor(Entity entity, int index) override
+	void addParticleEmitterAttractor(GameObject gameobject, int index) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(gameobject);
 		if (!module) return;
 
 		auto* plane_module = static_cast<ParticleEmitter::AttractorModule*>(module);
@@ -4932,7 +4932,7 @@ public:
 
 		if (index < 0)
 		{
-			plane_module->m_entities[plane_module->m_count] = INVALID_ENTITY;
+			plane_module->m_entities[plane_module->m_count] = INVALID_GAMEOBJECT;
 			++plane_module->m_count;
 			return;
 		}
@@ -4941,14 +4941,14 @@ public:
 		{
 			plane_module->m_entities[i] = plane_module->m_entities[i - 1];
 		}
-		plane_module->m_entities[index] = INVALID_ENTITY;
+		plane_module->m_entities[index] = INVALID_GAMEOBJECT;
 		++plane_module->m_count;
 	}
 
 
-	void removeParticleEmitterAttractor(Entity entity, int index) override
+	void removeParticleEmitterAttractor(GameObject gameobject, int index) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(gameobject);
 		if (!module) return;
 
 		for (int i = index; i < module->m_count - 1; ++i)
@@ -4959,51 +4959,51 @@ public:
 	}
 
 
-	Entity getParticleEmitterAttractorEntity(Entity entity, int index) override
+	GameObject getParticleEmitterAttractorGameObject(GameObject gameobject, int index) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(entity);
-		return module ? module->m_entities[index] : INVALID_ENTITY;
+		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(gameobject);
+		return module ? module->m_entities[index] : INVALID_GAMEOBJECT;
 	}
 
 
-	void setParticleEmitterAttractorEntity(Entity module_entity, int index, Entity entity) override
+	void setParticleEmitterAttractorGameObject(GameObject module_gameobject, int index, GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(module_entity);
-		if(module) module->m_entities[index] = entity;
+		auto* module = getEmitterModule<ParticleEmitter::AttractorModule>(module_gameobject);
+		if(module) module->m_entities[index] = gameobject;
 	}
 
 
-	float getParticleEmitterShapeRadius(Entity entity) override
+	float getParticleEmitterShapeRadius(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SpawnShapeModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SpawnShapeModule>(gameobject);
 		return module ? module->m_radius : 0.0f;
 	}
 
 
-	void setParticleEmitterShapeRadius(Entity entity, float value) override
+	void setParticleEmitterShapeRadius(GameObject gameobject, float value) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::SpawnShapeModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::SpawnShapeModule>(gameobject);
 		if (module) module->m_radius = value;
 	}
 
 
-	int getParticleEmitterPlaneCount(Entity entity) override
+	int getParticleEmitterPlaneCount(GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(entity);
+		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(gameobject);
 		return module ? module->m_count : 0;
 	}
 
 
-	void addParticleEmitterPlane(Entity entity, int index) override
+	void addParticleEmitterPlane(GameObject gameobject, int index) override
 	{
-		auto* plane_module = getEmitterModule<ParticleEmitter::PlaneModule>(entity);
+		auto* plane_module = getEmitterModule<ParticleEmitter::PlaneModule>(gameobject);
 		if (!plane_module) return;
 
 		if (plane_module->m_count == lengthOf(plane_module->m_entities)) return;
 
 		if (index < 0)
 		{
-			plane_module->m_entities[plane_module->m_count] = INVALID_ENTITY;
+			plane_module->m_entities[plane_module->m_count] = INVALID_GAMEOBJECT;
 			++plane_module->m_count;
 			return;
 		}
@@ -5012,15 +5012,15 @@ public:
 		{
 			plane_module->m_entities[i] = plane_module->m_entities[i - 1];
 		}
-		plane_module->m_entities[index] = INVALID_ENTITY;
+		plane_module->m_entities[index] = INVALID_GAMEOBJECT;
 		++plane_module->m_count;
 			
 	}
 
 
-	void removeParticleEmitterPlane(Entity entity, int index) override
+	void removeParticleEmitterPlane(GameObject gameobject, int index) override
 	{
-		auto* plane_module = getEmitterModule<ParticleEmitter::PlaneModule>(entity);
+		auto* plane_module = getEmitterModule<ParticleEmitter::PlaneModule>(gameobject);
 		if (!plane_module) return;
 
 		for (int i = index; i < plane_module->m_count - 1; ++i)
@@ -5031,36 +5031,36 @@ public:
 	}
 
 
-	Entity getParticleEmitterPlaneEntity(Entity entity, int index) override
+	GameObject getParticleEmitterPlaneGameObject(GameObject gameobject, int index) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(entity);
-		return module ? module->m_entities[index] : INVALID_ENTITY;
+		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(gameobject);
+		return module ? module->m_entities[index] : INVALID_GAMEOBJECT;
 	}
 
 
-	void setParticleEmitterPlaneEntity(Entity module_entity, int index, Entity entity) override
+	void setParticleEmitterPlaneGameObject(GameObject module_gameobject, int index, GameObject gameobject) override
 	{
-		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(module_entity);
-		if (module) module->m_entities[index] = entity;
+		auto* module = getEmitterModule<ParticleEmitter::PlaneModule>(module_gameobject);
+		if (module) module->m_entities[index] = gameobject;
 	}
 
 
-	float getLightFOV(Entity entity) override
+	float getLightFOV(GameObject gameobject) override
 	{
-		return m_point_lights[m_point_lights_map[entity]].m_fov;
+		return m_point_lights[m_point_lights_map[gameobject]].m_fov;
 	}
 
 
-	void setLightFOV(Entity entity, float fov) override
+	void setLightFOV(GameObject gameobject, float fov) override
 	{
-		m_point_lights[m_point_lights_map[entity]].m_fov = fov;
+		m_point_lights[m_point_lights_map[gameobject]].m_fov = fov;
 	}
 
 
-	void createGlobalLight(Entity entity)
+	void createGlobalLight(GameObject gameobject)
 	{
 		GlobalLight light;
-		light.m_entity = entity;
+		light.m_gameobject = gameobject;
 		light.m_diffuse_color.set(1, 1, 1);
 		light.m_diffuse_intensity = 0;
 		light.m_indirect_intensity = 1;
@@ -5070,18 +5070,18 @@ public:
 		light.m_fog_bottom = 0.0f;
 		light.m_fog_height = 10.0f;
 
-		if (m_global_lights.empty()) m_active_global_light_entity = entity;
+		if (m_global_lights.empty()) m_active_global_light_gameobject = gameobject;
 
-		m_global_lights.insert(entity, light);
-		m_project.onComponentCreated(entity, GLOBAL_LIGHT_TYPE, this);
+		m_global_lights.insert(gameobject, light);
+		m_project.onComponentCreated(gameobject, GLOBAL_LIGHT_TYPE, this);
 	}
 
 
-	void createPointLight(Entity entity)
+	void createPointLight(GameObject gameobject)
 	{
 		PointLight& light = m_point_lights.emplace();
 		m_light_influenced_geometry.emplace(m_allocator);
-		light.m_entity = entity;
+		light.m_gameobject = gameobject;
 		light.m_diffuse_color.set(1, 1, 1);
 		light.m_diffuse_intensity = 1;
 		light.m_fov = Math::degreesToRadians(360);
@@ -5090,19 +5090,19 @@ public:
 		light.m_cast_shadows = false;
 		light.m_attenuation_param = 2;
 		light.m_range = 10;
-		m_point_lights_map.insert(entity, m_point_lights.size() - 1);
+		m_point_lights_map.insert(gameobject, m_point_lights.size() - 1);
 
-		m_project.onComponentCreated(entity, POINT_LIGHT_TYPE, this);
+		m_project.onComponentCreated(gameobject, POINT_LIGHT_TYPE, this);
 
-		detectLightInfluencedGeometry(entity);
+		detectLightInfluencedGeometry(gameobject);
 	}
 
 
 	void updateDecalInfo(Decal& decal) const
 	{
-		decal.position = m_project.getPosition(decal.entity);
+		decal.position = m_project.getPosition(decal.gameobject);
 		decal.radius = decal.scale.length();
-		decal.mtx = m_project.getMatrix(decal.entity);
+		decal.mtx = m_project.getMatrix(decal.gameobject);
 		decal.mtx.setXVector(decal.mtx.getXVector() * decal.scale.x);
 		decal.mtx.setYVector(decal.mtx.getYVector() * decal.scale.y);
 		decal.mtx.setZVector(decal.mtx.getZVector() * decal.scale.z);
@@ -5111,21 +5111,21 @@ public:
 	}
 
 
-	void createDecal(Entity entity)
+	void createDecal(GameObject gameobject)
 	{
-		Decal& decal = m_decals.insert(entity);
+		Decal& decal = m_decals.insert(gameobject);
 		decal.material = nullptr;
-		decal.entity = entity;
+		decal.gameobject = gameobject;
 		decal.scale.set(1, 1, 1);
 		updateDecalInfo(decal);
 
-		m_project.onComponentCreated(entity, DECAL_TYPE, this);
+		m_project.onComponentCreated(gameobject, DECAL_TYPE, this);
 	}
 
 
-	void createEnvironmentProbe(Entity entity)
+	void createEnvironmentProbe(GameObject gameobject)
 	{
-		EnvironmentProbe& probe = m_environment_probes.insert(entity);
+		EnvironmentProbe& probe = m_environment_probes.insert(gameobject);
 		auto* texture_manager = m_engine.getResourceManager().get(Texture::TYPE);
 		probe.texture = static_cast<Texture*>(texture_manager->load(Path("pipelines/pbr/default_probe.dds")));
 		probe.texture->setFlag(BGFX_TEXTURE_SRGB, true);
@@ -5135,75 +5135,75 @@ public:
 		probe.radiance->setFlag(BGFX_TEXTURE_SRGB, true);
 		probe.guid = Math::randGUID();
 
-		m_project.onComponentCreated(entity, ENVIRONMENT_PROBE_TYPE, this);
+		m_project.onComponentCreated(gameobject, ENVIRONMENT_PROBE_TYPE, this);
 	}
 
 
-	void createBoneAttachment(Entity entity)
+	void createBoneAttachment(GameObject gameobject)
 	{
-		BoneAttachment& attachment = m_bone_attachments.emplace(entity);
-		attachment.entity = entity;
-		attachment.parent_entity = INVALID_ENTITY;
+		BoneAttachment& attachment = m_bone_attachments.emplace(gameobject);
+		attachment.gameobject = gameobject;
+		attachment.parent_gameobject = INVALID_GAMEOBJECT;
 		attachment.bone_index = -1;
 
-		m_project.onComponentCreated(entity, BONE_ATTACHMENT_TYPE, this);
+		m_project.onComponentCreated(gameobject, BONE_ATTACHMENT_TYPE, this);
 	}
 
 
-	void createModelInstance(Entity entity)
+	void createModelInstance(GameObject gameobject)
 	{
-		while(entity.index >= m_model_instances.size())
+		while(gameobject.index >= m_model_instances.size())
 		{
 			auto& r = m_model_instances.emplace();
-			r.entity = INVALID_ENTITY;
+			r.gameobject = INVALID_GAMEOBJECT;
 			r.model = nullptr;
 			r.pose = nullptr;
 		}
-		auto& r = m_model_instances[entity.index];
-		r.entity = entity;
+		auto& r = m_model_instances[gameobject.index];
+		r.gameobject = gameobject;
 		r.model = nullptr;
 		r.meshes = nullptr;
 		r.pose = nullptr;
 		r.flags.clear();
 		r.flags.set(ModelInstance::ENABLED);
 		r.mesh_count = 0;
-		r.matrix = m_project.getMatrix(entity);
-		m_project.onComponentCreated(entity, MODEL_INSTANCE_TYPE, this);
+		r.matrix = m_project.getMatrix(gameobject);
+		m_project.onComponentCreated(gameobject, MODEL_INSTANCE_TYPE, this);
 	}
 
 
-	void setScriptedParticleEmitterMaterialPath(Entity entity, const Path& path) override
+	void setScriptedParticleEmitterMaterialPath(GameObject gameobject, const Path& path) override
 	{
-		if (!m_scripted_particle_emitters[entity]) return;
+		if (!m_scripted_particle_emitters[gameobject]) return;
 
 		auto* manager = m_engine.getResourceManager().get(Material::TYPE);
 		Material* material = static_cast<Material*>(manager->load(path));
-		m_scripted_particle_emitters[entity]->setMaterial(material);
+		m_scripted_particle_emitters[gameobject]->setMaterial(material);
 	}
 
 
-	Path getScriptedParticleEmitterMaterialPath(Entity entity) override
+	Path getScriptedParticleEmitterMaterialPath(GameObject gameobject) override
 	{
-		ScriptedParticleEmitter* emitter = m_scripted_particle_emitters[entity];
+		ScriptedParticleEmitter* emitter = m_scripted_particle_emitters[gameobject];
 		if (!emitter) return Path("");
 		if (!emitter->getMaterial()) return Path("");
 
 		return emitter->getMaterial()->getPath();
 	}
 
-	void setParticleEmitterMaterialPath(Entity entity, const Path& path) override
+	void setParticleEmitterMaterialPath(GameObject gameobject, const Path& path) override
 	{
-		if (!m_particle_emitters[entity]) return;
+		if (!m_particle_emitters[gameobject]) return;
 
 		auto* manager = m_engine.getResourceManager().get(Material::TYPE);
 		Material* material = static_cast<Material*>(manager->load(path));
-		m_particle_emitters[entity]->setMaterial(material);
+		m_particle_emitters[gameobject]->setMaterial(material);
 	}
 
 
-	Path getParticleEmitterMaterialPath(Entity entity) override
+	Path getParticleEmitterMaterialPath(GameObject gameobject) override
 	{
-		ParticleEmitter* emitter = m_particle_emitters[entity];
+		ParticleEmitter* emitter = m_particle_emitters[gameobject];
 		if (!emitter) return Path("");
 		if (!emitter->getMaterial()) return Path("");
 
@@ -5211,12 +5211,12 @@ public:
 	}
 
 
-	const AssociativeArray<Entity, ParticleEmitter*>& getParticleEmitters() const override
+	const AssociativeArray<GameObject, ParticleEmitter*>& getParticleEmitters() const override
 	{
 		return m_particle_emitters;
 	}
 
-	const AssociativeArray<Entity, ScriptedParticleEmitter*>& getScriptedParticleEmitters() const override
+	const AssociativeArray<GameObject, ScriptedParticleEmitter*>& getScriptedParticleEmitters() const override
 	{
 		return m_scripted_particle_emitters;
 	}
@@ -5228,21 +5228,21 @@ private:
 	Engine& m_engine;
 	CullingSystem* m_culling_system;
 
-	Array<Array<Entity>> m_light_influenced_geometry;
-	Entity m_active_global_light_entity;
-	HashMap<Entity, int> m_point_lights_map;
+	Array<Array<GameObject>> m_light_influenced_geometry;
+	GameObject m_active_global_light_gameobject;
+	HashMap<GameObject, int> m_point_lights_map;
 
-	AssociativeArray<Entity, Decal> m_decals;
+	AssociativeArray<GameObject, Decal> m_decals;
 	Array<ModelInstance> m_model_instances;
-	HashMap<Entity, GlobalLight> m_global_lights;
+	HashMap<GameObject, GlobalLight> m_global_lights;
 	Array<PointLight> m_point_lights;
-	HashMap<Entity, Camera> m_cameras;
-	AssociativeArray<Entity, TextMesh*> m_text_meshes;
-	AssociativeArray<Entity, BoneAttachment> m_bone_attachments;
-	AssociativeArray<Entity, EnvironmentProbe> m_environment_probes;
-	HashMap<Entity, Terrain*> m_terrains;
-	AssociativeArray<Entity, ParticleEmitter*> m_particle_emitters;
-	AssociativeArray<Entity, ScriptedParticleEmitter*> m_scripted_particle_emitters;
+	HashMap<GameObject, Camera> m_cameras;
+	AssociativeArray<GameObject, TextMesh*> m_text_meshes;
+	AssociativeArray<GameObject, BoneAttachment> m_bone_attachments;
+	AssociativeArray<GameObject, EnvironmentProbe> m_environment_probes;
+	HashMap<GameObject, Terrain*> m_terrains;
+	AssociativeArray<GameObject, ParticleEmitter*> m_particle_emitters;
+	AssociativeArray<GameObject, ScriptedParticleEmitter*> m_scripted_particle_emitters;
 
 	Array<DebugTriangle> m_debug_triangles;
 	Array<DebugLine> m_debug_lines;
@@ -5275,8 +5275,8 @@ static struct
 	ComponentType type;
 	Project::Serialize serialize;
 	Project::Deserialize deserialize;
-	void (RenderSceneImpl::*creator)(Entity);
-	void (RenderSceneImpl::*destroyer)(Entity);
+	void (RenderSceneImpl::*creator)(GameObject);
+	void (RenderSceneImpl::*destroyer)(GameObject);
 } COMPONENT_INFOS[] = {
 	COMPONENT_TYPE(MODEL_INSTANCE_TYPE, ModelInstance),
 	COMPONENT_TYPE(GLOBAL_LIGHT_TYPE, GlobalLight),
@@ -5323,7 +5323,7 @@ RenderSceneImpl::RenderSceneImpl(Renderer& renderer,
 	, m_debug_lines(m_allocator)
 	, m_debug_points(m_allocator)
 	, m_temporary_infos(m_allocator)
-	, m_active_global_light_entity(INVALID_ENTITY)
+	, m_active_global_light_gameobject(INVALID_GAMEOBJECT)
 	, m_is_grass_enabled(true)
 	, m_is_game_running(false)
 	, m_particle_emitters(m_allocator)
@@ -5335,8 +5335,8 @@ RenderSceneImpl::RenderSceneImpl(Renderer& renderer,
 	, m_time(0)
 	, m_is_updating_attachments(false)
 {
-	m_project.entityTransformed().bind<RenderSceneImpl, &RenderSceneImpl::onEntityMoved>(this);
-	m_project.entityDestroyed().bind<RenderSceneImpl, &RenderSceneImpl::onEntityDestroyed>(this);
+	m_project.gameobjectTransformed().bind<RenderSceneImpl, &RenderSceneImpl::onGameObjectMoved>(this);
+	m_project.gameobjectDestroyed().bind<RenderSceneImpl, &RenderSceneImpl::onGameObjectDestroyed>(this);
 	m_culling_system = CullingSystem::create(m_allocator);
 	m_model_instances.reserve(5000);
 
@@ -5378,7 +5378,7 @@ void RenderScene::registerLuaAPI(lua_State* L)
 	REGISTER_FUNCTION(setGlobalLODMultiplier);
 	REGISTER_FUNCTION(getGlobalLODMultiplier);
 	REGISTER_FUNCTION(getCameraViewProjection);
-	REGISTER_FUNCTION(getGlobalLightEntity);
+	REGISTER_FUNCTION(getGlobalLightGameObject);
 	REGISTER_FUNCTION(getActiveGlobalLight);
 	REGISTER_FUNCTION(getCameraInSlot);
 	REGISTER_FUNCTION(getCameraSlot);

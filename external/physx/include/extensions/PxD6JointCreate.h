@@ -48,7 +48,7 @@ class PxJoint;
 /**
 	\brief Helper function to create a fixed joint, using either a PxD6Joint or PxFixedJoint.
 
-	For fixed joints it is important that the joint frames have the same orientation. This helper function uses an identity rotation for both.
+	For fixed joints it is important that the joint frames have the same orientation. This helper function uses an idgameobject rotation for both.
 	It is also important that the joint frames have an equivalent position in world space. The function does not check this, so it is up to users
 	to ensure that this is the case.
 
@@ -72,7 +72,7 @@ PxJoint* PxD6JointCreate_Fixed(PxPhysics& physics, PxRigidActor* actor0, const P
 	to PxDistanceJoint).
 
 	The distance is computed between the joint frames' world-space positions. The joint frames' orientations are irrelevant here so the function
-	sets them to identity.
+	sets them to idgameobject.
 
 	\param[in] physics		The physics SDK
 	\param[in] actor0		An actor to which the joint is attached. NULL may be used to attach the joint to a specific point in the world frame

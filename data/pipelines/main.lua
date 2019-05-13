@@ -49,12 +49,12 @@ function doPostprocess(pipeline, this_env, slot, camera_slot)
 	local scene_renderer = Renderer.getPipelineScene(pipeline)
 	local project = Engine.getSceneProject(scene_renderer)
 	local scene_lua_script = Engine.getScene(project, "lua_script")
-	local camera_entity = Renderer.getCameraInSlot(scene_renderer, camera_slot)
-	if camera_entity < 0 then return end
-	if not Engine.hasComponent(project, camera_entity, LUA_SCRIPT_TYPE) then return end
-	local script_count = LuaScript.getScriptCount(scene_lua_script, camera_entity)
+	local camera_gameobject = Renderer.getCameraInSlot(scene_renderer, camera_slot)
+	if camera_gameobject < 0 then return end
+	if not Engine.hasComponent(project, camera_gameobject, LUA_SCRIPT_TYPE) then return end
+	local script_count = LuaScript.getScriptCount(scene_lua_script, camera_gameobject)
 	for i = 1, script_count do
-		local env = LuaScript.getEnvironment(scene_lua_script, camera_entity, i - 1)
+		local env = LuaScript.getEnvironment(scene_lua_script, camera_gameobject, i - 1)
 		if env ~= nil then 
 			if env._IS_POSTPROCESS_INITIALIZED == nil and env.initPostprocess ~= nil then
 				env.initPostprocess(pipeline, this_env)
@@ -575,13 +575,6 @@ function shadowmap(ctx, camera_slot, layer_mask)
 	end
 end
 
-function ingameGUI()
-	newView(this, "ingame_gui", "default")
-		setPass(this, "MAIN")
-		clear(this, CLEAR_DEPTH, 0x303030ff)
-		renderIngameGUI(this)
-end
-
 -- called each frame
 function render()
 	local camera_slot = getCameraSlot()
@@ -626,9 +619,6 @@ function render()
 		renderSelectionOutline(ctx, camera_slot)
 	end
 
-	if GAME_VIEW or APP then
-		ingameGUI()
-	end
 
 	if screenshot_request > 1 then
 		-- we have to wait for a few frames to propagate changed resolution to ingame gui

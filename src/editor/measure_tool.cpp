@@ -31,7 +31,7 @@ namespace Malmy
 		return true;
 	}
 
-
+	//burasi gizmolarin cizildi yer
 	void MeasureTool::createEditorLines(RenderInterface& interface) const
 	{
 		if (!m_is_enabled) return;

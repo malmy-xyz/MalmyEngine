@@ -33,8 +33,8 @@ struct MALMY_EDITOR_API Settings
 	bool m_is_maximized;
 
 	bool m_is_asset_browser_open;
-	bool m_is_entity_list_open;
-	bool m_is_entity_template_list_open;
+	bool m_is_gameobject_list_open;
+	bool m_is_gameobject_template_list_open;
 	bool m_is_log_open;
 	bool m_is_profiler_open;
 	bool m_is_properties_open;

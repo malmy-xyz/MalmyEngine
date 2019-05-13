@@ -158,7 +158,7 @@ void AssetBrowser::unloadResource()
 	m_selected_resource = nullptr;
 }
 
-
+//her farmede calsiyor
 void AssetBrowser::update()
 {
 	PROFILE_FUNCTION();
@@ -166,8 +166,7 @@ void AssetBrowser::update()
 	for (auto* plugin : m_plugins) plugin->update();
 
 	auto* patch = m_editor.getEngine().getPatchFileDevice();
-	if ((patch && !equalStrings(patch->getBasePath(), m_patch_base_path)) ||
-		(!patch && m_patch_base_path[0] != '\0'))
+	if ((patch && !equalStrings(patch->getBasePath(), m_patch_base_path)) || (!patch && m_patch_base_path[0] != '\0'))
 	{
 		findResources();
 	}
@@ -208,6 +207,7 @@ void AssetBrowser::update()
 		if (!m_editor.getEngine().getPatchFileDevice() || !PlatformInterface::fileExists(tmp_path))
 		{
 			copyString(tmp_path, m_editor.getEngine().getDiskFileDevice()->getBasePath());
+
 			catString(tmp_path, path.c_str());
 
 			if (!PlatformInterface::fileExists(tmp_path))
@@ -223,6 +223,7 @@ void AssetBrowser::update()
 		PathUtils::getFilename(filename, sizeof(filename), path.c_str());
 		addResource(dir, filename);
 	}
+
 	m_changed_files.clear();
 }
 

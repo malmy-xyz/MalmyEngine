@@ -1,6 +1,6 @@
 #version
 	2
-#entity_count
+#gameobject_count
 	1
 #prefab
 	1666980976

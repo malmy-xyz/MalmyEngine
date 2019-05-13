@@ -172,7 +172,7 @@ struct TerrainQuad
 };
 
 
-Terrain::Terrain(Renderer& renderer, Entity entity, RenderScene& scene, IAllocator& allocator)
+Terrain::Terrain(Renderer& renderer, GameObject gameobject, RenderScene& scene, IAllocator& allocator)
 	: m_mesh(nullptr)
 	, m_material(nullptr)
 	, m_root(nullptr)
@@ -183,7 +183,7 @@ Terrain::Terrain(Renderer& renderer, Entity entity, RenderScene& scene, IAllocat
 	, m_height(0)
 	, m_layer_mask(1)
 	, m_scale(1, 1, 1)
-	, m_entity(entity)
+	, m_gameobject(gameobject)
 	, m_scene(scene)
 	, m_allocator(allocator)
 	, m_grass_quads(m_allocator)
@@ -363,7 +363,7 @@ void Terrain::forceGrassUpdate()
 	}
 }
 
-Array<Terrain::GrassQuad*>& Terrain::getQuads(Entity camera)
+Array<Terrain::GrassQuad*>& Terrain::getQuads(GameObject camera)
 {
 	int quads_index = m_grass_quads.find(camera);
 	if (quads_index < 0)
@@ -455,7 +455,7 @@ void Terrain::generateGrassTypeQuad(GrassPatch& patch, const RigidTransform& ter
 }
 
 
-void Terrain::updateGrass(Entity camera)
+void Terrain::updateGrass(GameObject camera)
 {
 	PROFILE_FUNCTION();
 	if (!m_splatmap) return;
@@ -467,8 +467,8 @@ void Terrain::updateGrass(Entity camera)
 	m_last_camera_position[camera] = camera_pos;
 
 	m_force_grass_update = false;
-	const RigidTransform terrain_tr = project.getTransform(m_entity).getRigidPart();
-	Matrix inv_mtx = project.getMatrix(m_entity);
+	const RigidTransform terrain_tr = project.getTransform(m_gameobject).getRigidPart();
+	Matrix inv_mtx = project.getMatrix(m_gameobject);
 	inv_mtx.fastInverse();
 	Vec3 local_camera_pos = inv_mtx.transformPoint(camera_pos);
 	float cx = (int)(local_camera_pos.x / (GRASS_QUAD_SIZE)) * GRASS_QUAD_SIZE;
@@ -550,7 +550,7 @@ void Terrain::grassLoaded(Resource::State, Resource::State, Resource&)
 }
 
 
-void Terrain::getGrassInfos(const Frustum& frustum, Array<GrassInfo>& infos, Entity camera)
+void Terrain::getGrassInfos(const Frustum& frustum, Array<GrassInfo>& infos, GameObject camera)
 {
 	if (!m_material || !m_material->isReady()) return;
 
@@ -559,7 +559,7 @@ void Terrain::getGrassInfos(const Frustum& frustum, Array<GrassInfo>& infos, Ent
 	updateGrass(camera);
 	Array<GrassQuad*>& quads = getQuads(camera);
 	
-	Matrix mtx = project.getMatrix(m_entity);
+	Matrix mtx = project.getMatrix(m_gameobject);
 	for (GrassQuad* quad : quads)
 	{
 		Vec3 quad_center(quad->pos.x + GRASS_QUAD_SIZE * 0.5f, quad->pos.y, quad->pos.z + GRASS_QUAD_SIZE * 0.5f);
@@ -609,7 +609,7 @@ void Terrain::setMaterial(Material* material)
 
 void Terrain::deserialize(InputBlob& serializer, Project& project, RenderScene& scene)
 {
-	serializer.read(m_entity);
+	serializer.read(m_gameobject);
 	serializer.read(m_layer_mask);
 	char path[MAX_PATH_LENGTH];
 	serializer.readString(path, MAX_PATH_LENGTH);
@@ -636,13 +636,13 @@ void Terrain::deserialize(InputBlob& serializer, Project& project, RenderScene& 
 		serializer.read(m_grass_types[i].m_rotation_mode);
 		setGrassTypePath(i, Path(path));
 	}
-	project.onComponentCreated(m_entity, TERRAIN_HASH, &scene);
+	project.onComponentCreated(m_gameobject, TERRAIN_HASH, &scene);
 }
 
 	
 void Terrain::serialize(OutputBlob& serializer)
 {
-	serializer.write(m_entity);
+	serializer.write(m_gameobject);
 	serializer.write(m_layer_mask);
 	serializer.writeString(m_material ? m_material->getPath().c_str() : "");
 	serializer.write(m_scale.x);
@@ -664,7 +664,7 @@ void Terrain::getInfos(Array<TerrainInfo>& infos, const Frustum& frustum, const 
 	if (!m_root) return;
 	if (!m_material || !m_material->isReady()) return;
 
-	Matrix matrix = m_scene.getProject().getMatrix(m_entity);
+	Matrix matrix = m_scene.getProject().getMatrix(m_gameobject);
 	Matrix inv_matrix = matrix;
 	inv_matrix.fastInverse();
 	
@@ -809,7 +809,7 @@ RayCastModelHit Terrain::castRay(const Vec3& origin, const Vec3& dir)
 	hit.m_is_hit = false;
 	if (m_root)
 	{
-		Matrix mtx = m_scene.getProject().getMatrix(m_entity);
+		Matrix mtx = m_scene.getProject().getMatrix(m_gameobject);
 		mtx.fastInverse();
 		Vec3 rel_origin = mtx.transformPoint(origin);
 		Vec3 rel_dir = (mtx * Vec4(dir, 0)).xyz();

@@ -41,63 +41,63 @@ public:
 
 	virtual void render(Pipeline& pipeline, const Vec2& canvas_size) = 0;
 
-	virtual bool hasGUI(Entity entity) const = 0;
-	virtual Rect getRectOnCanvas(Entity entity, const Vec2& canva_size) const = 0;
-	virtual Rect getRect(Entity entity) const = 0;
-	virtual Entity getRectAt(const Vec2& pos, const Vec2& canvas_size) const = 0;
+	virtual bool hasGUI(GameObject gameobject) const = 0;
+	virtual Rect getRectOnCanvas(GameObject gameobject, const Vec2& canva_size) const = 0;
+	virtual Rect getRect(GameObject gameobject) const = 0;
+	virtual GameObject getRectAt(const Vec2& pos, const Vec2& canvas_size) const = 0;
 
-	virtual void enableRect(Entity entity, bool enable) = 0;
-	virtual bool isRectEnabled(Entity entity) = 0;
-	virtual bool getRectClip(Entity entity) = 0;
-	virtual void setRectClip(Entity entity, bool value) = 0;
-	virtual float getRectLeftPoints(Entity entity) = 0;
-	virtual void setRectLeftPoints(Entity entity, float value) = 0;
-	virtual float getRectLeftRelative(Entity entity) = 0;
-	virtual void setRectLeftRelative(Entity entity, float value) = 0;
+	virtual void enableRect(GameObject gameobject, bool enable) = 0;
+	virtual bool isRectEnabled(GameObject gameobject) = 0;
+	virtual bool getRectClip(GameObject gameobject) = 0;
+	virtual void setRectClip(GameObject gameobject, bool value) = 0;
+	virtual float getRectLeftPoints(GameObject gameobject) = 0;
+	virtual void setRectLeftPoints(GameObject gameobject, float value) = 0;
+	virtual float getRectLeftRelative(GameObject gameobject) = 0;
+	virtual void setRectLeftRelative(GameObject gameobject, float value) = 0;
 
-	virtual float getRectRightPoints(Entity entity) = 0;
-	virtual void setRectRightPoints(Entity entity, float value) = 0;
-	virtual float getRectRightRelative(Entity entity) = 0;
-	virtual void setRectRightRelative(Entity entity, float value) = 0;
+	virtual float getRectRightPoints(GameObject gameobject) = 0;
+	virtual void setRectRightPoints(GameObject gameobject, float value) = 0;
+	virtual float getRectRightRelative(GameObject gameobject) = 0;
+	virtual void setRectRightRelative(GameObject gameobject, float value) = 0;
 
-	virtual float getRectTopPoints(Entity entity) = 0;
-	virtual void setRectTopPoints(Entity entity, float value) = 0;
-	virtual float getRectTopRelative(Entity entity) = 0;
-	virtual void setRectTopRelative(Entity entity, float value) = 0;
+	virtual float getRectTopPoints(GameObject gameobject) = 0;
+	virtual void setRectTopPoints(GameObject gameobject, float value) = 0;
+	virtual float getRectTopRelative(GameObject gameobject) = 0;
+	virtual void setRectTopRelative(GameObject gameobject, float value) = 0;
 
-	virtual float getRectBottomPoints(Entity entity) = 0;
-	virtual void setRectBottomPoints(Entity entity, float value) = 0;
-	virtual float getRectBottomRelative(Entity entity) = 0;
-	virtual void setRectBottomRelative(Entity entity, float value) = 0;
+	virtual float getRectBottomPoints(GameObject gameobject) = 0;
+	virtual void setRectBottomPoints(GameObject gameobject, float value) = 0;
+	virtual float getRectBottomRelative(GameObject gameobject) = 0;
+	virtual void setRectBottomRelative(GameObject gameobject, float value) = 0;
 
-	virtual Vec4 getButtonNormalColorRGBA(Entity entity) = 0;
-	virtual void setButtonNormalColorRGBA(Entity entity, const Vec4& color) = 0;
-	virtual Vec4 getButtonHoveredColorRGBA(Entity entity) = 0;
-	virtual void setButtonHoveredColorRGBA(Entity entity, const Vec4& color) = 0;
+	virtual Vec4 getButtonNormalColorRGBA(GameObject gameobject) = 0;
+	virtual void setButtonNormalColorRGBA(GameObject gameobject, const Vec4& color) = 0;
+	virtual Vec4 getButtonHoveredColorRGBA(GameObject gameobject) = 0;
+	virtual void setButtonHoveredColorRGBA(GameObject gameobject, const Vec4& color) = 0;
 
-	virtual void enableImage(Entity entity, bool enable) = 0;
-	virtual bool isImageEnabled(Entity entity) = 0;
-	virtual Vec4 getImageColorRGBA(Entity entity) = 0;
-	virtual void setImageColorRGBA(Entity entity, const Vec4& color) = 0;
-	virtual Path getImageSprite(Entity entity) = 0;
-	virtual void setImageSprite(Entity entity, const Path& path) = 0;
+	virtual void enableImage(GameObject gameobject, bool enable) = 0;
+	virtual bool isImageEnabled(GameObject gameobject) = 0;
+	virtual Vec4 getImageColorRGBA(GameObject gameobject) = 0;
+	virtual void setImageColorRGBA(GameObject gameobject, const Vec4& color) = 0;
+	virtual Path getImageSprite(GameObject gameobject) = 0;
+	virtual void setImageSprite(GameObject gameobject, const Path& path) = 0;
 
-	virtual void setText(Entity entity, const char* text) = 0;
-	virtual const char* getText(Entity entity) = 0;
-	virtual TextHAlign getTextHAlign(Entity entity) = 0;
-	virtual void setTextHAlign(Entity entity, TextHAlign align) = 0;
-	virtual void setTextFontSize(Entity entity, int value) = 0;
-	virtual int getTextFontSize(Entity entity) = 0;
-	virtual Vec4 getTextColorRGBA(Entity entity) = 0;
-	virtual void setTextColorRGBA(Entity entity, const Vec4& color) = 0;
-	virtual Path getTextFontPath(Entity entity) = 0;
-	virtual void setTextFontPath(Entity entity, const Path& path) = 0;
+	virtual void setText(GameObject gameobject, const char* text) = 0;
+	virtual const char* getText(GameObject gameobject) = 0;
+	virtual TextHAlign getTextHAlign(GameObject gameobject) = 0;
+	virtual void setTextHAlign(GameObject gameobject, TextHAlign align) = 0;
+	virtual void setTextFontSize(GameObject gameobject, int value) = 0;
+	virtual int getTextFontSize(GameObject gameobject) = 0;
+	virtual Vec4 getTextColorRGBA(GameObject gameobject) = 0;
+	virtual void setTextColorRGBA(GameObject gameobject, const Vec4& color) = 0;
+	virtual Path getTextFontPath(GameObject gameobject) = 0;
+	virtual void setTextFontPath(GameObject gameobject, const Path& path) = 0;
 
-	virtual void setRenderTarget(Entity entity, bgfx::TextureHandle* texture_handle) = 0;
+	virtual void setRenderTarget(GameObject gameobject, bgfx::TextureHandle* texture_handle) = 0;
 
-	virtual DelegateList<void(Entity)>& buttonClicked() = 0;
-	virtual DelegateList<void(Entity)>& rectHovered() = 0;
-	virtual DelegateList<void(Entity)>& rectHoveredOut() = 0;
+	virtual DelegateList<void(GameObject)>& buttonClicked() = 0;
+	virtual DelegateList<void(GameObject)>& rectHovered() = 0;
+	virtual DelegateList<void(GameObject)>& rectHoveredOut() = 0;
 };
 
 

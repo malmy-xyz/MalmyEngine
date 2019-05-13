@@ -63,7 +63,7 @@ namespace physx
 			PxMemZero(this, sizeof(PxWheelQueryResult));
 			isInAir=true;
 			tireSurfaceType = PxU32(PxVehicleDrivableSurfaceType::eSURFACE_TYPE_UNKNOWN);
-			localPose = PxTransform(PxIdentity);
+			localPose = PxTransform(PxIdgameobject);
 		}
 
 		/**
@@ -248,7 +248,7 @@ namespace physx
 		friend class PxVehicleUpdate;
 
 		PxVehicleWheelConcurrentUpdateData()
-			: localPose(PxTransform(PxIdentity)),
+			: localPose(PxTransform(PxIdgameobject)),
 			  hitActor(NULL),
 			  hitActorForce(PxVec3(0,0,0)),
 			  hitActorForcePosition(PxVec3(0,0,0))
@@ -413,7 +413,7 @@ namespace physx
 		 const PxF32 sweepWidthScale = 1.0f, const PxF32 sweepRadiusScale = 1.0f);
 
 	/**
-	\brief A function called from PxContactModifyCallback::onContactModify.  The function determines if rigid body contact points
+	\brief A function called from PxContactModifyCallback::onCollisionModify.  The function determines if rigid body contact points
 	recorded for the wheel's PxShape are likely to be duplicated and resolved by the wheel's suspension raycast.   Contact points that will be
 	resolved by the suspension are ignored.  Contact points that are accepted (rather than ignored) are modified to account for the effect of the
 	suspension geometry and the angular speed of the wheel.
@@ -442,7 +442,7 @@ namespace physx
 	\note Reduce maxImpulse if the wheels are frequently colliding with light objects with mass much less than the vehicle's mass.
 	Reducing this value encourages numerical stability.
 
-	@see PxContactModifyCallback::onContactModify, PxVehicleSetSweepHitRejectionAngles
+	@see PxContactModifyCallback::onCollisionModify, PxVehicleSetSweepHitRejectionAngles
 	*/
 	PxU32 PxVehicleModifyWheelContacts
 		(const PxVehicleWheels& vehicle, const PxU32 wheelId,

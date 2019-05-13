@@ -217,8 +217,8 @@ Developers writing custom constraints are encouraged to read the documentation i
 \param[in] maxConstraints		The size of the constraint buffer. At most this many constraints rows may be written
 \param[out] invMassScale		The inverse mass and inertia scales for the constraint
 \param[in] constantBlock		The constant data block
-\param[in] bodyAToWorld			The center of mass frame of the first constrained body (the identity transform if the first actor is static, or if a NULL actor pointer was provided for it)
-\param[in] bodyBToWorld			The center of mass frame of the second constrained body (the identity transform if the second actor is static, or if a NULL actor pointer was provided for it)
+\param[in] bodyAToWorld			The center of mass frame of the first constrained body (the idgameobject transform if the first actor is static, or if a NULL actor pointer was provided for it)
+\param[in] bodyBToWorld			The center of mass frame of the second constrained body (the idgameobject transform if the second actor is static, or if a NULL actor pointer was provided for it)
 \param[in] useExtendedLimits	Enables limit ranges outside of (-PI, PI)
 \param[out] cAtW				The world space location of body A's joint frame (position only)
 \param[out] cBtW				The world space location of body B's joint frame (position only)
@@ -242,8 +242,8 @@ This function is called by the constraint post-solver framework. The function mu
 from multiple threads and should access only the arguments passed into it.
 
 \param[in] constantBlock	The constant data block
-\param[out] bodyAToWorld	The center of mass frame of the first constrained body (the identity if the actor is static or a NULL pointer was provided for it)
-\param[out] bodyBToWorld	The center of mass frame of the second constrained body (the identity if the actor is static or a NULL pointer was provided for it)
+\param[out] bodyAToWorld	The center of mass frame of the first constrained body (the idgameobject if the actor is static or a NULL pointer was provided for it)
+\param[out] bodyBToWorld	The center of mass frame of the second constrained body (the idgameobject if the actor is static or a NULL pointer was provided for it)
 \param[in] projectToA		True if the constraint should be projected by moving the second body towards the first, false if the converse
 */
 typedef void (*PxConstraintProject)(const void* constantBlock,
@@ -316,8 +316,8 @@ This function is called by the constraint post-solver framework to visualize the
 
 \param[out] visualizer		The render buffer to render to
 \param[in] constantBlock	The constant data block
-\param[in] body0Transform	The center of mass frame of the first constrained body (the identity if the actor is static, or a NULL pointer was provided for it)
-\param[in] body1Transform	The center of mass frame of the second constrained body (the identity if the actor is static, or a NULL pointer was provided for it)
+\param[in] body0Transform	The center of mass frame of the first constrained body (the idgameobject if the actor is static, or a NULL pointer was provided for it)
+\param[in] body1Transform	The center of mass frame of the second constrained body (the idgameobject if the actor is static, or a NULL pointer was provided for it)
 \param[in] flags			The visualization flags (PxConstraintVisualizationFlag)
 
 @see PxRenderBuffer 

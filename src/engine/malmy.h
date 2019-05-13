@@ -68,13 +68,13 @@ namespace Malmy
 
 	const u32 MAX_PATH_LENGTH = 260;
 
-	struct Entity
+	struct GameObject
 	{
 		int index;
-		bool operator==(const Entity& rhs) const { return rhs.index == index; }
-		bool operator<(const Entity& rhs) const { return rhs.index < index; }
-		bool operator>(const Entity& rhs) const { return rhs.index > index; }
-		bool operator!=(const Entity& rhs) const { return rhs.index != index; }
+		bool operator==(const GameObject& rhs) const { return rhs.index == index; }
+		bool operator<(const GameObject& rhs) const { return rhs.index < index; }
+		bool operator>(const GameObject& rhs) const { return rhs.index > index; }
+		bool operator!=(const GameObject& rhs) const { return rhs.index != index; }
 		bool isValid() const { return index >= 0; }
 	};
 
@@ -89,7 +89,7 @@ namespace Malmy
 		bool operator!=(const ComponentType& rhs) const { return rhs.index != index; }
 	};
 	const ComponentType INVALID_COMPONENT_TYPE = { -1 };
-	const Entity INVALID_ENTITY = { -1 };
+	const GameObject INVALID_GAMEOBJECT = { -1 };
 
 	template <typename T, int count> int lengthOf(const T(&)[count])
 	{

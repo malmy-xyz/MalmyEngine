@@ -49,10 +49,10 @@ enum class Instructions : u8
 };
 
 
-ScriptedParticleEmitter::ScriptedParticleEmitter(Entity entity, IAllocator& allocator)
+ScriptedParticleEmitter::ScriptedParticleEmitter(GameObject gameobject, IAllocator& allocator)
 	: m_allocator(allocator)
 	, m_bytecode(allocator)
-	, m_entity(entity)
+	, m_gameobject(gameobject)
 	, m_emit_buffer(allocator)
 {
 	compile(
@@ -218,14 +218,14 @@ int ScriptedParticleEmitter::getConstant(const char* name) const
 
 void ScriptedParticleEmitter::serialize(OutputBlob& blob)
 {
-	blob.write(m_entity);
+	blob.write(m_gameobject);
 	blob.writeString(m_material ? m_material->getPath().c_str() : "");
 }
 
 
 void ScriptedParticleEmitter::deserialize(InputBlob& blob, ResourceManager& manager)
 {
-	blob.read(m_entity);
+	blob.read(m_gameobject);
 	char path[MAX_PATH_LENGTH];
 	blob.readString(path, lengthOf(path));
 	auto material_manager = manager.get(Material::TYPE);
@@ -834,7 +834,7 @@ ParticleEmitter::AttractorModule::AttractorModule(ParticleEmitter& emitter)
 	m_count = 0;
 	for(auto& e : m_entities)
 	{
-		e = INVALID_ENTITY;
+		e = INVALID_GAMEOBJECT;
 	}
 }
 
@@ -843,7 +843,7 @@ void ParticleEmitter::AttractorModule::drawGizmo(WorldEditor& editor, RenderScen
 {
 	for (int i = 0; i < m_count; ++i)
 	{
-		if(m_entities[i] != INVALID_ENTITY) editor.getGizmo().add(m_entities[i]);
+		if(m_entities[i] != INVALID_GAMEOBJECT) editor.getGizmo().add(m_entities[i]);
 	}
 }
 
@@ -857,10 +857,10 @@ void ParticleEmitter::AttractorModule::update(float time_delta)
 
 	for(int i = 0; i < m_count; ++i)
 	{
-		auto entity = m_entities[i];
-		if(entity == INVALID_ENTITY) continue;
-		if (!m_emitter.m_project.hasEntity(entity)) continue;
-		Vec3 pos = m_emitter.m_project.getPosition(entity);
+		auto gameobject = m_entities[i];
+		if(gameobject == INVALID_GAMEOBJECT) continue;
+		if (!m_emitter.m_project.hasGameObject(gameobject)) continue;
+		Vec3 pos = m_emitter.m_project.getPosition(gameobject);
 
 		for(int i = m_emitter.m_position.size() - 1; i >= 0; --i)
 		{
@@ -906,7 +906,7 @@ ParticleEmitter::PlaneModule::PlaneModule(ParticleEmitter& emitter)
 	m_count = 0;
 	for (auto& e : m_entities)
 	{
-		e = INVALID_ENTITY;
+		e = INVALID_GAMEOBJECT;
 	}
 }
 
@@ -915,12 +915,12 @@ void ParticleEmitter::PlaneModule::drawGizmo(WorldEditor& editor, RenderScene& s
 {
 	for (int i = 0; i < m_count; ++i)
 	{
-		Entity entity = m_entities[i];
-		if (m_entities[i] != INVALID_ENTITY) editor.getGizmo().add(entity);
-		if (entity == INVALID_ENTITY) continue;
-		if (!m_emitter.m_project.hasEntity(entity)) continue;
+		GameObject gameobject = m_entities[i];
+		if (m_entities[i] != INVALID_GAMEOBJECT) editor.getGizmo().add(gameobject);
+		if (gameobject == INVALID_GAMEOBJECT) continue;
+		if (!m_emitter.m_project.hasGameObject(gameobject)) continue;
 
-		Matrix mtx = m_emitter.m_project.getMatrix(entity);
+		Matrix mtx = m_emitter.m_project.getMatrix(gameobject);
 		Vec3 pos = mtx.getTranslation();
 		Vec3 right = mtx.getXVector();
 		Vec3 forward = mtx.getZVector();
@@ -945,11 +945,11 @@ void ParticleEmitter::PlaneModule::update(float time_delta)
 
 	for (int i = 0; i < m_count; ++i)
 	{
-		auto entity = m_entities[i];
-		if (entity == INVALID_ENTITY) continue;
-		if (!m_emitter.m_project.hasEntity(entity)) continue;
-		Vec3 normal = m_emitter.m_project.getRotation(entity).rotate(Vec3(0, 1, 0));
-		float D = -dotProduct(normal, m_emitter.m_project.getPosition(entity));
+		auto gameobject = m_entities[i];
+		if (gameobject == INVALID_GAMEOBJECT) continue;
+		if (!m_emitter.m_project.hasGameObject(gameobject)) continue;
+		Vec3 normal = m_emitter.m_project.getRotation(gameobject).rotate(Vec3(0, 1, 0));
+		float D = -dotProduct(normal, m_emitter.m_project.getPosition(gameobject));
 
 		for (int i = m_emitter.m_position.size() - 1; i >= 0; --i)
 		{
@@ -1046,7 +1046,7 @@ void ParticleEmitter::LinearMovementModule::spawnParticle(int index)
 	velocity.x = m_x.getRandom();
 	velocity.y = m_y.getRandom();
 	velocity.z = m_z.getRandom();
-	Quat rot = m_emitter.m_project.getRotation(m_emitter.m_entity);
+	Quat rot = m_emitter.m_project.getRotation(m_emitter.m_gameobject);
 	velocity = rot.rotate(velocity);
 }
 
@@ -1290,7 +1290,7 @@ float Interval::getRandom() const
 }
 
 
-ParticleEmitter::ParticleEmitter(Entity entity, Project& project, IAllocator& allocator)
+ParticleEmitter::ParticleEmitter(GameObject gameobject, Project& project, IAllocator& allocator)
 	: m_allocator(allocator)
 	, m_rel_life(allocator)
 	, m_life(allocator)
@@ -1301,7 +1301,7 @@ ParticleEmitter::ParticleEmitter(Entity entity, Project& project, IAllocator& al
 	, m_rotational_speed(allocator)
 	, m_alpha(allocator)
 	, m_project(project)
-	, m_entity(entity)
+	, m_gameobject(gameobject)
 	, m_size(allocator)
 	, m_subimage_module(nullptr)
 	, m_autoemit(true)
@@ -1367,7 +1367,7 @@ void ParticleEmitter::spawnParticle()
 	}
 	else
 	{
-		m_position.push(m_project.getPosition(m_entity));
+		m_position.push(m_project.getPosition(m_gameobject));
 	}
 	m_rotation.push(0);
 	m_rotational_speed.push(0);
@@ -1441,7 +1441,7 @@ void ParticleEmitter::serialize(OutputBlob& blob)
 	blob.write(m_spawn_period);
 	blob.write(m_initial_life);
 	blob.write(m_initial_size);
-	blob.write(m_entity);
+	blob.write(m_gameobject);
 	blob.write(m_autoemit);
 	blob.write(m_local_space);
 	blob.writeString(m_material ? m_material->getPath().c_str() : "");
@@ -1460,7 +1460,7 @@ void ParticleEmitter::deserialize(InputBlob& blob, ResourceManager& manager)
 	blob.read(m_spawn_period);
 	blob.read(m_initial_life);
 	blob.read(m_initial_size);
-	blob.read(m_entity);
+	blob.read(m_gameobject);
 	blob.read(m_autoemit);
 	blob.read(m_local_space);
 	char path[MAX_PATH_LENGTH];

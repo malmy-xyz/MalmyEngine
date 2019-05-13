@@ -92,10 +92,10 @@ struct PaintTerrainCommand MALMY_FINAL : public IEditorCommand
 		}
 
 		m_width = m_height = m_x = m_y = -1;
-		Matrix entity_mtx = editor.getProject()->getMatrix(terrain.entity);
-		entity_mtx.fastInverse();
-		Vec3 local_pos = entity_mtx.transformPoint(hit_pos);
-		float terrain_size = static_cast<RenderScene*>(terrain.scene)->getTerrainSize(terrain.entity).x;
+		Matrix gameobject_mtx = editor.getProject()->getMatrix(terrain.gameobject);
+		gameobject_mtx.fastInverse();
+		Vec3 local_pos = gameobject_mtx.transformPoint(hit_pos);
+		float terrain_size = static_cast<RenderScene*>(terrain.scene)->getTerrainSize(terrain.gameobject).x;
 		local_pos = local_pos / terrain_size;
 		local_pos.y = -1;
 
@@ -231,7 +231,7 @@ private:
 	Material* getMaterial()
 	{
 		auto* scene = static_cast<RenderScene*>(m_terrain.scene);
-		return scene->getTerrainMaterial(m_terrain.entity);
+		return scene->getTerrainMaterial(m_terrain.gameobject);
 	}
 
 
@@ -571,7 +571,7 @@ private:
 			}
 		}
 		texture->onDataUpdated(m_x, m_y, m_width, m_height);
-		static_cast<RenderScene*>(m_terrain.scene)->forceGrassUpdate(m_terrain.entity);
+		static_cast<RenderScene*>(m_terrain.scene)->forceGrassUpdate(m_terrain.gameobject);
 
 		if (m_action_type != TerrainEditor::LAYER && m_action_type != TerrainEditor::COLOR &&
 			m_action_type != TerrainEditor::ADD_GRASS && m_action_type != TerrainEditor::REMOVE_GRASS)
@@ -580,9 +580,9 @@ private:
 			if (!scene) return;
 
 			auto* phy_scene = static_cast<PhysicsScene*>(scene);
-			if (!scene->getProject().hasComponent(m_terrain.entity, HEIGHTFIELD_TYPE)) return;
+			if (!scene->getProject().hasComponent(m_terrain.gameobject, HEIGHTFIELD_TYPE)) return;
 
-			phy_scene->updateHeighfieldData(m_terrain.entity, m_x, m_y, m_width, m_height, &data[0], bpp);
+			phy_scene->updateHeighfieldData(m_terrain.gameobject, m_x, m_y, m_width, m_height, &data[0], bpp);
 		}
 	}
 
@@ -690,7 +690,7 @@ TerrainEditor::~TerrainEditor()
 void TerrainEditor::onProjectDestroyed()
 {
 	m_component.scene = nullptr;
-	m_component.entity = INVALID_ENTITY;
+	m_component.gameobject = INVALID_GAMEOBJECT;
 }
 
 
@@ -744,10 +744,10 @@ TerrainEditor::TerrainEditor(WorldEditor& editor, StudioApp& app)
 	m_remove_grass_action->is_global = false;
 	app.addAction(m_remove_grass_action);
 
-	m_remove_entity_action =
+	m_remove_gameobject_action =
 		MALMY_NEW(editor.getAllocator(), Action)("Remove entities from terrain", "Terrain editor - remove entities", "removeEntitiesFromTerrain");
-	m_remove_entity_action->is_global = false;
-	app.addAction(m_remove_entity_action);
+	m_remove_gameobject_action->is_global = false;
+	app.addAction(m_remove_gameobject_action);
 
 	editor.addPlugin(*this);
 	m_terrain_brush_size = 10;
@@ -768,7 +768,7 @@ TerrainEditor::TerrainEditor(WorldEditor& editor, StudioApp& app)
 void TerrainEditor::splitSplatmap(const char* dir)
 {
 	auto* render_scene = (RenderScene*)m_component.scene;
-	Material* material = render_scene->getTerrainMaterial(m_component.entity);
+	Material* material = render_scene->getTerrainMaterial(m_component.gameobject);
 	if (!material)
 	{
 		g_log_error.log("Renderer") << "Terrain has no material";
@@ -815,7 +815,7 @@ void TerrainEditor::splitSplatmap(const char* dir)
 		fs.close(*file);
 	}
 
-	int grasses_count = render_scene->getGrassCount(m_component.entity);
+	int grasses_count = render_scene->getGrassCount(m_component.gameobject);
 	for (int i = 0; i < grasses_count; ++i)
 	{
 		StaticString<MAX_PATH_LENGTH> out_path_str(dir, "//grass", i, ".tga");
@@ -842,7 +842,7 @@ void TerrainEditor::splitSplatmap(const char* dir)
 void TerrainEditor::mergeSplatmap(const char* dir)
 {
 	auto* render_scene = (RenderScene*)m_component.scene;
-	Material* material = render_scene->getTerrainMaterial(m_component.entity);
+	Material* material = render_scene->getTerrainMaterial(m_component.gameobject);
 	if (!material)
 	{
 		g_log_error.log("Renderer") << "Terrain has no material";
@@ -964,7 +964,7 @@ void TerrainEditor::mergeSplatmap(const char* dir)
 void TerrainEditor::nextTerrainTexture()
 {
 	auto* scene = static_cast<RenderScene*>(m_component.scene);
-	auto* material = scene->getTerrainMaterial(m_component.entity);
+	auto* material = scene->getTerrainMaterial(m_component.gameobject);
 	Texture* tex = material->getTextureByUniform(TEX_COLOR_UNIFORM);
 	if (tex)
 	{
@@ -1001,7 +1001,7 @@ void TerrainEditor::decreaseBrushSize()
 }
 
 
-void TerrainEditor::drawCursor(RenderScene& scene, Entity terrain, const Vec3& center)
+void TerrainEditor::drawCursor(RenderScene& scene, GameObject terrain, const Vec3& center)
 {
 	PROFILE_FUNCTION();
 	static const int SLICE_COUNT = 30;
@@ -1013,7 +1013,7 @@ void TerrainEditor::drawCursor(RenderScene& scene, Entity terrain, const Vec3& c
 
 	float brush_size = m_terrain_brush_size;
 	Vec3 local_center = getRelativePosition(center);
-	Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.entity);
+	Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.gameobject);
 
 	for (int i = 0; i < SLICE_COUNT + 1; ++i)
 	{
@@ -1067,16 +1067,16 @@ void TerrainEditor::detectModifiers()
 		}
 	}
 
-	bool is_entity_tool = m_action_type == ENTITY || m_action_type == REMOVE_ENTITY;
-	if (is_entity_tool)
+	bool is_gameobject_tool = m_action_type == GAMEOBJECT || m_action_type == REMOVE_GAMEOBJECT;
+	if (is_gameobject_tool)
 	{
-		if (m_remove_entity_action->isActive())
+		if (m_remove_gameobject_action->isActive())
 		{
-			m_action_type = REMOVE_ENTITY;
+			m_action_type = REMOVE_GAMEOBJECT;
 		}
 		else
 		{
-			m_action_type = ENTITY;
+			m_action_type = GAMEOBJECT;
 		}
 	}
 }
@@ -1084,7 +1084,7 @@ void TerrainEditor::detectModifiers()
 
 Vec3 TerrainEditor::getRelativePosition(const Vec3& world_pos) const
 {
-	Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.entity);
+	Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.gameobject);
 	Matrix inv_terrain_matrix = terrain_matrix;
 	inv_terrain_matrix.inverse();
 
@@ -1106,7 +1106,7 @@ u16 TerrainEditor::getHeight(const Vec3& world_pos)
 
 	auto* data = (u16*)heightmap->getData();
 	auto* scene = (RenderScene*)m_component.scene;
-	float scale = scene->getTerrainXZScale(m_component.entity);
+	float scale = scene->getTerrainXZScale(m_component.gameobject);
 	return data[int(rel_pos.x / scale) + int(rel_pos.z / scale) * heightmap->width];
 }
 
@@ -1115,7 +1115,7 @@ bool TerrainEditor::onMouseDown(const WorldEditor::RayHit& hit, int, int)
 {
 	if (!m_is_enabled) return false;
 	if (!hit.is_hit) return false;
-	if (!hit.entity.isValid()) return false;
+	if (!hit.gameobject.isValid()) return false;
 	const auto& selected_entities = m_world_editor.getSelectedEntities();
 	if (selected_entities.size() != 1) return false;
 	bool is_terrain = m_world_editor.getProject()->hasComponent(selected_entities[0], TERRAIN_TYPE);
@@ -1124,7 +1124,7 @@ bool TerrainEditor::onMouseDown(const WorldEditor::RayHit& hit, int, int)
 
 	detectModifiers();
 
-	if (selected_entities[0] == hit.entity && m_component.isValid())
+	if (selected_entities[0] == hit.gameobject && m_component.isValid())
 	{
 		Vec3 hit_pos = hit.pos;
 		switch (m_action_type)
@@ -1146,8 +1146,8 @@ bool TerrainEditor::onMouseDown(const WorldEditor::RayHit& hit, int, int)
 			case ADD_GRASS:
 			case COLOR:
 			case LAYER: paint(hit.pos, m_action_type, false); break;
-			case ENTITY: paintEntities(hit.pos); break;
-			case REMOVE_ENTITY: removeEntities(hit.pos); break;
+			case GAMEOBJECT: paintEntities(hit.pos); break;
+			case REMOVE_GAMEOBJECT: removeEntities(hit.pos); break;
 			default: ASSERT(false); break;
 		}
 		return true;
@@ -1176,24 +1176,24 @@ void TerrainEditor::removeEntities(const Vec3& hit_pos)
 		-m_terrain_brush_size,
 		m_terrain_brush_size);
 
-	Array<Entity> entities(m_world_editor.getAllocator());
+	Array<GameObject> entities(m_world_editor.getAllocator());
 	scene->getModelInstanceEntities(frustum, entities);
 	if (m_selected_prefabs.empty())
 	{
-		for (Entity entity : entities)
+		for (GameObject gameobject : entities)
 		{
-			if (prefab_system.getPrefab(entity)) m_world_editor.destroyEntities(&entity, 1);
+			if (prefab_system.getPrefab(gameobject)) m_world_editor.destroyEntities(&gameobject, 1);
 		}
 	}
 	else
 	{
-		for (Entity entity : entities)
+		for (GameObject gameobject : entities)
 		{
 			for (auto* res : m_selected_prefabs)
 			{
-				if ((prefab_system.getPrefab(entity) & 0xffffFFFF) == res->getPath().getHash())
+				if ((prefab_system.getPrefab(gameobject) & 0xffffFFFF) == res->getPath().getHash())
 				{
-					m_world_editor.destroyEntities(&entity, 1);
+					m_world_editor.destroyEntities(&gameobject, 1);
 					break;
 				}
 			}
@@ -1296,7 +1296,7 @@ static bool isOBBCollision(RenderScene& scene,
 			float radius_squared = radius_a_squared + radius_b * radius_b;
 			if ((pos_a - pos_b).squaredLength() < radius_squared * scale * scale)
 			{
-				Matrix matrix = Matrix::IDENTITY;
+				Matrix matrix = Matrix::IDGAMEOBJECT;
 				matrix.setTranslation(pos_a);
 				if (testOBBCollision(matrix, model, model_instance->matrix, model_instance->model, scale))
 				{
@@ -1319,7 +1319,7 @@ void TerrainEditor::paintEntities(const Vec3& hit_pos)
 	m_world_editor.beginCommandGroup(PAINT_ENTITIES_HASH);
 	{
 		RenderScene* scene = static_cast<RenderScene*>(m_component.scene);
-		Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.entity);
+		Matrix terrain_matrix = m_world_editor.getProject()->getMatrix(m_component.gameobject);
 		Matrix inv_terrain_matrix = terrain_matrix;
 		inv_terrain_matrix.inverse();
 
@@ -1332,12 +1332,12 @@ void TerrainEditor::paintEntities(const Vec3& hit_pos)
 			-m_terrain_brush_size,
 			m_terrain_brush_size);
 		ComponentUID camera = m_world_editor.getEditCamera();
-		Entity camera_entity = camera.entity;
-		Vec3 camera_pos = scene->getProject().getPosition(camera_entity);
+		GameObject camera_gameobject = camera.gameobject;
+		Vec3 camera_pos = scene->getProject().getPosition(camera_gameobject);
 		
-		auto& meshes = scene->getModelInstanceInfos(frustum, camera_pos, camera.entity, ~0ULL);
+		auto& meshes = scene->getModelInstanceInfos(frustum, camera_pos, camera.gameobject, ~0ULL);
 
-		Vec2 size = scene->getTerrainSize(m_component.entity);
+		Vec2 size = scene->getTerrainSize(m_component.gameobject);
 		float scale = 1.0f - Math::maximum(0.01f, m_terrain_brush_strength);
 		for (int i = 0; i <= m_terrain_brush_size * m_terrain_brush_size / 1000.0f; ++i)
 		{
@@ -1348,15 +1348,15 @@ void TerrainEditor::paintEntities(const Vec3& hit_pos)
 			Vec3 terrain_pos = inv_terrain_matrix.transformPoint(pos);
 			if (terrain_pos.x >= 0 && terrain_pos.z >= 0 && terrain_pos.x <= size.x && terrain_pos.z <= size.y)
 			{
-				pos.y = scene->getTerrainHeightAt(m_component.entity, terrain_pos.x, terrain_pos.z) + y;
+				pos.y = scene->getTerrainHeightAt(m_component.gameobject, terrain_pos.x, terrain_pos.z) + y;
 				pos.y += terrain_matrix.getTranslation().y;
 				Quat rot(0, 0, 0, 1);
 				if(m_is_align_with_normal)
 				{
 					RenderScene* scene = static_cast<RenderScene*>(m_component.scene);
-					Vec3 normal = scene->getTerrainNormalAt(m_component.entity, pos.x, pos.z);
+					Vec3 normal = scene->getTerrainNormalAt(m_component.gameobject, pos.x, pos.z);
 					Vec3 dir = crossProduct(normal, Vec3(1, 0, 0)).normalized();
-					Matrix mtx = Matrix::IDENTITY;
+					Matrix mtx = Matrix::IDGAMEOBJECT;
 					mtx.setXVector(crossProduct(normal, dir));
 					mtx.setYVector(normal);
 					mtx.setXVector(dir);
@@ -1389,12 +1389,12 @@ void TerrainEditor::paintEntities(const Vec3& hit_pos)
 				float size = Math::randFloat(m_size_spread.x, m_size_spread.y);
 				int random_idx = Math::rand(0, m_selected_prefabs.size() - 1);
 				if (!m_selected_prefabs[random_idx]) continue;
-				Entity entity = prefab_system.instantiatePrefab(*m_selected_prefabs[random_idx], pos, rot, size);
-				if (entity.isValid())
+				GameObject gameobject = prefab_system.instantiatePrefab(*m_selected_prefabs[random_idx], pos, rot, size);
+				if (gameobject.isValid())
 				{
-					if (scene->getProject().hasComponent(entity, MODEL_INSTANCE_TYPE))
+					if (scene->getProject().hasComponent(gameobject, MODEL_INSTANCE_TYPE))
 					{
-						Model* model = scene->getModelInstanceModel(entity);
+						Model* model = scene->getModelInstanceModel(gameobject);
 						if (isOBBCollision(*scene, meshes, pos, model, scale))
 						{
 							m_world_editor.undo();
@@ -1417,11 +1417,11 @@ void TerrainEditor::onMouseMove(int x, int y, int, int)
 	ComponentUID camera_cmp = m_world_editor.getEditCamera();
 	RenderScene* scene = static_cast<RenderScene*>(camera_cmp.scene);
 	Vec3 origin, dir;
-	scene->getRay(camera_cmp.entity, {(float)x, (float)y}, origin, dir);
-	RayCastModelHit hit = scene->castRayTerrain(m_component.entity, origin, dir);
+	scene->getRay(camera_cmp.gameobject, {(float)x, (float)y}, origin, dir);
+	RayCastModelHit hit = scene->castRayTerrain(m_component.gameobject, origin, dir);
 	if (hit.m_is_hit)
 	{
-		bool is_terrain = m_world_editor.getProject()->hasComponent(hit.m_entity, TERRAIN_TYPE);
+		bool is_terrain = m_world_editor.getProject()->hasComponent(hit.m_gameobject, TERRAIN_TYPE);
 		if (!is_terrain) return;
 
 		switch (m_action_type)
@@ -1434,8 +1434,8 @@ void TerrainEditor::onMouseMove(int x, int y, int, int)
 			case ADD_GRASS:
 			case COLOR:
 			case LAYER: paint(hit.m_origin + hit.m_dir * hit.m_t, m_action_type, true); break;
-			case ENTITY: paintEntities(hit.m_origin + hit.m_dir * hit.m_t); break;
-			case REMOVE_ENTITY: removeEntities(hit.m_origin + hit.m_dir * hit.m_t); break;
+			case GAMEOBJECT: paintEntities(hit.m_origin + hit.m_dir * hit.m_t); break;
+			case REMOVE_GAMEOBJECT: removeEntities(hit.m_origin + hit.m_dir * hit.m_t); break;
 			default: ASSERT(false); break;
 		}
 	}
@@ -1450,7 +1450,7 @@ void TerrainEditor::onMouseUp(int, int, MouseButton::Value)
 Material* TerrainEditor::getMaterial()
 {
 	auto* scene = static_cast<RenderScene*>(m_component.scene);
-	return scene->getTerrainMaterial(m_component.entity);
+	return scene->getTerrainMaterial(m_component.gameobject);
 }
 
 
@@ -1491,7 +1491,7 @@ void TerrainEditor::onGUI()
 	{
 		HEIGHT,
 		LAYER,
-		ENTITY,
+		GAMEOBJECT,
 		COLOR,
 		GRASS
 	};
@@ -1501,7 +1501,7 @@ void TerrainEditor::onGUI()
 	if (ImGui::Checkbox("Enable grass", &is_grass_enabled)) scene->enableGrass(is_grass_enabled);
 
 	if (ImGui::Combo(
-			"Brush type", &m_current_brush, "Height\0Layer\0Entity\0Color\0Grass\0"))
+			"Brush type", &m_current_brush, "Height\0Layer\0GameObject\0Color\0Grass\0"))
 	{
 		m_action_type = m_current_brush == HEIGHT ? TerrainEditor::RAISE_HEIGHT : m_action_type;
 	}
@@ -1521,7 +1521,7 @@ void TerrainEditor::onGUI()
 			if (ImGui::Button("Save colormap"))
 				getMaterial()->getTextureByUniform(COLORMAP_UNIFORM)->save();
 			break;
-		case ENTITY: break;
+		case GAMEOBJECT: break;
 	}
 
 	if (m_current_brush == LAYER || m_current_brush == GRASS || m_current_brush == COLOR)
@@ -1599,7 +1599,7 @@ void TerrainEditor::onGUI()
 		case GRASS:
 		{
 			m_action_type = TerrainEditor::ADD_GRASS;
-			int type_count = scene->getGrassCount(m_component.entity);
+			int type_count = scene->getGrassCount(m_component.gameobject);
 			for (int i = 0; i < type_count; ++i)
 			{
 				if (i % 4 != 0) ImGui::SameLine();
@@ -1641,9 +1641,9 @@ void TerrainEditor::onGUI()
 			}
 			break;
 		}
-		case ENTITY:
+		case GAMEOBJECT:
 		{
-			m_action_type = TerrainEditor::ENTITY;
+			m_action_type = TerrainEditor::GAMEOBJECT;
 			
 			static char filter[100] = {0};
 			static ImVec2 size(-1, 100);
@@ -1757,20 +1757,20 @@ void TerrainEditor::onGUI()
 	float mouse_x = m_world_editor.getMousePos().x;
 	float mouse_y = m_world_editor.getMousePos().y;
 
-	for(auto entity : m_world_editor.getSelectedEntities())
+	for(auto gameobject : m_world_editor.getSelectedEntities())
 	{
-		if (!m_world_editor.getProject()->hasComponent(entity, TERRAIN_TYPE)) continue;
+		if (!m_world_editor.getProject()->hasComponent(gameobject, TERRAIN_TYPE)) continue;
 		
 		ComponentUID camera_cmp = m_world_editor.getEditCamera();
 		RenderScene* scene = static_cast<RenderScene*>(camera_cmp.scene);
 		Vec3 origin, dir;
-		scene->getRay(camera_cmp.entity, {(float)mouse_x, (float)mouse_y}, origin, dir);
-		RayCastModelHit hit = scene->castRayTerrain(entity, origin, dir);
+		scene->getRay(camera_cmp.gameobject, {(float)mouse_x, (float)mouse_y}, origin, dir);
+		RayCastModelHit hit = scene->castRayTerrain(gameobject, origin, dir);
 
 		if(hit.m_is_hit)
 		{
 			Vec3 center = hit.m_origin + hit.m_dir * hit.m_t;
-			drawCursor(*scene, entity, center);
+			drawCursor(*scene, gameobject, center);
 			ImGui::TreePop();
 			ImGui::Indent();
 			return;

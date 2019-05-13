@@ -44,7 +44,7 @@ struct RaycastHit
 {
 	Vec3 position;
 	Vec3 normal;
-	Entity entity;
+	GameObject gameobject;
 };
 
 
@@ -80,8 +80,8 @@ public:
 	struct ContactData
 	{
 		Vec3 position;
-		Entity e1;
-		Entity e2;
+		GameObject e1;
+		GameObject e2;
 	};
 
 	typedef int ContactCallbackHandle;
@@ -92,30 +92,30 @@ public:
 
 	virtual ~PhysicsScene() {}
 	virtual void render() = 0;
-	virtual Entity raycast(const Vec3& origin, const Vec3& dir, Entity ignore_entity) = 0;
-	virtual bool raycastEx(const Vec3& origin, const Vec3& dir, float distance, RaycastHit& result, Entity ignored, int layer) = 0;
+	virtual GameObject raycast(const Vec3& origin, const Vec3& dir, GameObject ignore_gameobject) = 0;
+	virtual bool raycastEx(const Vec3& origin, const Vec3& dir, float distance, RaycastHit& result, GameObject ignored, int layer) = 0;
 	virtual PhysicsSystem& getSystem() const = 0;
 
-	virtual DelegateList<void(const ContactData&)>& onContact() = 0;
-	virtual void setActorLayer(Entity entity, int layer) = 0;
-	virtual int getActorLayer(Entity entity) = 0;
-	virtual bool getIsTrigger(Entity entity) = 0;
-	virtual void setIsTrigger(Entity entity, bool is_trigger) = 0;
-	virtual DynamicType getDynamicType(Entity entity) = 0;
-	virtual void setDynamicType(Entity entity, DynamicType) = 0;
-	virtual Vec3 getHalfExtents(Entity entity) = 0;
-	virtual void setHalfExtents(Entity entity, const Vec3& size) = 0;
-	virtual Path getShapeSource(Entity entity) = 0;
-	virtual void setShapeSource(Entity entity, const Path& str) = 0;
-	virtual Path getHeightmapSource(Entity entity) = 0;
-	virtual void setHeightmapSource(Entity entity, const Path& path) = 0;
-	virtual float getHeightmapXZScale(Entity entity) = 0;
-	virtual void setHeightmapXZScale(Entity entity, float scale) = 0;
-	virtual float getHeightmapYScale(Entity entity) = 0;
-	virtual void setHeightmapYScale(Entity entity, float scale) = 0;
-	virtual int getHeightfieldLayer(Entity entity) = 0;
-	virtual void setHeightfieldLayer(Entity entity, int layer) = 0;
-	virtual void updateHeighfieldData(Entity entity,
+	virtual DelegateList<void(const ContactData&)>& onCollision() = 0;
+	virtual void setActorLayer(GameObject gameobject, int layer) = 0;
+	virtual int getActorLayer(GameObject gameobject) = 0;
+	virtual bool getIsTrigger(GameObject gameobject) = 0;
+	virtual void setIsTrigger(GameObject gameobject, bool is_trigger) = 0;
+	virtual DynamicType getDynamicType(GameObject gameobject) = 0;
+	virtual void setDynamicType(GameObject gameobject, DynamicType) = 0;
+	virtual Vec3 getHalfExtents(GameObject gameobject) = 0;
+	virtual void setHalfExtents(GameObject gameobject, const Vec3& size) = 0;
+	virtual Path getShapeSource(GameObject gameobject) = 0;
+	virtual void setShapeSource(GameObject gameobject, const Path& str) = 0;
+	virtual Path getHeightmapSource(GameObject gameobject) = 0;
+	virtual void setHeightmapSource(GameObject gameobject, const Path& path) = 0;
+	virtual float getHeightmapXZScale(GameObject gameobject) = 0;
+	virtual void setHeightmapXZScale(GameObject gameobject, float scale) = 0;
+	virtual float getHeightmapYScale(GameObject gameobject) = 0;
+	virtual void setHeightmapYScale(GameObject gameobject, float scale) = 0;
+	virtual int getHeightfieldLayer(GameObject gameobject) = 0;
+	virtual void setHeightfieldLayer(GameObject gameobject, int layer) = 0;
+	virtual void updateHeighfieldData(GameObject gameobject,
 		int x,
 		int y,
 		int w,
@@ -123,125 +123,125 @@ public:
 		const u8* data,
 		int bytes_per_pixel) = 0;
 
-	virtual float getCapsuleRadius(Entity entity) = 0;
-	virtual void setCapsuleRadius(Entity entity, float value) = 0;
-	virtual float getCapsuleHeight(Entity entity) = 0;
-	virtual void setCapsuleHeight(Entity entity, float value) = 0;
+	virtual float getCapsuleRadius(GameObject gameobject) = 0;
+	virtual void setCapsuleRadius(GameObject gameobject, float value) = 0;
+	virtual float getCapsuleHeight(GameObject gameobject) = 0;
+	virtual void setCapsuleHeight(GameObject gameobject, float value) = 0;
 
-	virtual float getSphereRadius(Entity entity) = 0;
-	virtual void setSphereRadius(Entity entity, float value) = 0;
+	virtual float getSphereRadius(GameObject gameobject) = 0;
+	virtual void setSphereRadius(GameObject gameobject, float value) = 0;
 
-	virtual D6Motion getD6JointXMotion(Entity entity) = 0;
-	virtual void setD6JointXMotion(Entity entity, D6Motion motion) = 0;
-	virtual D6Motion getD6JointYMotion(Entity entity) = 0;
-	virtual void setD6JointYMotion(Entity entity, D6Motion motion) = 0;
-	virtual D6Motion getD6JointZMotion(Entity entity) = 0;
-	virtual void setD6JointZMotion(Entity entity, D6Motion motion) = 0;
-	virtual D6Motion getD6JointSwing1Motion(Entity entity) = 0;
-	virtual void setD6JointSwing1Motion(Entity entity, D6Motion motion) = 0;
-	virtual D6Motion getD6JointSwing2Motion(Entity entity) = 0;
-	virtual void setD6JointSwing2Motion(Entity entity, D6Motion motion) = 0;
-	virtual D6Motion getD6JointTwistMotion(Entity entity) = 0;
-	virtual void setD6JointTwistMotion(Entity entity, D6Motion motion) = 0;
-	virtual float getD6JointLinearLimit(Entity entity) = 0;
-	virtual void setD6JointLinearLimit(Entity entity, float limit) = 0;
-	virtual Vec2 getD6JointTwistLimit(Entity entity) = 0;
-	virtual void setD6JointTwistLimit(Entity entity, const Vec2& limit) = 0;
-	virtual Vec2 getD6JointSwingLimit(Entity entity) = 0;
-	virtual void setD6JointSwingLimit(Entity entity, const Vec2& limit) = 0;
-	virtual float getD6JointDamping(Entity entity) = 0;
-	virtual void setD6JointDamping(Entity entity, float value) = 0;
-	virtual float getD6JointStiffness(Entity entity) = 0;
-	virtual void setD6JointStiffness(Entity entity, float value) = 0;
-	virtual float getD6JointRestitution(Entity entity) = 0;
-	virtual void setD6JointRestitution(Entity entity, float value) = 0;
+	virtual D6Motion getD6JointXMotion(GameObject gameobject) = 0;
+	virtual void setD6JointXMotion(GameObject gameobject, D6Motion motion) = 0;
+	virtual D6Motion getD6JointYMotion(GameObject gameobject) = 0;
+	virtual void setD6JointYMotion(GameObject gameobject, D6Motion motion) = 0;
+	virtual D6Motion getD6JointZMotion(GameObject gameobject) = 0;
+	virtual void setD6JointZMotion(GameObject gameobject, D6Motion motion) = 0;
+	virtual D6Motion getD6JointSwing1Motion(GameObject gameobject) = 0;
+	virtual void setD6JointSwing1Motion(GameObject gameobject, D6Motion motion) = 0;
+	virtual D6Motion getD6JointSwing2Motion(GameObject gameobject) = 0;
+	virtual void setD6JointSwing2Motion(GameObject gameobject, D6Motion motion) = 0;
+	virtual D6Motion getD6JointTwistMotion(GameObject gameobject) = 0;
+	virtual void setD6JointTwistMotion(GameObject gameobject, D6Motion motion) = 0;
+	virtual float getD6JointLinearLimit(GameObject gameobject) = 0;
+	virtual void setD6JointLinearLimit(GameObject gameobject, float limit) = 0;
+	virtual Vec2 getD6JointTwistLimit(GameObject gameobject) = 0;
+	virtual void setD6JointTwistLimit(GameObject gameobject, const Vec2& limit) = 0;
+	virtual Vec2 getD6JointSwingLimit(GameObject gameobject) = 0;
+	virtual void setD6JointSwingLimit(GameObject gameobject, const Vec2& limit) = 0;
+	virtual float getD6JointDamping(GameObject gameobject) = 0;
+	virtual void setD6JointDamping(GameObject gameobject, float value) = 0;
+	virtual float getD6JointStiffness(GameObject gameobject) = 0;
+	virtual void setD6JointStiffness(GameObject gameobject, float value) = 0;
+	virtual float getD6JointRestitution(GameObject gameobject) = 0;
+	virtual void setD6JointRestitution(GameObject gameobject, float value) = 0;
 
-	virtual float getDistanceJointDamping(Entity entity) = 0;
-	virtual void setDistanceJointDamping(Entity entity, float value) = 0;
-	virtual float getDistanceJointStiffness(Entity entity) = 0;
-	virtual void setDistanceJointStiffness(Entity entity, float value) = 0;
-	virtual float getDistanceJointTolerance(Entity entity) = 0;
-	virtual void setDistanceJointTolerance(Entity entity, float value) = 0;
-	virtual Vec2 getDistanceJointLimits(Entity entity) = 0;
-	virtual void setDistanceJointLimits(Entity entity, const Vec2& value) = 0;
-	virtual Vec3 getDistanceJointLinearForce(Entity entity) = 0;
+	virtual float getDistanceJointDamping(GameObject gameobject) = 0;
+	virtual void setDistanceJointDamping(GameObject gameobject, float value) = 0;
+	virtual float getDistanceJointStiffness(GameObject gameobject) = 0;
+	virtual void setDistanceJointStiffness(GameObject gameobject, float value) = 0;
+	virtual float getDistanceJointTolerance(GameObject gameobject) = 0;
+	virtual void setDistanceJointTolerance(GameObject gameobject, float value) = 0;
+	virtual Vec2 getDistanceJointLimits(GameObject gameobject) = 0;
+	virtual void setDistanceJointLimits(GameObject gameobject, const Vec2& value) = 0;
+	virtual Vec3 getDistanceJointLinearForce(GameObject gameobject) = 0;
 	virtual int getJointCount() = 0;
-	virtual Entity getJointEntity(int index) = 0;
+	virtual GameObject getJointGameObject(int index) = 0;
 
-	virtual float getHingeJointDamping(Entity entity) = 0;
-	virtual void setHingeJointDamping(Entity entity, float value) = 0;
-	virtual float getHingeJointStiffness(Entity entity) = 0;
-	virtual void setHingeJointStiffness(Entity entity, float value) = 0;
-	virtual bool getHingeJointUseLimit(Entity entity) = 0;
-	virtual void setHingeJointUseLimit(Entity entity, bool use_limit) = 0;
-	virtual Vec2 getHingeJointLimit(Entity entity) = 0;
-	virtual void setHingeJointLimit(Entity entity, const Vec2& limit) = 0;
+	virtual float getHingeJointDamping(GameObject gameobject) = 0;
+	virtual void setHingeJointDamping(GameObject gameobject, float value) = 0;
+	virtual float getHingeJointStiffness(GameObject gameobject) = 0;
+	virtual void setHingeJointStiffness(GameObject gameobject, float value) = 0;
+	virtual bool getHingeJointUseLimit(GameObject gameobject) = 0;
+	virtual void setHingeJointUseLimit(GameObject gameobject, bool use_limit) = 0;
+	virtual Vec2 getHingeJointLimit(GameObject gameobject) = 0;
+	virtual void setHingeJointLimit(GameObject gameobject, const Vec2& limit) = 0;
 
-	virtual Entity getJointConnectedBody(Entity entity) = 0;
-	virtual void setJointConnectedBody(Entity entity, Entity connected_body) = 0;
-	virtual Vec3 getJointAxisPosition(Entity entity) = 0;
-	virtual void setJointAxisPosition(Entity entity, const Vec3& value) = 0;
-	virtual Vec3 getJointAxisDirection(Entity entity) = 0;
-	virtual void setJointAxisDirection(Entity entity, const Vec3& value) = 0;
-	virtual RigidTransform getJointLocalFrame(Entity entity) = 0;
-	virtual RigidTransform getJointConnectedBodyLocalFrame(Entity entity) = 0;
-	virtual physx::PxJoint* getJoint(Entity entity) = 0;
+	virtual GameObject getJointConnectedBody(GameObject gameobject) = 0;
+	virtual void setJointConnectedBody(GameObject gameobject, GameObject connected_body) = 0;
+	virtual Vec3 getJointAxisPosition(GameObject gameobject) = 0;
+	virtual void setJointAxisPosition(GameObject gameobject, const Vec3& value) = 0;
+	virtual Vec3 getJointAxisDirection(GameObject gameobject) = 0;
+	virtual void setJointAxisDirection(GameObject gameobject, const Vec3& value) = 0;
+	virtual RigidTransform getJointLocalFrame(GameObject gameobject) = 0;
+	virtual RigidTransform getJointConnectedBodyLocalFrame(GameObject gameobject) = 0;
+	virtual physx::PxJoint* getJoint(GameObject gameobject) = 0;
 
-	virtual bool getSphericalJointUseLimit(Entity entity) = 0;
-	virtual void setSphericalJointUseLimit(Entity entity, bool use_limit) = 0;
-	virtual Vec2 getSphericalJointLimit(Entity entity) = 0;
-	virtual void setSphericalJointLimit(Entity entity, const Vec2& limit) = 0;
+	virtual bool getSphericalJointUseLimit(GameObject gameobject) = 0;
+	virtual void setSphericalJointUseLimit(GameObject gameobject, bool use_limit) = 0;
+	virtual Vec2 getSphericalJointLimit(GameObject gameobject) = 0;
+	virtual void setSphericalJointLimit(GameObject gameobject, const Vec2& limit) = 0;
 
-	virtual void applyForceToActor(Entity entity, const Vec3& force) = 0;
-	virtual void applyImpulseToActor(Entity entity, const Vec3& force) = 0;
-	virtual Vec3 getActorVelocity(Entity entity) = 0;
-	virtual float getActorSpeed(Entity entity) = 0;
-	virtual void putToSleep(Entity entity) = 0;
+	virtual void applyForceToActor(GameObject gameobject, const Vec3& force) = 0;
+	virtual void applyImpulseToActor(GameObject gameobject, const Vec3& force) = 0;
+	virtual Vec3 getActorVelocity(GameObject gameobject) = 0;
+	virtual float getActorSpeed(GameObject gameobject) = 0;
+	virtual void putToSleep(GameObject gameobject) = 0;
 
-	virtual bool isControllerCollisionDown(Entity entity) const = 0;
-	virtual void moveController(Entity entity, const Vec3& v) = 0;
-	virtual int getControllerLayer(Entity entity) = 0;
-	virtual void setControllerLayer(Entity entity, int layer) = 0;
-	virtual float getControllerRadius(Entity entity) = 0;
-	virtual void setControllerRadius(Entity entity, float radius) = 0;
-	virtual float getControllerHeight(Entity entity) = 0;
-	virtual void setControllerHeight(Entity entity, float height) = 0;
-	virtual bool getControllerCustomGravity(Entity entity) = 0;
-	virtual void setControllerCustomGravity(Entity entity, bool gravity) = 0;
-	virtual float getControllerCustomGravityAcceleration(Entity entity) = 0;
-	virtual void setControllerCustomGravityAcceleration(Entity entity, float gravityacceleration) = 0;
-	virtual bool isControllerTouchingDown(Entity entity) = 0;
-	virtual void resizeController(Entity entity, float height) = 0;
+	virtual bool isControllerCollisionDown(GameObject gameobject) const = 0;
+	virtual void moveController(GameObject gameobject, const Vec3& v) = 0;
+	virtual int getControllerLayer(GameObject gameobject) = 0;
+	virtual void setControllerLayer(GameObject gameobject, int layer) = 0;
+	virtual float getControllerRadius(GameObject gameobject) = 0;
+	virtual void setControllerRadius(GameObject gameobject, float radius) = 0;
+	virtual float getControllerHeight(GameObject gameobject) = 0;
+	virtual void setControllerHeight(GameObject gameobject, float height) = 0;
+	virtual bool getControllerCustomGravity(GameObject gameobject) = 0;
+	virtual void setControllerCustomGravity(GameObject gameobject, bool gravity) = 0;
+	virtual float getControllerCustomGravityAcceleration(GameObject gameobject) = 0;
+	virtual void setControllerCustomGravityAcceleration(GameObject gameobject, float gravityacceleration) = 0;
+	virtual bool isControllerTouchingDown(GameObject gameobject) = 0;
+	virtual void resizeController(GameObject gameobject, float height) = 0;
 
-	virtual void addBoxGeometry(Entity entity, int index) = 0;
-	virtual void removeBoxGeometry(Entity entity, int index) = 0;
-	virtual int getBoxGeometryCount(Entity entity) = 0;
-	virtual Vec3 getBoxGeomHalfExtents(Entity entity, int index) = 0;
-	virtual void setBoxGeomHalfExtents(Entity entity, int index, const Vec3& size) = 0;
-	virtual Vec3 getBoxGeomOffsetPosition(Entity entity, int index) = 0;
-	virtual void setBoxGeomOffsetPosition(Entity entity, int index, const Vec3& pos) = 0;
-	virtual Vec3 getBoxGeomOffsetRotation(Entity entity, int index) = 0;
-	virtual void setBoxGeomOffsetRotation(Entity entity, int index, const Vec3& euler_angles) = 0;
+	virtual void addBoxGeometry(GameObject gameobject, int index) = 0;
+	virtual void removeBoxGeometry(GameObject gameobject, int index) = 0;
+	virtual int getBoxGeometryCount(GameObject gameobject) = 0;
+	virtual Vec3 getBoxGeomHalfExtents(GameObject gameobject, int index) = 0;
+	virtual void setBoxGeomHalfExtents(GameObject gameobject, int index, const Vec3& size) = 0;
+	virtual Vec3 getBoxGeomOffsetPosition(GameObject gameobject, int index) = 0;
+	virtual void setBoxGeomOffsetPosition(GameObject gameobject, int index, const Vec3& pos) = 0;
+	virtual Vec3 getBoxGeomOffsetRotation(GameObject gameobject, int index) = 0;
+	virtual void setBoxGeomOffsetRotation(GameObject gameobject, int index, const Vec3& euler_angles) = 0;
 
-	virtual void addSphereGeometry(Entity entity, int index) = 0;
-	virtual void removeSphereGeometry(Entity entity, int index) = 0;
-	virtual int getSphereGeometryCount(Entity entity) = 0;
-	virtual float getSphereGeomRadius(Entity entity, int index) = 0;
-	virtual void setSphereGeomRadius(Entity entity, int index, float size) = 0;
-	virtual Vec3 getSphereGeomOffsetPosition(Entity entity, int index) = 0;
-	virtual void setSphereGeomOffsetPosition(Entity entity, int index, const Vec3& pos) = 0;
-	virtual Vec3 getSphereGeomOffsetRotation(Entity entity, int index) = 0;
-	virtual void setSphereGeomOffsetRotation(Entity entity, int index, const Vec3& euler_angles) = 0;
+	virtual void addSphereGeometry(GameObject gameobject, int index) = 0;
+	virtual void removeSphereGeometry(GameObject gameobject, int index) = 0;
+	virtual int getSphereGeometryCount(GameObject gameobject) = 0;
+	virtual float getSphereGeomRadius(GameObject gameobject, int index) = 0;
+	virtual void setSphereGeomRadius(GameObject gameobject, int index, float size) = 0;
+	virtual Vec3 getSphereGeomOffsetPosition(GameObject gameobject, int index) = 0;
+	virtual void setSphereGeomOffsetPosition(GameObject gameobject, int index, const Vec3& pos) = 0;
+	virtual Vec3 getSphereGeomOffsetRotation(GameObject gameobject, int index) = 0;
+	virtual void setSphereGeomOffsetRotation(GameObject gameobject, int index, const Vec3& euler_angles) = 0;
 
 	virtual BoneOrientation getNewBoneOrientation() const = 0;
 	virtual void setNewBoneOrientation(BoneOrientation orientation) = 0;
-	virtual RagdollBone* createRagdollBone(Entity entity, u32 bone_name_hash) = 0;
-	virtual void destroyRagdollBone(Entity entity, RagdollBone* bone) = 0;
+	virtual RagdollBone* createRagdollBone(GameObject gameobject, u32 bone_name_hash) = 0;
+	virtual void destroyRagdollBone(GameObject gameobject, RagdollBone* bone) = 0;
 	virtual physx::PxJoint* getRagdollBoneJoint(RagdollBone* bone) const = 0;
-	virtual RagdollBone* getRagdollRootBone(Entity entity) const = 0;
+	virtual RagdollBone* getRagdollRootBone(GameObject gameobject) const = 0;
 	virtual RagdollBone* getRagdollBoneChild(RagdollBone* bone) = 0;
 	virtual RagdollBone* getRagdollBoneSibling(RagdollBone* bone) = 0;
-	virtual RagdollBone* getRagdollBoneByName(Entity entity, u32 bone_name_hash) = 0;
+	virtual RagdollBone* getRagdollBoneByName(GameObject gameobject, u32 bone_name_hash) = 0;
 	virtual const char* getRagdollBoneName(RagdollBone* bone) = 0;
 	virtual float getRagdollBoneHeight(RagdollBone* bone) = 0;
 	virtual float getRagdollBoneRadius(RagdollBone* bone) = 0;
@@ -250,13 +250,13 @@ public:
 	virtual RigidTransform getRagdollBoneTransform(RagdollBone* bone) = 0;
 	virtual void setRagdollBoneTransform(RagdollBone* bone, const RigidTransform& matrix) = 0;
 	virtual void changeRagdollBoneJoint(RagdollBone* child, int type) = 0;
-	virtual void getRagdollData(Entity entity, OutputBlob& blob) = 0;
-	virtual void setRagdollData(Entity entity, InputBlob& blob) = 0;
+	virtual void getRagdollData(GameObject gameobject, OutputBlob& blob) = 0;
+	virtual void setRagdollData(GameObject gameobject, InputBlob& blob) = 0;
 	virtual void setRagdollBoneKinematicRecursive(RagdollBone* bone, bool is_kinematic) = 0;
 	virtual void setRagdollBoneKinematic(RagdollBone* bone, bool is_kinematic) = 0;
 	virtual bool isRagdollBoneKinematic(RagdollBone* bone) = 0;
-	virtual void setRagdollLayer(Entity entity, int layer) = 0;
-	virtual int getRagdollLayer(Entity entity) = 0;
+	virtual void setRagdollLayer(GameObject gameobject, int layer) = 0;
+	virtual int getRagdollLayer(GameObject gameobject) = 0;
 
 	virtual const char* getCollisionLayerName(int index) = 0;
 	virtual void setCollisionLayerName(int index, const char* name) = 0;
@@ -271,7 +271,7 @@ public:
 	virtual void setVisualizationCullingBox(const Vec3& min, const Vec3& max) = 0;
 
 	virtual int getActorCount() const = 0;
-	virtual Entity getActorEntity(int index) = 0;
+	virtual GameObject getActorGameObject(int index) = 0;
 	virtual ActorType getActorType(int index) = 0;
 	virtual bool isActorDebugEnabled(int index) const = 0;
 	virtual void enableActorDebug(int index, bool enable) const = 0;

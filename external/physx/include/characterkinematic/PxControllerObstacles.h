@@ -57,7 +57,7 @@ namespace physx
 													mType		(PxGeometryType::eINVALID),
 													mUserData	(NULL),
 													mPos		(0.0, 0.0, 0.0),
-													mRot		(PxQuat(PxIdentity))
+													mRot		(PxQuat(PxIdgameobject))
 												{}
 
 						PxGeometryType::Enum	mType; 

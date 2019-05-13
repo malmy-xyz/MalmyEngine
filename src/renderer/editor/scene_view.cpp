@@ -144,7 +144,7 @@ void SceneView::processDeferPrefabInserts()
 		DeferredPrefabInsert& defer = m_deferred_prefab_inserts[i];
 		if (defer.prefab->isReady())
 		{
-			m_editor.getPrefabSystem().instantiatePrefab(*defer.prefab, defer.pos, Quat::IDENTITY, 1);
+			m_editor.getPrefabSystem().instantiatePrefab(*defer.prefab, defer.pos, Quat::IDGAMEOBJECT, 1);
 			defer.prefab->getResourceManager().unload(*defer.prefab);
 			m_deferred_prefab_inserts.erase(i);
 		}
@@ -190,10 +190,10 @@ void SceneView::renderIcons()
 
 void SceneView::renderSelection()
 {
-	const Array<Entity>& entities = m_editor.getSelectedEntities();
+	const Array<GameObject>& entities = m_editor.getSelectedEntities();
 	RenderScene* scene = m_pipeline->getScene();
 	Project& project = scene->getProject();
-	for (Entity e : entities)
+	for (GameObject e : entities)
 	{
 		if (!scene->getProject().hasComponent(e, MODEL_INSTANCE_TYPE)) continue;
 
@@ -212,7 +212,7 @@ void SceneView::renderSelection()
 void SceneView::renderGizmos()
 {
 	auto& entities = m_editor.getSelectedEntities();
-	if(entities.empty() || entities[0] != m_editor.getEditCamera().entity)
+	if(entities.empty() || entities[0] != m_editor.getEditCamera().gameobject)
 		m_editor.getGizmo().render();
 }
 
@@ -234,14 +234,14 @@ RayCastModelHit SceneView::castRay(float x, float y)
 	ASSERT(scene);
 	
 	ComponentUID camera_cmp = m_editor.getEditCamera();
-	Vec2 screen_size = scene->getCameraScreenSize(camera_cmp.entity);
+	Vec2 screen_size = scene->getCameraScreenSize(camera_cmp.gameobject);
 	screen_size.x *= x;
 	screen_size.y *= y;
 
 	Vec3 origin;
 	Vec3 dir;
-	scene->getRay(camera_cmp.entity, screen_size, origin, dir);
-	return scene->castRay(origin, dir, INVALID_ENTITY);
+	scene->getRay(camera_cmp.gameobject, screen_size, origin, dir);
+	return scene->castRay(origin, dir, INVALID_GAMEOBJECT);
 }
 
 
@@ -271,12 +271,12 @@ void SceneView::handleDrop(const char* path, float x, float y)
 		Vec3 pos = hit.m_origin + (hit.m_is_hit ? hit.m_t : 1) * hit.m_dir;
 
 		m_editor.beginCommandGroup(crc32("insert_mesh"));
-		Entity entity = m_editor.addEntity();
-		m_editor.setEntitiesPositions(&entity, &pos, 1);
-		m_editor.selectEntities(&entity, 1, false);
+		GameObject gameobject = m_editor.addGameObject();
+		m_editor.setEntitiesPositions(&gameobject, &pos, 1);
+		m_editor.selectEntities(&gameobject, 1, false);
 		m_editor.addComponent(MODEL_INSTANCE_TYPE);
 		auto* prop = Reflection::getProperty(MODEL_INSTANCE_TYPE, "Source");
-		m_editor.setProperty(MODEL_INSTANCE_TYPE, -1, *prop, &entity, 1, path, stringLength(path) + 1);
+		m_editor.setProperty(MODEL_INSTANCE_TYPE, -1, *prop, &gameobject, 1, path, stringLength(path) + 1);
 		m_editor.endCommandGroup();
 	}
 	else if (PathUtils::hasExtension(path, "fab"))
@@ -289,33 +289,33 @@ void SceneView::handleDrop(const char* path, float x, float y)
 	}
 	else if (PathUtils::hasExtension(path, "phy"))
 	{
-		if (hit.m_is_hit && hit.m_entity.isValid())
+		if (hit.m_is_hit && hit.m_gameobject.isValid())
 		{
 			m_editor.beginCommandGroup(crc32("insert_phy_component"));
-			m_editor.selectEntities(&hit.m_entity, 1, false);
+			m_editor.selectEntities(&hit.m_gameobject, 1, false);
 			m_editor.addComponent(MESH_ACTOR_TYPE);
 			auto* prop = Reflection::getProperty(MESH_ACTOR_TYPE, "Source");
-			m_editor.setProperty(MESH_ACTOR_TYPE, -1, *prop, &hit.m_entity, 1, path, stringLength(path) + 1);
+			m_editor.setProperty(MESH_ACTOR_TYPE, -1, *prop, &hit.m_gameobject, 1, path, stringLength(path) + 1);
 			m_editor.endCommandGroup();
 		}
 		else
 		{
 			Vec3 pos = hit.m_origin + (hit.m_is_hit ? hit.m_t : 1) * hit.m_dir;
 			m_editor.beginCommandGroup(crc32("insert_phy"));
-			Entity entity = m_editor.addEntity();
-			m_editor.setEntitiesPositions(&entity, &pos, 1);
-			m_editor.selectEntities(&entity, 1, false);
+			GameObject gameobject = m_editor.addGameObject();
+			m_editor.setEntitiesPositions(&gameobject, &pos, 1);
+			m_editor.selectEntities(&gameobject, 1, false);
 			m_editor.addComponent(MESH_ACTOR_TYPE);
 			auto* prop = Reflection::getProperty(MESH_ACTOR_TYPE, "Source");
-			m_editor.setProperty(MESH_ACTOR_TYPE, -1, *prop, &entity, 1, path, stringLength(path) + 1);
+			m_editor.setProperty(MESH_ACTOR_TYPE, -1, *prop, &gameobject, 1, path, stringLength(path) + 1);
 			m_editor.endCommandGroup();
 		}
 	}
 	else if (hit.m_is_hit && PathUtils::hasExtension(path, "mat") && hit.m_mesh)
 	{
-		m_editor.selectEntities(&hit.m_entity, 1, false);
+		m_editor.selectEntities(&hit.m_gameobject, 1, false);
 		RenderScene* scene = m_pipeline->getScene();
-		Model* model = scene->getModelInstanceModel(hit.m_entity);
+		Model* model = scene->getModelInstanceModel(hit.m_gameobject);
 		int mesh_index = 0;
 		for (int i = 0; i < model->getMeshCount(); ++i)
 		{
@@ -326,7 +326,7 @@ void SceneView::handleDrop(const char* path, float x, float y)
 			}
 		}
 		auto* prop= Reflection::getProperty(MODEL_INSTANCE_TYPE, "Materials", "Source");
-		m_editor.setProperty(MODEL_INSTANCE_TYPE, mesh_index, *prop, &hit.m_entity, 1, path, stringLength(path) + 1);
+		m_editor.setProperty(MODEL_INSTANCE_TYPE, mesh_index, *prop, &hit.m_gameobject, 1, path, stringLength(path) + 1);
 	}
 }
 

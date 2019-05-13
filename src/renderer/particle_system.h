@@ -66,7 +66,7 @@ struct Interval
 class MALMY_RENDERER_API ScriptedParticleEmitter
 {
 public:
-	ScriptedParticleEmitter(Entity entity, IAllocator& allocator);
+	ScriptedParticleEmitter(GameObject gameobject, IAllocator& allocator);
 	~ScriptedParticleEmitter();
 
 	void serialize(OutputBlob& blob);
@@ -80,7 +80,7 @@ public:
 	int getChannel(const char* name) const;
 	int getConstant(const char* name) const;
 	
-	Entity m_entity;
+	GameObject m_gameobject;
 
 private:
 	struct Channel
@@ -191,7 +191,7 @@ public:
 		void drawGizmo(WorldEditor& editor, RenderScene& scene) override;
 
 		static const ComponentType s_type;
-		Entity m_entities[8];
+		GameObject m_entities[8];
 		float m_bounce;
 		int m_count;
 	};
@@ -207,7 +207,7 @@ public:
 		void drawGizmo(WorldEditor& editor, RenderScene& scene) override;
 
 		static const ComponentType s_type;
-		Entity m_entities[8];
+		GameObject m_entities[8];
 		float m_force;
 		int m_count;
 	};
@@ -271,7 +271,7 @@ public:
 
 
 public:
-	ParticleEmitter(Entity entity, Project& project, IAllocator& allocator);
+	ParticleEmitter(GameObject gameobject, Project& project, IAllocator& allocator);
 	~ParticleEmitter();
 
 	void reset();
@@ -304,7 +304,7 @@ public:
 
 	Array<ModuleBase*> m_modules;
 	SubimageModule* m_subimage_module;
-	Entity m_entity;
+	GameObject m_gameobject;
 	bool m_is_valid;
 	bool m_autoemit;
 	bool m_local_space;

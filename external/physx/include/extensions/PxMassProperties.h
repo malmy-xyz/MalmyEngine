@@ -66,7 +66,7 @@ public:
 	/**
 	\brief Default constructor.
 	*/
-	PX_FORCE_INLINE PxMassProperties() : inertiaTensor(PxIdentity), centerOfMass(0.0f), mass(1.0f) {}
+	PX_FORCE_INLINE PxMassProperties() : inertiaTensor(PxIdgameobject), centerOfMass(0.0f), mass(1.0f) {}
 
 	/**
 	\brief Construct from individual elements.

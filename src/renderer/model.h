@@ -41,7 +41,7 @@ struct MALMY_RENDERER_API RayCastModelHit
 	Vec3 m_origin;
 	Vec3 m_dir;
 	Mesh* m_mesh;
-	Entity m_entity;
+	GameObject m_gameobject;
 	ComponentType m_component_type;
 };
 

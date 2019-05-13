@@ -148,7 +148,7 @@ The extra data stream will look like this:
 
 PxContactPairIndexA | PxContactPairPoseA | PxContactPairIndexB | PxContactPairPoseB
 
-The corresponding array of PxContactPair events (see #PxSimulationEventCallback.onContact()) will look like this:
+The corresponding array of PxContactPair events (see #PxSimulationEventCallback.onCollision()) will look like this:
 
 PxContactPair(touch_found: s0_0, s1) | PxContactPair(touch_lost: s0_0, s1) | PxContactPair(touch_found: s0_1, s1)
  
@@ -340,9 +340,9 @@ PX_FLAGS_OPERATORS(PxContactPairHeaderFlag::Enum, PxU16)
 
 
 /**
-\brief An Instance of this class is passed to PxSimulationEventCallback.onContact().
+\brief An Instance of this class is passed to PxSimulationEventCallback.onCollision().
 
-@see PxSimulationEventCallback.onContact()
+@see PxSimulationEventCallback.onCollision()
 */
 struct PxContactPairHeader
 {
@@ -497,10 +497,10 @@ struct PxContactPairPoint
 /**
 \brief Contact report pair information.
 
-Instances of this class are passed to PxSimulationEventCallback.onContact(). If contact reports have been requested for a pair of shapes (see #PxPairFlag),
+Instances of this class are passed to PxSimulationEventCallback.onCollision(). If contact reports have been requested for a pair of shapes (see #PxPairFlag),
 then the corresponding contact information will be provided through this structure.
 
-@see PxSimulationEventCallback.onContact()
+@see PxSimulationEventCallback.onCollision()
 */
 struct PxContactPair
 {
@@ -860,7 +860,7 @@ class PxSimulationEventCallback
 
 	@see PxScene.setSimulationEventCallback() PxSceneDesc.simulationEventCallback PxContactPair PxPairFlag PxSimulationFilterShader PxSimulationFilterCallback
 	*/
-	virtual void onContact(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) = 0;
+	virtual void onCollision(const PxContactPairHeader& pairHeader, const PxContactPair* pairs, PxU32 nbPairs) = 0;
 
 	/**
 	\brief This is called with the current trigger pair events.

@@ -1043,7 +1043,7 @@ namespace bgfx
 		void setScissor(uint16_t _cache = UINT16_MAX);
 
 		/// Set model matrix for draw primitive. If it is not called, model will
-		/// be rendered with identity model matrix.
+		/// be rendered with idgameobject model matrix.
 		///
 		/// @param[in] _mtx Pointer to first matrix in array.
 		/// @param[in] _num Number of matrices in array.
@@ -3356,7 +3356,7 @@ namespace bgfx
 	void setScissor(uint16_t _cache = UINT16_MAX);
 
 	/// Set model matrix for draw primitive. If it is not called,
-	/// the model will be rendered with an identity model matrix.
+	/// the model will be rendered with an idgameobject model matrix.
 	///
 	/// @param[in] _mtx Pointer to first matrix in array.
 	/// @param[in] _num Number of matrices in array.

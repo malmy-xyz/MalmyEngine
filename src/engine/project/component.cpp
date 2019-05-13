@@ -5,7 +5,7 @@ namespace Malmy
 {
 
 
-const ComponentUID ComponentUID::INVALID(INVALID_ENTITY, { -1 }, 0);
+const ComponentUID ComponentUID::INVALID(INVALID_GAMEOBJECT, { -1 }, 0);
 
 
 }

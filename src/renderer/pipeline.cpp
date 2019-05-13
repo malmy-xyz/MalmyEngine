@@ -258,7 +258,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 
 	struct PointLightShadowmap
 	{
-		Entity light;
+		GameObject light;
 		FrameBuffer* framebuffer;
 		Matrix matrices[4];
 	};
@@ -658,7 +658,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		bgfx::InstanceDataBuffer instance_buffer;
 
 		auto& view = *m_current_view;
-		Matrix mtx = m_scene->getProject().getMatrix(emitter.m_entity);
+		Matrix mtx = m_scene->getProject().getMatrix(emitter.m_gameobject);
 		static const int subimage_define_idx = m_renderer.getShaderDefineIdx("SUBIMAGE");
 		auto draw = [this, material, &view, mtx](const bgfx::InstanceDataBuffer& instance_buffer, int count) {
 			executeCommandBuffer(material->getCommandBuffer(), material);
@@ -745,7 +745,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		static const int subimage_define_idx = m_renderer.getShaderDefineIdx("SUBIMAGE");
 		material->setDefine(subimage_define_idx, false);
 		auto& view = *m_current_view;
-		Matrix mtx = m_scene->getProject().getMatrix(emitter.m_entity);
+		Matrix mtx = m_scene->getProject().getMatrix(emitter.m_gameobject);
 		auto draw = [this, material, &view, mtx](const bgfx::InstanceDataBuffer& instance_buffer, int count) {
 			executeCommandBuffer(material->getCommandBuffer(), material);
 			executeCommandBuffer(view.command_buffer.buffer, material);
@@ -805,9 +805,9 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		if (!m_current_view) return;
 
 		if (!m_applied_camera.isValid()) return;
-		Entity cam = m_applied_camera;
+		GameObject cam = m_applied_camera;
 		Vec3 pos = m_scene->getProject().getPosition(cam);
-		Entity probe = m_scene->getNearestEnvironmentProbe(pos);
+		GameObject probe = m_scene->getNearestEnvironmentProbe(pos);
 		m_current_view->command_buffer.beginAppend();
 		if (probe.isValid())
 		{
@@ -902,7 +902,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 
 	void applyCamera(const char* slot)
 	{
-		Entity camera = m_scene->getCameraInSlot(slot);
+		GameObject camera = m_scene->getCameraInSlot(slot);
 		if (!camera.isValid()) return;
 
 		m_scene->setCameraScreenSize(camera, m_width, m_height);
@@ -927,7 +927,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	Entity getAppliedCamera() const override
+	GameObject getAppliedCamera() const override
 	{
 		return m_applied_camera;
 	}
@@ -1022,7 +1022,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 			setTexture(0, texture_id, texture_uniform);
 			render(vertex_buffer,
 				index_buffer,
-				Matrix::IDENTITY,
+				Matrix::IDGAMEOBJECT,
 				elem_offset,
 				pcmd->ElemCount,
 				m_draw2d_shader->m_render_states & ~BGFX_STATE_CULL_MASK,
@@ -1311,7 +1311,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		if (!material->isReady()) return;
 
 		IAllocator& frame_allocator = m_renderer.getEngine().getLIFOAllocator();
-		Array<Entity> local_lights(frame_allocator);
+		Array<GameObject> local_lights(frame_allocator);
 		m_scene->getPointLights(m_camera_frustum, local_lights);
 
 		PROFILE_INT("light count", local_lights.size());
@@ -1330,9 +1330,9 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		Project& project = m_scene->getProject();
 		for(auto light_cmp : local_lights)
 		{
-			auto entity = m_scene->getPointLightEntity(light_cmp);
+			auto gameobject = m_scene->getPointLightGameObject(light_cmp);
 			float range = m_scene->getLightRange(light_cmp);
-			Vec3 light_dir = project.getRotation(entity).rotate(Vec3(0, 0, -1));
+			Vec3 light_dir = project.getRotation(gameobject).rotate(Vec3(0, 0, -1));
 			float attenuation = m_scene->getLightAttenuation(light_cmp);
 			float fov = m_scene->getLightFOV(light_cmp);
 			float intensity = m_scene->getPointLightIntensity(light_cmp);
@@ -1353,7 +1353,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 				}
 			}
 
-			Vec3 pos = project.getPosition(entity);
+			Vec3 pos = project.getPosition(gameobject);
 			bool is_intersecting = m_camera_frustum.intersectNearPlane(pos, range * Math::SQRT3);
 			int buffer_idx = is_intersecting ? 0 : 1;
 			if(!instance_buffer[buffer_idx].data)
@@ -1363,7 +1363,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 			}
 
 			auto* id = instance_data[buffer_idx];
-			id->mtx = project.getPositionAndRotation(entity);
+			id->mtx = project.getPositionAndRotation(gameobject);
 			id->mtx.multiply3x3(range);
 			id->pos_radius.set(pos, range);
 			id->color_attenuation.set(color, attenuation);
@@ -1434,12 +1434,12 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void renderSpotLightShadowmap(Entity light)
+	void renderSpotLightShadowmap(GameObject light)
 	{
 		newView("point_light", ~0ULL);
 
-		Entity light_entity = m_scene->getPointLightEntity(light);
-		Matrix mtx = m_scene->getProject().getMatrix(light_entity);
+		GameObject light_gameobject = m_scene->getPointLightGameObject(light);
+		Matrix mtx = m_scene->getProject().getMatrix(light_gameobject);
 		float fov = m_scene->getLightFOV(light);
 		float range = m_scene->getLightRange(light);
 		u16 shadowmap_height = (u16)m_current_framebuffer->getHeight();
@@ -1471,10 +1471,10 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void renderOmniLightShadowmap(Entity light)
+	void renderOmniLightShadowmap(GameObject light)
 	{
-		Entity light_entity = m_scene->getPointLightEntity(light);
-		Vec3 light_pos = m_scene->getProject().getPosition(light_entity);
+		GameObject light_gameobject = m_scene->getPointLightGameObject(light);
+		Vec3 light_pos = m_scene->getProject().getPosition(light_gameobject);
 		float range = m_scene->getLightRange(light);
 		u16 shadowmap_height = (u16)m_current_framebuffer->getHeight();
 		u16 shadowmap_width = (u16)m_current_framebuffer->getWidth();
@@ -1561,14 +1561,14 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void renderLocalLightShadowmaps(Entity camera, FrameBuffer** fbs, int framebuffers_count)
+	void renderLocalLightShadowmaps(GameObject camera, FrameBuffer** fbs, int framebuffers_count)
 	{
 		if (!camera.isValid()) return;
 
 		Project& project = m_scene->getProject();
 		Vec3 camera_pos = project.getPosition(camera);
 
-		Entity lights[16];
+		GameObject lights[16];
 		int light_count = m_scene->getClosestPointLights(camera_pos, lights, lengthOf(lights));
 
 		int fb_index = 0;
@@ -1644,7 +1644,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	{
 		if (!m_current_view) return;
 		Project& project = m_scene->getProject();
-		Entity light = m_scene->getActiveGlobalLight();
+		GameObject light = m_scene->getActiveGlobalLight();
 		if (!light.isValid() || !m_applied_camera.isValid()) return;
 		float camera_height = m_scene->getCameraScreenHeight(m_applied_camera);
 		if (!camera_height) return;
@@ -1907,15 +1907,15 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void setPointLightUniforms(Entity light)
+	void setPointLightUniforms(GameObject light)
 	{
 		if (!light.isValid()) return;
 		if (!m_current_view) return;
 
 		Project& project = m_scene->getProject();
-		Entity light_entity = m_scene->getPointLightEntity(light);
-		Vec3 light_pos = project.getPosition(light_entity);
-		Vec3 light_dir = project.getRotation(light_entity).rotate(Vec3(0, 0, -1));
+		GameObject light_gameobject = m_scene->getPointLightGameObject(light);
+		Vec3 light_pos = project.getPosition(light_gameobject);
+		Vec3 light_dir = project.getRotation(light_gameobject).rotate(Vec3(0, 0, -1));
 		float fov = m_scene->getLightFOV(light);
 		float intensity = m_scene->getPointLightIntensity(light);
 		intensity *= intensity;
@@ -1986,8 +1986,8 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		if (!current_light.isValid()) return;
 
 		Project& project = m_scene->getProject();
-		Entity light_entity = m_scene->getGlobalLightEntity(current_light);
-		Vec3 light_dir = project.getRotation(light_entity).rotate(Vec3(0, 0, 1));
+		GameObject light_gameobject = m_scene->getGlobalLightGameObject(current_light);
+		Vec3 light_dir = project.getRotation(light_gameobject).rotate(Vec3(0, 0, 1));
 		Vec3 diffuse_color = m_scene->getGlobalLightColor(current_light) *
 							 m_scene->getGlobalLightIntensity(current_light);
 		Vec3 fog_color = m_scene->getFogColor(current_light);
@@ -2054,7 +2054,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void renderPointLightInfluencedGeometry(Entity light)
+	void renderPointLightInfluencedGeometry(GameObject light)
 	{
 		PROFILE_FUNCTION();
 
@@ -2069,13 +2069,13 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	{
 		PROFILE_FUNCTION();
 
-		Array<Entity> lights(m_allocator);
+		Array<GameObject> lights(m_allocator);
 		m_scene->getPointLights(frustum, lights);
 		IAllocator& frame_allocator = m_renderer.getEngine().getLIFOAllocator();
 		m_is_current_light_global = false;
 		for (int i = 0; i < lights.size(); ++i)
 		{
-			Entity light = lights[i];
+			GameObject light = lights[i];
 			setPointLightUniforms(light);
 			Vec3 lod_ref_point = m_scene->getProject().getPosition(m_applied_camera);
 
@@ -2136,7 +2136,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		Matrix projection_mtx;
 		projection_mtx.setOrtho(0, 1, 0, 1, 0, 30, bgfx::getCaps()->homogeneousDepth, true);
 
-		bgfx::setViewTransform(m_current_view->bgfx_id, &Matrix::IDENTITY.m11, &projection_mtx.m11);
+		bgfx::setViewTransform(m_current_view->bgfx_id, &Matrix::IDGAMEOBJECT.m11, &projection_mtx.m11);
 		if (m_current_framebuffer)
 		{
 			bgfx::setViewRect(m_current_view->bgfx_id,
@@ -2251,7 +2251,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	}
 
 
-	void renderAll(const Frustum& frustum, bool render_grass, Entity camera, u64 layer_mask, bool use_occlusion_culling)
+	void renderAll(const Frustum& frustum, bool render_grass, GameObject camera, u64 layer_mask, bool use_occlusion_culling)
 	{
 		PROFILE_FUNCTION();
 
@@ -3083,7 +3083,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 		}
 
 		m_stats = {};
-		m_applied_camera = INVALID_ENTITY;
+		m_applied_camera = INVALID_GAMEOBJECT;
 		m_global_light_shadowmap = nullptr;
 		m_current_view = nullptr;
 		m_view_idx = -1;
@@ -3257,7 +3257,7 @@ struct PipelineImpl MALMY_FINAL : public Pipeline
 	Array<bgfx::UniformHandle> m_uniforms;
 	Array<PointLightShadowmap> m_point_light_shadowmaps;
 	FrameBuffer* m_global_light_shadowmap;
-	Entity m_applied_camera;
+	GameObject m_applied_camera;
 	bgfx::VertexBufferHandle m_cube_vb;
 	bgfx::IndexBufferHandle m_cube_ib;
 	bool m_is_current_light_global;
@@ -3451,7 +3451,7 @@ int renderModels(lua_State* L)
 	auto* pipeline = LuaWrapper::checkArg<PipelineImpl*>(L, 1);
 	bool use_occlusion_culling = lua_gettop(L) > 1 ? LuaWrapper::checkArg<bool>(L, 2) : false;
 
-	Entity cam = pipeline->m_applied_camera;
+	GameObject cam = pipeline->m_applied_camera;
 
 	pipeline->renderAll(pipeline->m_camera_frustum, true, cam, pipeline->m_layer_mask, use_occlusion_culling);
 	pipeline->m_layer_mask = 0;
@@ -3527,7 +3527,7 @@ int renderLocalLightsShadowmaps(lua_State* L)
 	}
 
 	RenderScene* scene = pipeline->m_scene;
-	Entity camera = scene->getCameraInSlot(camera_slot);
+	GameObject camera = scene->getCameraInSlot(camera_slot);
 	pipeline->renderLocalLightShadowmaps(camera, fbs, len);
 
 	return 0;

@@ -117,7 +117,7 @@ static Matrix operator*(const Matrix& lhs, const Matrix& rhs)
 }
 
 
-static Matrix makeIdentity()
+static Matrix makeIdgameobject()
 {
 	return {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 }
@@ -125,7 +125,7 @@ static Matrix makeIdentity()
 
 static Matrix rotationX(double angle)
 {
-	Matrix m = makeIdentity();
+	Matrix m = makeIdgameobject();
 	double c = cos(angle);
 	double s = sin(angle);
 
@@ -139,7 +139,7 @@ static Matrix rotationX(double angle)
 
 static Matrix rotationY(double angle)
 {
-	Matrix m = makeIdentity();
+	Matrix m = makeIdgameobject();
 	double c = cos(angle);
 	double s = sin(angle);
 
@@ -153,7 +153,7 @@ static Matrix rotationY(double angle)
 
 static Matrix rotationZ(double angle)
 {
-	Matrix m = makeIdentity();
+	Matrix m = makeIdgameobject();
 	double c = cos(angle);
 	double s = sin(angle);
 
@@ -996,7 +996,7 @@ struct MeshImpl : Mesh
 		Vec3 rotation = resolveVec3Property(*this, "GeometricRotation", {0, 0, 0});
 		Vec3 scale = resolveVec3Property(*this, "GeometricScaling", {1, 1, 1});
 
-		Matrix scale_mtx = makeIdentity();
+		Matrix scale_mtx = makeIdgameobject();
 		scale_mtx.m[0] = (float)scale.x;
 		scale_mtx.m[5] = (float)scale.y;
 		scale_mtx.m[10] = (float)scale.z;
@@ -2752,34 +2752,34 @@ Matrix Object::evalLocal(const Vec3& translation, const Vec3& rotation) const
 	Vec3 scaling_pivot = getScalingPivot();
 	RotationOrder rotation_order = getRotationOrder();
 
-	Matrix s = makeIdentity();
+	Matrix s = makeIdgameobject();
 	s.m[0] = scaling.x;
 	s.m[5] = scaling.y;
 	s.m[10] = scaling.z;
 
-	Matrix t = makeIdentity();
+	Matrix t = makeIdgameobject();
 	setTranslation(translation, &t);
 
 	Matrix r = getRotationMatrix(rotation, rotation_order);
 	Matrix r_pre = getRotationMatrix(getPreRotation(), RotationOrder::EULER_XYZ);
 	Matrix r_post_inv = getRotationMatrix(-getPostRotation(), RotationOrder::EULER_ZYX);
 
-	Matrix r_off = makeIdentity();
+	Matrix r_off = makeIdgameobject();
 	setTranslation(getRotationOffset(), &r_off);
 
-	Matrix r_p = makeIdentity();
+	Matrix r_p = makeIdgameobject();
 	setTranslation(rotation_pivot, &r_p);
 
-	Matrix r_p_inv = makeIdentity();
+	Matrix r_p_inv = makeIdgameobject();
 	setTranslation(-rotation_pivot, &r_p_inv);
 
-	Matrix s_off = makeIdentity();
+	Matrix s_off = makeIdgameobject();
 	setTranslation(getScalingOffset(), &s_off);
 
-	Matrix s_p = makeIdentity();
+	Matrix s_p = makeIdgameobject();
 	setTranslation(scaling_pivot, &s_p);
 
-	Matrix s_p_inv = makeIdentity();
+	Matrix s_p_inv = makeIdgameobject();
 	setTranslation(-scaling_pivot, &s_p_inv);
 
 	// http://help.autodesk.com/view/FBX/2017/ENU/?guid=__files_GUID_10CDD63C_79C1_4F2D_BB28_AD2BE65A02ED_htm

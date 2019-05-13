@@ -52,7 +52,7 @@ namespace Malmy
 
 		float x, y, z, w;
 
-		static const Quat IDENTITY;
+		static const Quat IDGAMEOBJECT;
 	};
 
 	MALMY_ENGINE_API void nlerp(const Quat& q1, const Quat& q2, Quat* out, float t);

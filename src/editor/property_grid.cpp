@@ -28,7 +28,7 @@ PropertyGrid::PropertyGrid(StudioApp& app)
 	, m_is_open(true)
 	, m_editor(app.getWorldEditor())
 	, m_plugins(app.getWorldEditor().getAllocator())
-	, m_deferred_select(INVALID_ENTITY)
+	, m_deferred_select(INVALID_GAMEOBJECT)
 {
 	m_particle_emitter_updating = true;
 	m_particle_emitter_timescale = 1.0f;
@@ -44,7 +44,7 @@ PropertyGrid::~PropertyGrid()
 
 struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 {
-	GridUIVisitor(StudioApp& app, int index, const Array<Entity>& entities, ComponentType cmp_type, WorldEditor& editor)
+	GridUIVisitor(StudioApp& app, int index, const Array<GameObject>& entities, ComponentType cmp_type, WorldEditor& editor)
 		: m_entities(entities)
 		, m_cmp_type(cmp_type)
 		, m_editor(editor)
@@ -56,11 +56,11 @@ struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 
 	ComponentUID getComponent() const
 	{
-		ComponentUID first_entity_cmp;
-		first_entity_cmp.type = m_cmp_type;
-		first_entity_cmp.scene = m_editor.getProject()->getScene(m_cmp_type);
-		first_entity_cmp.entity = m_entities[0];
-		return first_entity_cmp;
+		ComponentUID first_gameobject_cmp;
+		first_gameobject_cmp.type = m_cmp_type;
+		first_gameobject_cmp.scene = m_editor.getProject()->getScene(m_cmp_type);
+		first_gameobject_cmp.gameobject = m_entities[0];
+		return first_gameobject_cmp;
 	}
 
 
@@ -145,15 +145,15 @@ struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 	}
 
 
-	void visit(const Reflection::Property<Entity>& prop) override
+	void visit(const Reflection::Property<GameObject>& prop) override
 	{
 		ComponentUID cmp = getComponent();
-		Entity entity;
-		OutputBlob blob(&entity, sizeof(entity));
+		GameObject gameobject;
+		OutputBlob blob(&gameobject, sizeof(gameobject));
 		prop.getValue(cmp, m_index, blob);
 
 		char buf[128];
-		getEntityListDisplayName(m_editor, buf, lengthOf(buf), entity);
+		getGameObjectListDisplayName(m_editor, buf, lengthOf(buf), gameobject);
 		ImGui::PushID(prop.name);
 		
 		float item_w = ImGui::CalcItemWidth();
@@ -180,14 +180,14 @@ struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 		Project& project = *m_editor.getProject();
 		if (ImGui::BeginPopup(prop.name))
 		{
-			if (entity.isValid() && ImGui::Button("Select")) m_grid.m_deferred_select = entity;
+			if (gameobject.isValid() && ImGui::Button("Select")) m_grid.m_deferred_select = gameobject;
 
-			static char entity_filter[32] = {};
-			ImGui::LabellessInputText("Filter", entity_filter, sizeof(entity_filter));
-			for (auto i = project.getFirstEntity(); i.isValid(); i = project.getNextEntity(i))
+			static char gameobject_filter[32] = {};
+			ImGui::LabellessInputText("Filter", gameobject_filter, sizeof(gameobject_filter));
+			for (auto i = project.getFirstGameObject(); i.isValid(); i = project.getNextGameObject(i))
 			{
-				getEntityListDisplayName(m_editor, buf, lengthOf(buf), i);
-				bool show = entity_filter[0] == '\0' || stristr(buf, entity_filter) != 0;
+				getGameObjectListDisplayName(m_editor, buf, lengthOf(buf), i);
+				bool show = gameobject_filter[0] == '\0' || stristr(buf, gameobject_filter) != 0;
 				if (show && ImGui::Selectable(buf))
 				{
 					m_editor.setProperty(m_cmp_type, m_index, prop, &m_entities[0], m_entities.size(), &i, sizeof(i));
@@ -502,7 +502,7 @@ struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 		if (ImGui::Combo(prop.name, &idx, getter, &data, count))
 		{
 			value = prop.getEnumValue(cmp, idx);
-			m_editor.setProperty(cmp.type, m_index, prop, &cmp.entity, 1, &value, sizeof(value));
+			m_editor.setProperty(cmp.type, m_index, prop, &cmp.gameobject, 1, &value, sizeof(value));
 		}
 	}
 
@@ -510,13 +510,13 @@ struct GridUIVisitor MALMY_FINAL : Reflection::IPropertyVisitor
 	StudioApp& m_app;
 	WorldEditor& m_editor;
 	ComponentType m_cmp_type;
-	const Array<Entity>& m_entities;
+	const Array<GameObject>& m_entities;
 	int m_index;
 	PropertyGrid& m_grid;
 };
 
 
-static bool componentTreeNode(StudioApp& app, ComponentType cmp_type, const Entity* entities, int entities_count)
+static bool componentTreeNode(StudioApp& app, ComponentType cmp_type, const GameObject* entities, int entities_count)
 {
 	static const u32 ENABLED_HASH = crc32("Enabled");
 	const Reflection::PropertyBase* enabled_prop = Reflection::getProperty(cmp_type, ENABLED_HASH);
@@ -533,7 +533,7 @@ static bool componentTreeNode(StudioApp& app, ComponentType cmp_type, const Enti
 		bool b;
 		ComponentUID cmp;
 		cmp.type = cmp_type;
-		cmp.entity = entities[0];
+		cmp.gameobject = entities[0];
 		cmp.scene = app.getWorldEditor().getProject()->getScene(cmp_type);
 		OutputBlob blob(&b, sizeof(b));
 		enabled_prop->getValue(cmp, -1, blob);
@@ -551,7 +551,7 @@ static bool componentTreeNode(StudioApp& app, ComponentType cmp_type, const Enti
 }
 
 
-void PropertyGrid::showComponentProperties(const Array<Entity>& entities, ComponentType cmp_type)
+void PropertyGrid::showComponentProperties(const Array<GameObject>& entities, ComponentType cmp_type)
 {
 	bool is_open = componentTreeNode(m_app, cmp_type, &entities[0], entities.size());
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -572,7 +572,7 @@ void PropertyGrid::showComponentProperties(const Array<Entity>& entities, Compon
 	if (m_deferred_select.isValid())
 	{
 		m_editor.selectEntities(&m_deferred_select, 1, false);
-		m_deferred_select = INVALID_ENTITY;
+		m_deferred_select = INVALID_GAMEOBJECT;
 	}
 
 	if (entities.size() == 1)
@@ -580,7 +580,7 @@ void PropertyGrid::showComponentProperties(const Array<Entity>& entities, Compon
 		ComponentUID cmp;
 		cmp.type = cmp_type;
 		cmp.scene = m_editor.getProject()->getScene(cmp.type);
-		cmp.entity = entities[0];
+		cmp.gameobject = entities[0];
 		for (auto* i : m_plugins)
 		{
 			i->onGUI(*this, cmp);
@@ -590,14 +590,14 @@ void PropertyGrid::showComponentProperties(const Array<Entity>& entities, Compon
 }
 
 
-bool PropertyGrid::entityInput(const char* label, const char* str_id, Entity& entity)
+bool PropertyGrid::gameobjectInput(const char* label, const char* str_id, GameObject& gameobject)
 {
 	const auto& style = ImGui::GetStyle();
 	float item_w = ImGui::CalcItemWidth();
 	ImGui::PushItemWidth(
 		item_w - ImGui::CalcTextSize("...").x - style.FramePadding.x * 2 - style.ItemSpacing.x);
 	char buf[50];
-	getEntityListDisplayName(m_editor, buf, sizeof(buf), entity);
+	getGameObjectListDisplayName(m_editor, buf, sizeof(buf), gameobject);
 	ImGui::LabelText("", "%s", buf);
 	ImGui::SameLine();
 	StaticString<30> popup_name("pu", str_id);
@@ -608,9 +608,9 @@ bool PropertyGrid::entityInput(const char* label, const char* str_id, Entity& en
 
 	if (ImGui::BeginDragDropTarget())
 	{
-		if (auto* payload = ImGui::AcceptDragDropPayload("entity"))
+		if (auto* payload = ImGui::AcceptDragDropPayload("gameobject"))
 		{
-			entity = *(Entity*)payload->Data;
+			gameobject = *(GameObject*)payload->Data;
 			ImGui::EndDragDropTarget();
 			return true;
 		}
@@ -623,33 +623,33 @@ bool PropertyGrid::entityInput(const char* label, const char* str_id, Entity& en
 
 	if (ImGui::BeginPopup(popup_name))
 	{
-		if (entity.isValid())
+		if (gameobject.isValid())
 		{
-			if (ImGui::Button("Select current")) m_deferred_select = entity;
+			if (ImGui::Button("Select current")) m_deferred_select = gameobject;
 			ImGui::SameLine();
 			if (ImGui::Button("Empty"))
 			{
-				entity = INVALID_ENTITY;
+				gameobject = INVALID_GAMEOBJECT;
 				ImGui::CloseCurrentPopup();
 				ImGui::EndPopup();
 				return true;
 			}
 		}
 		Project* project = m_editor.getProject();
-		static char entity_filter[32] = {};
-		ImGui::LabellessInputText("Filter", entity_filter, sizeof(entity_filter));
+		static char gameobject_filter[32] = {};
+		ImGui::LabellessInputText("Filter", gameobject_filter, sizeof(gameobject_filter));
 		if (ImGui::ListBoxHeader("Entities"))
 		{
-			if (entity_filter[0])
+			if (gameobject_filter[0])
 			{
-				for (auto i = project->getFirstEntity(); i.isValid(); i = project->getNextEntity(i))
+				for (auto i = project->getFirstGameObject(); i.isValid(); i = project->getNextGameObject(i))
 				{
-					getEntityListDisplayName(m_editor, buf, lengthOf(buf), i);
-					if (stristr(buf, entity_filter) == nullptr) continue;
+					getGameObjectListDisplayName(m_editor, buf, lengthOf(buf), i);
+					if (stristr(buf, gameobject_filter) == nullptr) continue;
 					if (ImGui::Selectable(buf))
 					{
 						ImGui::ListBoxFooter();
-						entity = i;
+						gameobject = i;
 						ImGui::CloseCurrentPopup();
 						ImGui::EndPopup();
 						return true;
@@ -658,13 +658,13 @@ bool PropertyGrid::entityInput(const char* label, const char* str_id, Entity& en
 			}
 			else
 			{
-				for (auto i = project->getFirstEntity(); i.isValid(); i = project->getNextEntity(i))
+				for (auto i = project->getFirstGameObject(); i.isValid(); i = project->getNextGameObject(i))
 				{
-					getEntityListDisplayName(m_editor, buf, lengthOf(buf), i);
+					getGameObjectListDisplayName(m_editor, buf, lengthOf(buf), i);
 					if (ImGui::Selectable(buf))
 					{
 						ImGui::ListBoxFooter();
-						entity = i;
+						gameobject = i;
 						ImGui::CloseCurrentPopup();
 						ImGui::EndPopup();
 						return true;
@@ -680,12 +680,12 @@ bool PropertyGrid::entityInput(const char* label, const char* str_id, Entity& en
 }
 
 
-void PropertyGrid::showCoreProperties(const Array<Entity>& entities) const
+void PropertyGrid::showCoreProperties(const Array<GameObject>& entities) const
 {
 	char name[256];
-	const char* tmp = m_editor.getProject()->getEntityName(entities[0]);
+	const char* tmp = m_editor.getProject()->getGameObjectName(entities[0]);
 	copyString(name, tmp);
-	if (ImGui::LabellessInputText("Name", name, sizeof(name))) m_editor.setEntityName(entities[0], name);
+	if (ImGui::LabellessInputText("Name", name, sizeof(name))) m_editor.setGameObjectName(entities[0], name);
 	ImGui::PushFont(m_app.getBoldFont());
 	if (!ImGui::TreeNodeEx("General", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -706,8 +706,8 @@ void PropertyGrid::showCoreProperties(const Array<Entity>& entities) const
 			}
 		}
 
-		EntityGUID guid = m_editor.getEntityGUID(entities[0]);
-		if (guid == INVALID_ENTITY_GUID)
+		GameObjectGUID guid = m_editor.getGameObjectGUID(entities[0]);
+		if (guid == INVALID_GAMEOBJECT_GUID)
 		{
 			ImGui::Text("ID: %d, GUID: runtime", entities[0].index);
 		}
@@ -718,10 +718,10 @@ void PropertyGrid::showCoreProperties(const Array<Entity>& entities) const
 			ImGui::Text("ID: %d, GUID: %s", entities[0].index, guid_str);
 		}
 
-		Entity parent = m_editor.getProject()->getParent(entities[0]);
+		GameObject parent = m_editor.getProject()->getParent(entities[0]);
 		if (parent.isValid())
 		{
-			getEntityListDisplayName(m_editor, name, lengthOf(name), parent);
+			getGameObjectListDisplayName(m_editor, name, lengthOf(name), parent);
 			ImGui::LabelText("Parent", "%s", name);
 
 			Transform tr = m_editor.getProject()->getLocalTransform(entities[0]);
@@ -773,9 +773,9 @@ void PropertyGrid::showCoreProperties(const Array<Entity>& entities) const
 		rot.fromEuler(euler);
 		
 		Array<Quat> rots(m_editor.getAllocator());
-		for (Entity entity : entities)
+		for (GameObject gameobject : entities)
 		{
-			Vec3 tmp = project->getRotation(entity).toEuler();
+			Vec3 tmp = project->getRotation(gameobject).toEuler();
 			
 			if (fabs(euler.x - old_euler.x) > 0.01f) tmp.x = euler.x;
 			if (fabs(euler.y - old_euler.y) > 0.01f) tmp.y = euler.y;

@@ -18,7 +18,7 @@ namespace Malmy
 	{
 	public:
 		typedef Array<Sphere> InputSpheres;
-		typedef Array<Entity> Subresults;
+		typedef Array<GameObject> Subresults;
 		typedef Array<Subresults> Results;
 
 		CullingSystem() { }
@@ -32,16 +32,16 @@ namespace Malmy
 
 		virtual Results& cull(const Frustum& frustum, u64 layer_mask) = 0;
 
-		virtual bool isAdded(Entity model_instance) = 0;
-		virtual void addStatic(Entity model_instance, const Sphere& sphere, u64 layer_mask) = 0;
-		virtual void removeStatic(Entity model_instance) = 0;
+		virtual bool isAdded(GameObject model_instance) = 0;
+		virtual void addStatic(GameObject model_instance, const Sphere& sphere, u64 layer_mask) = 0;
+		virtual void removeStatic(GameObject model_instance) = 0;
 
-		virtual void setLayerMask(Entity model_instance, u64 layer) = 0;
-		virtual u64 getLayerMask(Entity model_instance) = 0;
+		virtual void setLayerMask(GameObject model_instance, u64 layer) = 0;
+		virtual u64 getLayerMask(GameObject model_instance) = 0;
 
-		virtual void updateBoundingSphere(const Sphere& sphere, Entity model_instance) = 0;
+		virtual void updateBoundingSphere(const Sphere& sphere, GameObject model_instance) = 0;
 
-		virtual void insert(const InputSpheres& spheres, const Array<Entity>& model_instances) = 0;
-		virtual const Sphere& getSphere(Entity model_instance) = 0;
+		virtual void insert(const InputSpheres& spheres, const Array<GameObject>& model_instances) = 0;
+		virtual const Sphere& getSphere(GameObject model_instance) = 0;
 	};
 } // namespace Lux

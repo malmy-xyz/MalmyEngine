@@ -139,7 +139,7 @@ class MALMY_RENDERER_API Pipeline
 		virtual Path& getPath() = 0;
 		virtual void callLuaFunction(const char* func) = 0;
 
-		virtual Entity getAppliedCamera() const = 0;
+		virtual GameObject getAppliedCamera() const = 0;
 		virtual void render(const bgfx::VertexBufferHandle& vertex_buffer,
 			const bgfx::IndexBufferHandle& index_buffer,
 			const bgfx::InstanceDataBuffer& instance_buffer,

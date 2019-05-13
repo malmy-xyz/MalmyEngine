@@ -34,20 +34,20 @@ public:
 	void addPlugin(IPlugin& plugin) { m_plugins.push(&plugin); }
 	void removePlugin(IPlugin& plugin) { m_plugins.eraseItem(&plugin); }
 	void onGUI();
-	bool entityInput(const char* label, const char* str_id, Entity& entity);
+	bool gameobjectInput(const char* label, const char* str_id, GameObject& gameobject);
 
 public:
 	bool m_is_open;
 
 private:
-	void showComponentProperties(const Array<Entity>& entities, ComponentType cmp_type);
-	void showCoreProperties(const Array<Entity>& entities) const;
+	void showComponentProperties(const Array<GameObject>& entities, ComponentType cmp_type);
+	void showCoreProperties(const Array<GameObject>& entities) const;
 
 private:
 	StudioApp& m_app;
 	WorldEditor& m_editor;
 	Array<IPlugin*> m_plugins;
-	Entity m_deferred_select;
+	GameObject m_deferred_select;
 	
 	char m_component_filter[32];
 

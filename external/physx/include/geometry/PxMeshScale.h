@@ -75,26 +75,26 @@ class PxMeshScale
 //==================================================================================================
 public:
 	/**
-	\brief Constructor initializes to identity scale.
+	\brief Constructor initializes to idgameobject scale.
 	*/
-	PX_CUDA_CALLABLE PX_FORCE_INLINE PxMeshScale(): scale(1.0f), rotation(PxIdentity) 
+	PX_CUDA_CALLABLE PX_FORCE_INLINE PxMeshScale(): scale(1.0f), rotation(PxIdgameobject) 
 	{
 	}
 
 	/**
 	\brief Constructor from scalar.
 	*/
-	explicit PX_CUDA_CALLABLE PX_FORCE_INLINE PxMeshScale(PxReal r): scale(r), rotation(PxIdentity) 
+	explicit PX_CUDA_CALLABLE PX_FORCE_INLINE PxMeshScale(PxReal r): scale(r), rotation(PxIdgameobject) 
 	{
 	}
 
 	/**
-	\brief Constructor to initialize to arbitrary scale and identity scale rotation.
+	\brief Constructor to initialize to arbitrary scale and idgameobject scale rotation.
 	*/
 	PX_CUDA_CALLABLE PX_FORCE_INLINE PxMeshScale(const PxVec3& s)
 	{
 		scale = s;
-		rotation = PxQuat(PxIdentity);
+		rotation = PxQuat(PxIdgameobject);
 	}
 
 	/**
@@ -109,9 +109,9 @@ public:
 
 
 	/**
-	\brief Returns true if the scaling is an identity transformation.
+	\brief Returns true if the scaling is an idgameobject transformation.
 	*/
-	PX_CUDA_CALLABLE PX_FORCE_INLINE bool isIdentity()	const
+	PX_CUDA_CALLABLE PX_FORCE_INLINE bool isIdgameobject()	const
 	{
 		return (scale.x == 1.0f && scale.y == 1.0f && scale.z == 1.0f);
 	}

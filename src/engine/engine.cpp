@@ -534,25 +534,25 @@ public:
 		if(engine && project) engine->startGame(*project);
 	}
 
-	static bool LUA_createComponent(Project* project, Entity entity, const char* type)
+	static bool LUA_createComponent(Project* project, GameObject gameobject, const char* type)
 	{
 		if (!project) return false;
 		ComponentType cmp_type = Reflection::getComponentType(type);
 		IScene* scene = project->getScene(cmp_type);
 		if (!scene) return false;
-		if (project->hasComponent(entity, cmp_type))
+		if (project->hasComponent(gameobject, cmp_type))
 		{
-			g_log_error.log("Lua Script") << "Component " << type << " already exists in entity " << entity.index;
+			g_log_error.log("Lua Script") << "Component " << type << " already exists in gameobject " << gameobject.index;
 			return false;
 		}
 
-		project->createComponent(cmp_type, entity);
+		project->createComponent(cmp_type, gameobject);
 		return true;
 	}
 
-	static Entity LUA_createEntity(Project* univ)
+	static GameObject LUA_createGameObject(Project* univ)
 	{
-		return univ->createEntity(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
+		return univ->createGameObject(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
 	}
 
 	struct SetPropertyVisitor : public Reflection::IPropertyVisitor
@@ -580,7 +580,7 @@ public:
 
 		}
 
-		void visit(const Reflection::Property<Entity>& prop) override
+		void visit(const Reflection::Property<GameObject>& prop) override
 		{
 			if (!equalStrings(property_name, prop.name)) return;
 			if (lua_isinteger(L, -1))
@@ -706,17 +706,17 @@ public:
 		return Reflection::getComponentType(id).index;
 	}
 
-	static int LUA_createEntityEx(lua_State* L)
+	static int LUA_createGameObjectEx(lua_State* L)
 	{
 		auto* ctx = LuaWrapper::checkArg<Project*>(L, 2);
 		LuaWrapper::checkTableArg(L, 3);
 
-		Entity e = ctx->createEntity(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
+		GameObject e = ctx->createGameObject(Vec3(0, 0, 0), Quat(0, 0, 0, 1));
 
 		lua_pushvalue(L, 3);
 		if (lua_getfield(L, -1, "parent") != LUA_TNIL)
 		{
-			Entity parent = LuaWrapper::toType<Entity>(L, -1);
+			GameObject parent = LuaWrapper::toType<GameObject>(L, -1);
 			ctx->setParent(parent, e);
 		}
 		lua_pop(L, 1);
@@ -768,22 +768,22 @@ public:
 		return 1;
 	}
 
-	static int LUA_setEntityRotation(lua_State* L)
+	static int LUA_setGameObjectRotation(lua_State* L)
 	{
 		Project* univ = LuaWrapper::checkArg<Project*>(L, 1);
-		int entity_index = LuaWrapper::checkArg<int>(L, 2);
-		if (entity_index < 0) return 0;
+		int gameobject_index = LuaWrapper::checkArg<int>(L, 2);
+		if (gameobject_index < 0) return 0;
 
 		if (lua_gettop(L) > 3)
 		{
 			Vec3 axis = LuaWrapper::checkArg<Vec3>(L, 3);
 			float angle = LuaWrapper::checkArg<float>(L, 4);
-			univ->setRotation({ entity_index }, Quat(axis, angle));
+			univ->setRotation({ gameobject_index }, Quat(axis, angle));
 		}
 		else
 		{
 			Quat rot = LuaWrapper::checkArg<Quat>(L, 3);
-			univ->setRotation({ entity_index }, rot);
+			univ->setRotation({ gameobject_index }, rot);
 		}
 		return 0;
 	}
@@ -804,23 +804,23 @@ public:
 		return engine->m_last_lua_resource_idx;
 	}
 
-	static void LUA_setEntityLocalRotation(Project* project, Entity entity, const Quat& rotation)
+	static void LUA_setGameObjectLocalRotation(Project* project, GameObject gameobject, const Quat& rotation)
 	{
-		if (!entity.isValid()) return;
-		if (!project->getParent(entity).isValid()) return;
+		if (!gameobject.isValid()) return;
+		if (!project->getParent(gameobject).isValid()) return;
 
-		project->setLocalRotation(entity, rotation);
+		project->setLocalRotation(gameobject, rotation);
 	}
 
-	static void LUA_setEntityLocalPosition(Project* project, Entity entity, const Vec3& position)
+	static void LUA_setGameObjectLocalPosition(Project* project, GameObject gameobject, const Vec3& position)
 	{
-		if (!entity.isValid()) return;
-		if (!project->getParent(entity).isValid()) return;
+		if (!gameobject.isValid()) return;
+		if (!project->getParent(gameobject).isValid()) return;
 
-		project->setLocalPosition(entity, position);
+		project->setLocalPosition(gameobject, position);
 	}
 
-	static void LUA_setEntityPosition(Project* univ, Entity entity, Vec3 pos) { univ->setPosition(entity, pos); }
+	static void LUA_setGameObjectPosition(Project* univ, GameObject gameobject, Vec3 pos) { univ->setPosition(gameobject, pos); }
 	static void LUA_unloadResource(EngineImpl* engine, int resource_idx) { engine->unloadLuaResource(resource_idx); }
 	static Project* LUA_createProject(EngineImpl* engine) { return &engine->createProject(false); }
 	static void LUA_destroyProject(EngineImpl* engine, Project* project) { engine->destroyProject(*project); }
@@ -929,29 +929,29 @@ public:
 		return 1;
 	}
 
-	static Vec3 LUA_getEntityPosition(Project* project, Entity entity)
+	static Vec3 LUA_getGameObjectPosition(Project* project, GameObject gameobject)
 	{
-		if (!entity.isValid())
+		if (!gameobject.isValid())
 		{
-			g_log_warning.log("Engine") << "Requesting position on invalid entity";
+			g_log_warning.log("Engine") << "Requesting position on invalid gameobject";
 			return Vec3(0, 0, 0);
 		}
-		return project->getPosition(entity);
+		return project->getPosition(gameobject);
 	}
 
-	static Quat LUA_getEntityRotation(Project* project, Entity entity)
+	static Quat LUA_getGameObjectRotation(Project* project, GameObject gameobject)
 	{
-		if (!entity.isValid())
+		if (!gameobject.isValid())
 		{
-			g_log_warning.log("Engine") << "Requesting rotation on invalid entity";
+			g_log_warning.log("Engine") << "Requesting rotation on invalid gameobject";
 			return Quat(0, 0, 0, 1);
 		}
-		return project->getRotation(entity);
+		return project->getRotation(gameobject);
 	}
 
-	static Vec3 LUA_getEntityDirection(Project* project, Entity entity)
+	static Vec3 LUA_getGameObjectDirection(Project* project, GameObject gameobject)
 	{
-		Quat rot = project->getRotation(entity);
+		Quat rot = project->getRotation(gameobject);
 		return rot.rotate(Vec3(0, 0, 1));
 	}
 
@@ -965,15 +965,15 @@ public:
 				&LuaWrapper::wrap<decltype(&LUA_##name), LUA_##name>); \
 
 		REGISTER_FUNCTION(createComponent);
-		REGISTER_FUNCTION(createEntity);
+		REGISTER_FUNCTION(createGameObject);
 		REGISTER_FUNCTION(createProject);
 		REGISTER_FUNCTION(destroyProject);
 		REGISTER_FUNCTION(getComponentType);
 		REGISTER_FUNCTION(getComponentTypeByIndex);
 		REGISTER_FUNCTION(getComponentTypesCount);
-		REGISTER_FUNCTION(getEntityDirection);
-		REGISTER_FUNCTION(getEntityPosition);
-		REGISTER_FUNCTION(getEntityRotation);
+		REGISTER_FUNCTION(getGameObjectDirection);
+		REGISTER_FUNCTION(getGameObjectPosition);
+		REGISTER_FUNCTION(getGameObjectRotation);
 		REGISTER_FUNCTION(getScene);
 		REGISTER_FUNCTION(getSceneProject);
 		REGISTER_FUNCTION(hasFilesystemWork);
@@ -985,10 +985,10 @@ public:
 		REGISTER_FUNCTION(nextFrame);
 		REGISTER_FUNCTION(pause);
 		REGISTER_FUNCTION(processFilesystemWork);
-		REGISTER_FUNCTION(setEntityLocalPosition);
-		REGISTER_FUNCTION(setEntityLocalRotation);
-		REGISTER_FUNCTION(setEntityPosition);
-		REGISTER_FUNCTION(setEntityRotation);
+		REGISTER_FUNCTION(setGameObjectLocalPosition);
+		REGISTER_FUNCTION(setGameObjectLocalRotation);
+		REGISTER_FUNCTION(setGameObjectPosition);
+		REGISTER_FUNCTION(setGameObjectRotation);
 		REGISTER_FUNCTION(setTimeMultiplier);
 		REGISTER_FUNCTION(startGame);
 		REGISTER_FUNCTION(unloadResource);
@@ -1005,11 +1005,11 @@ public:
 
 		REGISTER_FUNCTION(getFirstChild);
 		REGISTER_FUNCTION(getNextSibling);
-		REGISTER_FUNCTION(cloneEntity);
-		REGISTER_FUNCTION(destroyEntity);
+		REGISTER_FUNCTION(cloneGameObject);
+		REGISTER_FUNCTION(destroyGameObject);
 		REGISTER_FUNCTION(findByName);
-		REGISTER_FUNCTION(getFirstEntity);
-		REGISTER_FUNCTION(getNextEntity);
+		REGISTER_FUNCTION(getFirstGameObject);
+		REGISTER_FUNCTION(getNextGameObject);
 		REGISTER_FUNCTION(getParent);
 		REGISTER_FUNCTION(hasComponent);
 		REGISTER_FUNCTION(setParent);
@@ -1017,7 +1017,7 @@ public:
 		#undef REGISTER_FUNCTION
 
 		LuaWrapper::createSystemFunction(m_state, "Engine", "instantiatePrefab", &LUA_instantiatePrefab);
-		LuaWrapper::createSystemFunction(m_state, "Engine", "createEntityEx", &LUA_createEntityEx);
+		LuaWrapper::createSystemFunction(m_state, "Engine", "createGameObjectEx", &LUA_createGameObjectEx);
 		LuaWrapper::createSystemFunction(m_state, "Engine", "multVecQuat", &LUA_multVecQuat);
 
 		lua_newtable(m_state);
@@ -1097,15 +1097,15 @@ public:
 
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_DEVICE_KEYBOARD", InputSystem::Device::KEYBOARD);
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_DEVICE_MOUSE", InputSystem::Device::MOUSE);
-		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_DEVICE_CONTROLLER", InputSystem::Device::CONTROLLER);
+		//LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_DEVICE_CONTROLLER", InputSystem::Device::CONTROLLER);
 
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_BUTTON_STATE_UP", InputSystem::ButtonEvent::UP);
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_BUTTON_STATE_DOWN", InputSystem::ButtonEvent::DOWN);
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_BUTTON", InputSystem::Event::BUTTON);
 		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_AXIS", InputSystem::Event::AXIS);
-		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_TEXT_INPUT", InputSystem::Event::TEXT_INPUT);
-		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_DEVICE_ADDED", InputSystem::Event::DEVICE_ADDED);
-		LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_DEVICE_REMOVED", InputSystem::Event::DEVICE_REMOVED);
+		//LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_TEXT_INPUT", InputSystem::Event::TEXT_INPUT);
+		//LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_DEVICE_ADDED", InputSystem::Event::DEVICE_ADDED);
+		//LuaWrapper::createSystemVariable(m_state, "Engine", "INPUT_EVENT_DEVICE_REMOVED", InputSystem::Event::DEVICE_REMOVED);
 
 		lua_pop(m_state, 1);
 
@@ -1346,6 +1346,7 @@ public:
 		m_time_multiplier = Math::maximum(multiplier, 0.001f);
 	}
 
+	//her framede yenileniyo
 	void update(Project& context) override
 	{
 		PROFILE_FUNCTION();
@@ -1377,6 +1378,7 @@ public:
 				scene->lateUpdate(dt, m_paused);
 			}
 		}
+
 		m_plugin_manager->update(dt, m_paused);
 		m_input_system->update(dt);
 		getFileSystem().updateAsyncTransactions();
@@ -1503,13 +1505,13 @@ public:
 		return true;
 	}
 
-	ComponentUID createComponent(Project& project, Entity entity, ComponentType type) override
+	ComponentUID createComponent(Project& project, GameObject gameobject, ComponentType type) override
 	{
 		IScene* scene = project.getScene(type);
 		if (!scene) return ComponentUID::INVALID;
 
-		project.createComponent(type, entity);
-		return ComponentUID(entity, type, scene);
+		project.createComponent(type, gameobject);
+		return ComponentUID(gameobject, type, scene);
 	}
 
 	static int LUA_instantiatePrefab(lua_State* L)
@@ -1529,9 +1531,9 @@ public:
 			g_log_error.log("Editor") << "Prefab " << prefab->getPath().c_str() << " is not ready, preload it.";
 			return 0;
 		}
-		Entity entity = project->instantiatePrefab(*prefab, position, {0, 0, 0, 1}, 1);
+		GameObject gameobject = project->instantiatePrefab(*prefab, position, {0, 0, 0, 1}, 1);
 
-		LuaWrapper::push(L, entity);
+		LuaWrapper::push(L, gameobject);
 		return 1;
 	}
 

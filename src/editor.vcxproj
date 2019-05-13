@@ -38,8 +38,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>..\data\bin\</OutDir>
-    <IntDir>..\obj\editor\</IntDir>
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\bin\obj\editor\</IntDir>
     <TargetName>editor</TargetName>
     <TargetExt>.dll</TargetExt>
     <IgnoreImportLibrary>false</IgnoreImportLibrary>
@@ -81,7 +81,7 @@
       <AdditionalDependencies>SDL.lib;winmm.lib;imm32.lib;version.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)editor.dll</OutputFile>
       <AdditionalLibraryDirectories>..\external\SDL\lib\win64_vs2017\debug;..\external\SDL\dll\win64_vs2017\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ImportLibrary>..\data\bin\editor.lib</ImportLibrary>
+      <ImportLibrary>..\bin\editor.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>

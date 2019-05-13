@@ -83,7 +83,7 @@ public:
 	/**
 	\brief Default constructor.
 
-	Creates an empty object with a NULL mesh and identity scale.
+	Creates an empty object with a NULL mesh and idgameobject scale.
 	*/
 	PX_INLINE PxConvexMeshGeometry() :
 		PxGeometry	(PxGeometryType::eCONVEXMESH),

@@ -19,7 +19,7 @@ namespace Malmy
 		void operator=(const JsonSerializer&) = delete;
 		JsonSerializer(const JsonSerializer&) = delete;
 
-		void serialize(const char* label, Entity value);
+		void serialize(const char* label, GameObject value);
 		void serialize(const char* label, u32 value);
 		void serialize(const char* label, u16 value);
 		void serialize(const char* label, float value);
@@ -33,7 +33,7 @@ namespace Malmy
 		void beginArray();
 		void beginArray(const char* label);
 		void endArray();
-		void serializeArrayItem(Entity value);
+		void serializeArrayItem(GameObject value);
 		void serializeArrayItem(u32 value);
 		void serializeArrayItem(i32 value);
 		void serializeArrayItem(i64 value);
@@ -60,7 +60,7 @@ namespace Malmy
 		JsonDeserializer(const JsonDeserializer&) = delete;
 		~JsonDeserializer();
 
-		void deserialize(const char* label, Entity& value, Entity default_value);
+		void deserialize(const char* label, GameObject& value, GameObject default_value);
 		void deserialize(const char* label, u32& value, u32 default_value);
 		void deserialize(const char* label, u16& value, u16 default_value);
 		void deserialize(const char* label, float& value, float default_value);
@@ -77,7 +77,7 @@ namespace Malmy
 		void deserializeArrayBegin();
 		void deserializeArrayEnd();
 		bool isArrayEnd();
-		void deserializeArrayItem(Entity& value, Entity default_value);
+		void deserializeArrayItem(GameObject& value, GameObject default_value);
 		void deserializeArrayItem(u32& value, u32 default_value);
 		void deserializeArrayItem(i32& value, i32 default_value);
 		void deserializeArrayItem(i64& value, i64 default_value);

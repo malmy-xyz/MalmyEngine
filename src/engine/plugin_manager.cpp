@@ -41,6 +41,7 @@ namespace Malmy
 			}
 		}
 
+		//her farmede calisiyor
 		void update(float dt, bool paused) override
 		{
 			PROFILE_FUNCTION();
@@ -115,14 +116,8 @@ namespace Malmy
 		{
 			char path_with_ext[MAX_PATH_LENGTH];
 			copyString(path_with_ext, path);
-			const char* ext =
-#ifdef _WIN32
-				".dll";
-#elif defined __linux__
-				".so";
-#else 
-#error Unknown platform
-#endif
+			const char* ext = ".dll";
+
 				if (!PathUtils::hasExtension(path, ext + 1)) catString(path_with_ext, ext);
 			g_log_info.log("Core") << "loading plugin " << path_with_ext;
 			typedef IPlugin* (*PluginCreator)(Engine&);

@@ -22,7 +22,7 @@ namespace Malmy
 		return mtx;
 	}
 
-	const Matrix Matrix::IDENTITY(
+	const Matrix Matrix::IDGAMEOBJECT(
 		1, 0, 0, 0,
 		0, 1, 0, 0,
 		0, 0, 1, 0,
@@ -64,7 +64,7 @@ namespace Malmy
 
 	Matrix Matrix::rotationX(float angle)
 	{
-		Matrix m = IDENTITY;
+		Matrix m = IDGAMEOBJECT;
 		float c = cosf(angle);
 		float s = sinf(angle);
 
@@ -77,7 +77,7 @@ namespace Malmy
 
 	Matrix Matrix::rotationY(float angle)
 	{
-		Matrix m = IDENTITY;
+		Matrix m = IDGAMEOBJECT;
 		float c = cosf(angle);
 		float s = sinf(angle);
 
@@ -90,7 +90,7 @@ namespace Malmy
 
 	Matrix Matrix::rotationZ(float angle)
 	{
-		Matrix m = IDENTITY;
+		Matrix m = IDGAMEOBJECT;
 		float c = cosf(angle);
 		float s = sinf(angle);
 
@@ -103,7 +103,7 @@ namespace Malmy
 
 	void Matrix::setOrtho(float left, float right, float bottom, float top, float z_near, float z_far, bool is_homogenous_depth, bool reversed_z)
 	{
-		*this = IDENTITY;
+		*this = IDGAMEOBJECT;
 		m11 = 2 / (right - left);
 		m22 = 2 / (top - bottom);
 		m41 = (right + left) / (left - right);
@@ -122,7 +122,7 @@ namespace Malmy
 
 	void Matrix::setPerspective(float fov, float ratio, float near_plane, float far_plane, bool is_homogenous_depth, bool reversed_z)
 	{
-		*this = Matrix::IDENTITY;
+		*this = Matrix::IDGAMEOBJECT;
 		float f = 1 / tanf(fov * 0.5f);
 		float z_diff = near_plane - far_plane;
 		m11 = f / ratio;
@@ -384,7 +384,7 @@ namespace Malmy
 		);
 	}
 
-	void Matrix::setIdentity()
+	void Matrix::setIdgameobject()
 	{
 		m11 = 1; m12 = 0; m13 = 0; m14 = 0;
 		m21 = 0; m22 = 1; m23 = 0; m24 = 0;

@@ -72,7 +72,7 @@ struct ModelInstance
 	Matrix matrix;
 	Model* model;
 	Pose* pose;
-	Entity entity;
+	GameObject gameobject;
 	Mesh* meshes;
 	FlagSet<Flags, u8> flags;
 	i8 mesh_count;
@@ -81,7 +81,7 @@ struct ModelInstance
 
 struct MeshInstance
 {
-	Entity owner;
+	GameObject owner;
 	Mesh* mesh;
 	float depth;
 };
@@ -147,22 +147,22 @@ public:
 	static void destroyInstance(RenderScene* scene);
 	static void registerLuaAPI(lua_State* L);
 
-	virtual RayCastModelHit castRay(const Vec3& origin, const Vec3& dir, Entity ignore) = 0;
-	virtual RayCastModelHit castRayTerrain(Entity entity, const Vec3& origin, const Vec3& dir) = 0;
-	virtual void getRay(Entity entity, const Vec2& screen_pos, Vec3& origin, Vec3& dir) = 0;
+	virtual RayCastModelHit castRay(const Vec3& origin, const Vec3& dir, GameObject ignore) = 0;
+	virtual RayCastModelHit castRayTerrain(GameObject gameobject, const Vec3& origin, const Vec3& dir) = 0;
+	virtual void getRay(GameObject gameobject, const Vec2& screen_pos, Vec3& origin, Vec3& dir) = 0;
 
-	virtual Frustum getCameraFrustum(Entity entity) const = 0;
-	virtual Frustum getCameraFrustum(Entity entity, const Vec2& a, const Vec2& b) const = 0;
+	virtual Frustum getCameraFrustum(GameObject gameobject) const = 0;
+	virtual Frustum getCameraFrustum(GameObject gameobject, const Vec2& a, const Vec2& b) const = 0;
 	virtual float getTime() const = 0;
 	virtual Engine& getEngine() const = 0;
 	virtual IAllocator& getAllocator() = 0;
 
-	virtual Pose* lockPose(Entity entity) = 0;
-	virtual void unlockPose(Entity entity, bool changed) = 0;
-	virtual Entity getActiveGlobalLight() = 0;
-	virtual void setActiveGlobalLight(Entity entity) = 0;
-	virtual Vec4 getShadowmapCascades(Entity entity) = 0;
-	virtual void setShadowmapCascades(Entity entity, const Vec4& value) = 0;
+	virtual Pose* lockPose(GameObject gameobject) = 0;
+	virtual void unlockPose(GameObject gameobject, bool changed) = 0;
+	virtual GameObject getActiveGlobalLight() = 0;
+	virtual void setActiveGlobalLight(GameObject gameobject) = 0;
+	virtual Vec4 getShadowmapCascades(GameObject gameobject) = 0;
+	virtual void setShadowmapCascades(GameObject gameobject, const Vec4& value) = 0;
 
 	virtual void addDebugTriangle(const Vec3& p0,
 		const Vec3& p1,
@@ -213,231 +213,231 @@ public:
 		u32 color,
 		float life) = 0;
 
-	virtual Entity getBoneAttachmentParent(Entity entity) = 0;
-	virtual void setBoneAttachmentParent(Entity entity, Entity parent) = 0;
-	virtual void setBoneAttachmentBone(Entity entity, int value) = 0;
-	virtual int getBoneAttachmentBone(Entity entity) = 0;
-	virtual Vec3 getBoneAttachmentPosition(Entity entity) = 0;
-	virtual void setBoneAttachmentPosition(Entity entity, const Vec3& pos) = 0;
-	virtual Vec3 getBoneAttachmentRotation(Entity entity) = 0;
-	virtual void setBoneAttachmentRotation(Entity entity, const Vec3& rot) = 0;
-	virtual void setBoneAttachmentRotationQuat(Entity entity, const Quat& rot) = 0;
+	virtual GameObject getBoneAttachmentParent(GameObject gameobject) = 0;
+	virtual void setBoneAttachmentParent(GameObject gameobject, GameObject parent) = 0;
+	virtual void setBoneAttachmentBone(GameObject gameobject, int value) = 0;
+	virtual int getBoneAttachmentBone(GameObject gameobject) = 0;
+	virtual Vec3 getBoneAttachmentPosition(GameObject gameobject) = 0;
+	virtual void setBoneAttachmentPosition(GameObject gameobject, const Vec3& pos) = 0;
+	virtual Vec3 getBoneAttachmentRotation(GameObject gameobject) = 0;
+	virtual void setBoneAttachmentRotation(GameObject gameobject, const Vec3& rot) = 0;
+	virtual void setBoneAttachmentRotationQuat(GameObject gameobject, const Quat& rot) = 0;
 
 	virtual const Array<DebugTriangle>& getDebugTriangles() const = 0;
 	virtual const Array<DebugLine>& getDebugLines() const = 0;
 	virtual const Array<DebugPoint>& getDebugPoints() const = 0;
 
-	virtual Matrix getCameraProjection(Entity entity) = 0;
-	virtual Matrix getCameraViewProjection(Entity entity) = 0;
-	virtual Entity getCameraInSlot(const char* slot) = 0;
-	virtual float getCameraFOV(Entity entity) = 0;
-	virtual void setCameraFOV(Entity entity, float fov) = 0;
-	virtual void setCameraFarPlane(Entity entity, float far) = 0;
-	virtual void setCameraNearPlane(Entity entity, float near) = 0;
-	virtual float getCameraFarPlane(Entity entity) = 0;
-	virtual float getCameraNearPlane(Entity entity) = 0;
-	virtual float getCameraScreenWidth(Entity entity) = 0;
-	virtual float getCameraScreenHeight(Entity entity) = 0;
-	virtual void setCameraSlot(Entity entity, const char* slot) = 0;
-	virtual const char* getCameraSlot(Entity entity) = 0;
-	virtual void setCameraScreenSize(Entity entity, int w, int h) = 0;
-	virtual bool isCameraOrtho(Entity entity) = 0;
-	virtual void setCameraOrtho(Entity entity, bool is_ortho) = 0;
-	virtual float getCameraOrthoSize(Entity entity) = 0;
-	virtual void setCameraOrthoSize(Entity entity, float value) = 0;
-	virtual Vec2 getCameraScreenSize(Entity entity) = 0;
+	virtual Matrix getCameraProjection(GameObject gameobject) = 0;
+	virtual Matrix getCameraViewProjection(GameObject gameobject) = 0;
+	virtual GameObject getCameraInSlot(const char* slot) = 0;
+	virtual float getCameraFOV(GameObject gameobject) = 0;
+	virtual void setCameraFOV(GameObject gameobject, float fov) = 0;
+	virtual void setCameraFarPlane(GameObject gameobject, float far) = 0;
+	virtual void setCameraNearPlane(GameObject gameobject, float near) = 0;
+	virtual float getCameraFarPlane(GameObject gameobject) = 0;
+	virtual float getCameraNearPlane(GameObject gameobject) = 0;
+	virtual float getCameraScreenWidth(GameObject gameobject) = 0;
+	virtual float getCameraScreenHeight(GameObject gameobject) = 0;
+	virtual void setCameraSlot(GameObject gameobject, const char* slot) = 0;
+	virtual const char* getCameraSlot(GameObject gameobject) = 0;
+	virtual void setCameraScreenSize(GameObject gameobject, int w, int h) = 0;
+	virtual bool isCameraOrtho(GameObject gameobject) = 0;
+	virtual void setCameraOrtho(GameObject gameobject, bool is_ortho) = 0;
+	virtual float getCameraOrthoSize(GameObject gameobject) = 0;
+	virtual void setCameraOrthoSize(GameObject gameobject, float value) = 0;
+	virtual Vec2 getCameraScreenSize(GameObject gameobject) = 0;
 
-	virtual void setScriptedParticleEmitterMaterialPath(Entity entity, const Path& path) = 0;
-	virtual Path getScriptedParticleEmitterMaterialPath(Entity entity) = 0;
-	virtual const AssociativeArray<Entity, class ScriptedParticleEmitter*>& getScriptedParticleEmitters() const = 0;
+	virtual void setScriptedParticleEmitterMaterialPath(GameObject gameobject, const Path& path) = 0;
+	virtual Path getScriptedParticleEmitterMaterialPath(GameObject gameobject) = 0;
+	virtual const AssociativeArray<GameObject, class ScriptedParticleEmitter*>& getScriptedParticleEmitters() const = 0;
 
-	virtual class ParticleEmitter* getParticleEmitter(Entity entity) = 0;
-	virtual void resetParticleEmitter(Entity entity) = 0;
-	virtual void updateEmitter(Entity entity, float time_delta) = 0;
-	virtual const AssociativeArray<Entity, class ParticleEmitter*>& getParticleEmitters() const = 0;
-	virtual const Vec2* getParticleEmitterAlpha(Entity entity) = 0;
-	virtual int getParticleEmitterAlphaCount(Entity entity) = 0;
-	virtual const Vec2* getParticleEmitterSize(Entity entity) = 0;
-	virtual int getParticleEmitterSizeCount(Entity entity) = 0;
-	virtual bool getParticleEmitterAutoemit(Entity entity) = 0;
-	virtual bool getParticleEmitterLocalSpace(Entity entity) = 0;
-	virtual Vec3 getParticleEmitterAcceleration(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterLinearMovementX(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterLinearMovementY(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterLinearMovementZ(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterInitialLife(Entity entity) = 0;
-	virtual Int2 getParticleEmitterSpawnCount(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterSpawnPeriod(Entity entity) = 0;
-	virtual Vec2 getParticleEmitterInitialSize(Entity entity) = 0;
-	virtual void setParticleEmitterAutoemit(Entity entity, bool autoemit) = 0;
-	virtual void setParticleEmitterLocalSpace(Entity entity, bool autoemit) = 0;
-	virtual void setParticleEmitterAlpha(Entity entity, const Vec2* value, int count) = 0;
-	virtual void setParticleEmitterSize(Entity entity, const Vec2* values, int count) = 0;
-	virtual void setParticleEmitterAcceleration(Entity entity, const Vec3& value) = 0;
-	virtual void setParticleEmitterLinearMovementX(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterLinearMovementY(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterLinearMovementZ(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterInitialLife(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterSpawnCount(Entity entity, const Int2& value) = 0;
-	virtual void setParticleEmitterSpawnPeriod(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterInitialSize(Entity entity, const Vec2& value) = 0;
-	virtual void setParticleEmitterMaterialPath(Entity entity, const Path& path) = 0;
-	virtual void setParticleEmitterSubimageRows(Entity entity, const int& value) = 0;
-	virtual void setParticleEmitterSubimageCols(Entity entity, const int& value) = 0;
-	virtual Path getParticleEmitterMaterialPath(Entity entity) = 0;
-	virtual int getParticleEmitterPlaneCount(Entity entity) = 0;
-	virtual int getParticleEmitterSubimageRows(Entity entity) = 0;
-	virtual int getParticleEmitterSubimageCols(Entity entity) = 0;
-	virtual void addParticleEmitterPlane(Entity entity, int index) = 0;
-	virtual void removeParticleEmitterPlane(Entity entity, int index) = 0;
-	virtual Entity getParticleEmitterPlaneEntity(Entity entity, int index) = 0;
-	virtual void setParticleEmitterPlaneEntity(Entity module, int index, Entity entity) = 0;
-	virtual float getParticleEmitterPlaneBounce(Entity entity) = 0;
-	virtual void setParticleEmitterPlaneBounce(Entity entity, float value) = 0;
-	virtual float getParticleEmitterShapeRadius(Entity entity) = 0;
-	virtual void setParticleEmitterShapeRadius(Entity entity, float value) = 0;
+	virtual class ParticleEmitter* getParticleEmitter(GameObject gameobject) = 0;
+	virtual void resetParticleEmitter(GameObject gameobject) = 0;
+	virtual void updateEmitter(GameObject gameobject, float time_delta) = 0;
+	virtual const AssociativeArray<GameObject, class ParticleEmitter*>& getParticleEmitters() const = 0;
+	virtual const Vec2* getParticleEmitterAlpha(GameObject gameobject) = 0;
+	virtual int getParticleEmitterAlphaCount(GameObject gameobject) = 0;
+	virtual const Vec2* getParticleEmitterSize(GameObject gameobject) = 0;
+	virtual int getParticleEmitterSizeCount(GameObject gameobject) = 0;
+	virtual bool getParticleEmitterAutoemit(GameObject gameobject) = 0;
+	virtual bool getParticleEmitterLocalSpace(GameObject gameobject) = 0;
+	virtual Vec3 getParticleEmitterAcceleration(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterLinearMovementX(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterLinearMovementY(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterLinearMovementZ(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterInitialLife(GameObject gameobject) = 0;
+	virtual Int2 getParticleEmitterSpawnCount(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterSpawnPeriod(GameObject gameobject) = 0;
+	virtual Vec2 getParticleEmitterInitialSize(GameObject gameobject) = 0;
+	virtual void setParticleEmitterAutoemit(GameObject gameobject, bool autoemit) = 0;
+	virtual void setParticleEmitterLocalSpace(GameObject gameobject, bool autoemit) = 0;
+	virtual void setParticleEmitterAlpha(GameObject gameobject, const Vec2* value, int count) = 0;
+	virtual void setParticleEmitterSize(GameObject gameobject, const Vec2* values, int count) = 0;
+	virtual void setParticleEmitterAcceleration(GameObject gameobject, const Vec3& value) = 0;
+	virtual void setParticleEmitterLinearMovementX(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterLinearMovementY(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterLinearMovementZ(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterInitialLife(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterSpawnCount(GameObject gameobject, const Int2& value) = 0;
+	virtual void setParticleEmitterSpawnPeriod(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterInitialSize(GameObject gameobject, const Vec2& value) = 0;
+	virtual void setParticleEmitterMaterialPath(GameObject gameobject, const Path& path) = 0;
+	virtual void setParticleEmitterSubimageRows(GameObject gameobject, const int& value) = 0;
+	virtual void setParticleEmitterSubimageCols(GameObject gameobject, const int& value) = 0;
+	virtual Path getParticleEmitterMaterialPath(GameObject gameobject) = 0;
+	virtual int getParticleEmitterPlaneCount(GameObject gameobject) = 0;
+	virtual int getParticleEmitterSubimageRows(GameObject gameobject) = 0;
+	virtual int getParticleEmitterSubimageCols(GameObject gameobject) = 0;
+	virtual void addParticleEmitterPlane(GameObject gameobject, int index) = 0;
+	virtual void removeParticleEmitterPlane(GameObject gameobject, int index) = 0;
+	virtual GameObject getParticleEmitterPlaneGameObject(GameObject gameobject, int index) = 0;
+	virtual void setParticleEmitterPlaneGameObject(GameObject module, int index, GameObject gameobject) = 0;
+	virtual float getParticleEmitterPlaneBounce(GameObject gameobject) = 0;
+	virtual void setParticleEmitterPlaneBounce(GameObject gameobject, float value) = 0;
+	virtual float getParticleEmitterShapeRadius(GameObject gameobject) = 0;
+	virtual void setParticleEmitterShapeRadius(GameObject gameobject, float value) = 0;
 
-	virtual int getParticleEmitterAttractorCount(Entity entity) = 0;
-	virtual void addParticleEmitterAttractor(Entity entity, int index) = 0;
-	virtual void removeParticleEmitterAttractor(Entity entity, int index) = 0;
-	virtual Entity getParticleEmitterAttractorEntity(Entity entity, int index) = 0;
-	virtual void setParticleEmitterAttractorEntity(Entity module,
+	virtual int getParticleEmitterAttractorCount(GameObject gameobject) = 0;
+	virtual void addParticleEmitterAttractor(GameObject gameobject, int index) = 0;
+	virtual void removeParticleEmitterAttractor(GameObject gameobject, int index) = 0;
+	virtual GameObject getParticleEmitterAttractorGameObject(GameObject gameobject, int index) = 0;
+	virtual void setParticleEmitterAttractorGameObject(GameObject module,
 		int index,
-		Entity entity) = 0;
-	virtual float getParticleEmitterAttractorForce(Entity entity) = 0;
-	virtual void setParticleEmitterAttractorForce(Entity entity, float value) = 0;
+		GameObject gameobject) = 0;
+	virtual float getParticleEmitterAttractorForce(GameObject gameobject) = 0;
+	virtual void setParticleEmitterAttractorForce(GameObject gameobject, float value) = 0;
 
-	virtual void enableModelInstance(Entity entity, bool enable) = 0;
-	virtual bool isModelInstanceEnabled(Entity entity) = 0;
-	virtual ModelInstance* getModelInstance(Entity entity) = 0;
+	virtual void enableModelInstance(GameObject gameobject, bool enable) = 0;
+	virtual bool isModelInstanceEnabled(GameObject gameobject) = 0;
+	virtual ModelInstance* getModelInstance(GameObject gameobject) = 0;
 	virtual ModelInstance* getModelInstances() = 0;
-	virtual Path getModelInstancePath(Entity entity) = 0;
-	virtual void setModelInstanceMaterial(Entity entity, int index, const Path& path) = 0;
-	virtual Path getModelInstanceMaterial(Entity entity, int index) = 0;
-	virtual int getModelInstanceMaterialsCount(Entity entity) = 0;
-	virtual void setModelInstancePath(Entity entity, const Path& path) = 0;
+	virtual Path getModelInstancePath(GameObject gameobject) = 0;
+	virtual void setModelInstanceMaterial(GameObject gameobject, int index, const Path& path) = 0;
+	virtual Path getModelInstanceMaterial(GameObject gameobject, int index) = 0;
+	virtual int getModelInstanceMaterialsCount(GameObject gameobject) = 0;
+	virtual void setModelInstancePath(GameObject gameobject, const Path& path) = 0;
 	virtual Array<Array<MeshInstance>>& getModelInstanceInfos(const Frustum& frustum,
 		const Vec3& lod_ref_point,
-		Entity entity,
+		GameObject gameobject,
 		u64 layer_mask) = 0;
-	virtual void getModelInstanceEntities(const Frustum& frustum, Array<Entity>& entities) = 0;
-	virtual Entity getFirstModelInstance() = 0;
-	virtual Entity getNextModelInstance(Entity entity) = 0;
-	virtual Model* getModelInstanceModel(Entity entity) = 0;
+	virtual void getModelInstanceEntities(const Frustum& frustum, Array<GameObject>& entities) = 0;
+	virtual GameObject getFirstModelInstance() = 0;
+	virtual GameObject getNextModelInstance(GameObject gameobject) = 0;
+	virtual Model* getModelInstanceModel(GameObject gameobject) = 0;
 
-	virtual void setDecalMaterialPath(Entity entity, const Path& path) = 0;
-	virtual Path getDecalMaterialPath(Entity entity) = 0;
-	virtual void setDecalScale(Entity entity, const Vec3& value) = 0;
-	virtual Vec3 getDecalScale(Entity entity) = 0;
+	virtual void setDecalMaterialPath(GameObject gameobject, const Path& path) = 0;
+	virtual Path getDecalMaterialPath(GameObject gameobject) = 0;
+	virtual void setDecalScale(GameObject gameobject, const Vec3& value) = 0;
+	virtual Vec3 getDecalScale(GameObject gameobject) = 0;
 	virtual void getDecals(const Frustum& frustum, Array<DecalInfo>& decals) = 0;
 
 	virtual void getGrassInfos(const Frustum& frustum,
-		Entity entity,
+		GameObject gameobject,
 		Array<GrassInfo>& infos) = 0;
-	virtual void forceGrassUpdate(Entity entity) = 0;
+	virtual void forceGrassUpdate(GameObject gameobject) = 0;
 	virtual void getTerrainInfos(const Frustum& frustum, const Vec3& lod_ref_point, Array<TerrainInfo>& infos) = 0;
-	virtual float getTerrainHeightAt(Entity entity, float x, float z) = 0;
-	virtual Vec3 getTerrainNormalAt(Entity entity, float x, float z) = 0;
-	virtual void setTerrainMaterialPath(Entity entity, const Path& path) = 0;
-	virtual Path getTerrainMaterialPath(Entity entity) = 0;
-	virtual Material* getTerrainMaterial(Entity entity) = 0;
-	virtual void setTerrainXZScale(Entity entity, float scale) = 0;
-	virtual float getTerrainXZScale(Entity entity) = 0;
-	virtual void setTerrainYScale(Entity entity, float scale) = 0;
-	virtual float getTerrainYScale(Entity entity) = 0;
-	virtual Vec2 getTerrainSize(Entity entity) = 0;
-	virtual AABB getTerrainAABB(Entity entity) = 0;
-	virtual Entity getTerrainEntity(Entity entity) = 0;
-	virtual Vec2 getTerrainResolution(Entity entity) = 0;
-	virtual Entity getFirstTerrain() = 0;
-	virtual Entity getNextTerrain(Entity entity) = 0;
+	virtual float getTerrainHeightAt(GameObject gameobject, float x, float z) = 0;
+	virtual Vec3 getTerrainNormalAt(GameObject gameobject, float x, float z) = 0;
+	virtual void setTerrainMaterialPath(GameObject gameobject, const Path& path) = 0;
+	virtual Path getTerrainMaterialPath(GameObject gameobject) = 0;
+	virtual Material* getTerrainMaterial(GameObject gameobject) = 0;
+	virtual void setTerrainXZScale(GameObject gameobject, float scale) = 0;
+	virtual float getTerrainXZScale(GameObject gameobject) = 0;
+	virtual void setTerrainYScale(GameObject gameobject, float scale) = 0;
+	virtual float getTerrainYScale(GameObject gameobject) = 0;
+	virtual Vec2 getTerrainSize(GameObject gameobject) = 0;
+	virtual AABB getTerrainAABB(GameObject gameobject) = 0;
+	virtual GameObject getTerrainGameObject(GameObject gameobject) = 0;
+	virtual Vec2 getTerrainResolution(GameObject gameobject) = 0;
+	virtual GameObject getFirstTerrain() = 0;
+	virtual GameObject getNextTerrain(GameObject gameobject) = 0;
 
 	virtual bool isGrassEnabled() const = 0;
-	virtual int getGrassRotationMode(Entity entity, int index) = 0;
-	virtual void setGrassRotationMode(Entity entity, int index, int value) = 0;
-	virtual float getGrassDistance(Entity entity, int index) = 0;
-	virtual void setGrassDistance(Entity entity, int index, float value) = 0;
+	virtual int getGrassRotationMode(GameObject gameobject, int index) = 0;
+	virtual void setGrassRotationMode(GameObject gameobject, int index, int value) = 0;
+	virtual float getGrassDistance(GameObject gameobject, int index) = 0;
+	virtual void setGrassDistance(GameObject gameobject, int index, float value) = 0;
 	virtual void enableGrass(bool enabled) = 0;
-	virtual void setGrassPath(Entity entity, int index, const Path& path) = 0;
-	virtual Path getGrassPath(Entity entity, int index) = 0;
-	virtual void setGrassDensity(Entity entity, int index, int density) = 0;
-	virtual int getGrassDensity(Entity entity, int index) = 0;
-	virtual int getGrassCount(Entity entity) = 0;
-	virtual void addGrass(Entity entity, int index) = 0;
-	virtual void removeGrass(Entity entity, int index) = 0;
+	virtual void setGrassPath(GameObject gameobject, int index, const Path& path) = 0;
+	virtual Path getGrassPath(GameObject gameobject, int index) = 0;
+	virtual void setGrassDensity(GameObject gameobject, int index, int density) = 0;
+	virtual int getGrassDensity(GameObject gameobject, int index) = 0;
+	virtual int getGrassCount(GameObject gameobject) = 0;
+	virtual void addGrass(GameObject gameobject, int index) = 0;
+	virtual void removeGrass(GameObject gameobject, int index) = 0;
 
-	virtual int getClosestPointLights(const Vec3& pos, Entity* lights, int max_lights) = 0;
-	virtual void getPointLights(const Frustum& frustum, Array<Entity>& lights) = 0;
-	virtual void getPointLightInfluencedGeometry(Entity light,
-		Entity camera,
+	virtual int getClosestPointLights(const Vec3& pos, GameObject* lights, int max_lights) = 0;
+	virtual void getPointLights(const Frustum& frustum, Array<GameObject>& lights) = 0;
+	virtual void getPointLightInfluencedGeometry(GameObject light,
+		GameObject camera,
 		const Vec3& lod_ref_point, 
 		Array<MeshInstance>& infos) = 0;
-	virtual void getPointLightInfluencedGeometry(Entity light,
-		Entity camera,
+	virtual void getPointLightInfluencedGeometry(GameObject light,
+		GameObject camera,
 		const Vec3& lod_ref_point,
 		const Frustum& frustum,
 		Array<MeshInstance>& infos) = 0;
-	virtual void setLightCastShadows(Entity entity, bool cast_shadows) = 0;
-	virtual bool getLightCastShadows(Entity entity) = 0;
-	virtual float getLightAttenuation(Entity entity) = 0;
-	virtual void setLightAttenuation(Entity entity, float attenuation) = 0;
-	virtual float getLightFOV(Entity entity) = 0;
-	virtual void setLightFOV(Entity entity, float fov) = 0;
-	virtual float getLightRange(Entity entity) = 0;
-	virtual void setLightRange(Entity entity, float value) = 0;
-	virtual void setPointLightIntensity(Entity entity, float intensity) = 0;
-	virtual void setGlobalLightIntensity(Entity entity, float intensity) = 0;
-	virtual void setGlobalLightIndirectIntensity(Entity entity, float intensity) = 0;
-	virtual void setPointLightColor(Entity entity, const Vec3& color) = 0;
-	virtual void setGlobalLightColor(Entity entity, const Vec3& color) = 0;
-	virtual void setFogDensity(Entity entity, float density) = 0;
-	virtual void setFogColor(Entity entity, const Vec3& color) = 0;
-	virtual float getPointLightIntensity(Entity entity) = 0;
-	virtual Entity getPointLightEntity(Entity entity) const = 0;
-	virtual Entity getGlobalLightEntity(Entity entity) const = 0;
-	virtual float getGlobalLightIntensity(Entity entity) = 0;
-	virtual float getGlobalLightIndirectIntensity(Entity entity) = 0;
-	virtual Vec3 getPointLightColor(Entity entity) = 0;
-	virtual Vec3 getGlobalLightColor(Entity entity) = 0;
-	virtual float getFogDensity(Entity entity) = 0;
-	virtual float getFogBottom(Entity entity) = 0;
-	virtual float getFogHeight(Entity entity) = 0;
-	virtual void setFogBottom(Entity entity, float value) = 0;
-	virtual void setFogHeight(Entity entity, float value) = 0;
-	virtual Vec3 getFogColor(Entity entity) = 0;
-	virtual Vec3 getPointLightSpecularColor(Entity entity) = 0;
-	virtual void setPointLightSpecularColor(Entity entity, const Vec3& color) = 0;
-	virtual float getPointLightSpecularIntensity(Entity entity) = 0;
-	virtual void setPointLightSpecularIntensity(Entity entity, float color) = 0;
+	virtual void setLightCastShadows(GameObject gameobject, bool cast_shadows) = 0;
+	virtual bool getLightCastShadows(GameObject gameobject) = 0;
+	virtual float getLightAttenuation(GameObject gameobject) = 0;
+	virtual void setLightAttenuation(GameObject gameobject, float attenuation) = 0;
+	virtual float getLightFOV(GameObject gameobject) = 0;
+	virtual void setLightFOV(GameObject gameobject, float fov) = 0;
+	virtual float getLightRange(GameObject gameobject) = 0;
+	virtual void setLightRange(GameObject gameobject, float value) = 0;
+	virtual void setPointLightIntensity(GameObject gameobject, float intensity) = 0;
+	virtual void setGlobalLightIntensity(GameObject gameobject, float intensity) = 0;
+	virtual void setGlobalLightIndirectIntensity(GameObject gameobject, float intensity) = 0;
+	virtual void setPointLightColor(GameObject gameobject, const Vec3& color) = 0;
+	virtual void setGlobalLightColor(GameObject gameobject, const Vec3& color) = 0;
+	virtual void setFogDensity(GameObject gameobject, float density) = 0;
+	virtual void setFogColor(GameObject gameobject, const Vec3& color) = 0;
+	virtual float getPointLightIntensity(GameObject gameobject) = 0;
+	virtual GameObject getPointLightGameObject(GameObject gameobject) const = 0;
+	virtual GameObject getGlobalLightGameObject(GameObject gameobject) const = 0;
+	virtual float getGlobalLightIntensity(GameObject gameobject) = 0;
+	virtual float getGlobalLightIndirectIntensity(GameObject gameobject) = 0;
+	virtual Vec3 getPointLightColor(GameObject gameobject) = 0;
+	virtual Vec3 getGlobalLightColor(GameObject gameobject) = 0;
+	virtual float getFogDensity(GameObject gameobject) = 0;
+	virtual float getFogBottom(GameObject gameobject) = 0;
+	virtual float getFogHeight(GameObject gameobject) = 0;
+	virtual void setFogBottom(GameObject gameobject, float value) = 0;
+	virtual void setFogHeight(GameObject gameobject, float value) = 0;
+	virtual Vec3 getFogColor(GameObject gameobject) = 0;
+	virtual Vec3 getPointLightSpecularColor(GameObject gameobject) = 0;
+	virtual void setPointLightSpecularColor(GameObject gameobject, const Vec3& color) = 0;
+	virtual float getPointLightSpecularIntensity(GameObject gameobject) = 0;
+	virtual void setPointLightSpecularIntensity(GameObject gameobject, float color) = 0;
 
-	virtual int getEnvironmentProbeIrradianceSize(Entity entity) = 0;
-	virtual void setEnvironmentProbeIrradianceSize(Entity entity, int size) = 0;
-	virtual int getEnvironmentProbeRadianceSize(Entity entity) = 0;
-	virtual void setEnvironmentProbeRadianceSize(Entity entity, int size) = 0;
-	virtual int getEnvironmentProbeReflectionSize(Entity entity) = 0;
-	virtual void setEnvironmentProbeReflectionSize(Entity entity, int size) = 0;
-	virtual bool isEnvironmentProbeReflectionEnabled(Entity entity) = 0;
-	virtual void enableEnvironmentProbeReflection(Entity entity, bool enable) = 0;
-	virtual bool isEnvironmentProbeCustomSize(Entity entity) = 0;
-	virtual void enableEnvironmentProbeCustomSize(Entity entity, bool enable) = 0;
-	virtual Texture* getEnvironmentProbeTexture(Entity entity) const = 0;
-	virtual Texture* getEnvironmentProbeIrradiance(Entity entity) const = 0;
-	virtual Texture* getEnvironmentProbeRadiance(Entity entity) const = 0;
-	virtual void reloadEnvironmentProbe(Entity entity) = 0;
-	virtual Entity getNearestEnvironmentProbe(const Vec3& pos) const = 0;
-	virtual u64 getEnvironmentProbeGUID(Entity entity) const = 0;
+	virtual int getEnvironmentProbeIrradianceSize(GameObject gameobject) = 0;
+	virtual void setEnvironmentProbeIrradianceSize(GameObject gameobject, int size) = 0;
+	virtual int getEnvironmentProbeRadianceSize(GameObject gameobject) = 0;
+	virtual void setEnvironmentProbeRadianceSize(GameObject gameobject, int size) = 0;
+	virtual int getEnvironmentProbeReflectionSize(GameObject gameobject) = 0;
+	virtual void setEnvironmentProbeReflectionSize(GameObject gameobject, int size) = 0;
+	virtual bool isEnvironmentProbeReflectionEnabled(GameObject gameobject) = 0;
+	virtual void enableEnvironmentProbeReflection(GameObject gameobject, bool enable) = 0;
+	virtual bool isEnvironmentProbeCustomSize(GameObject gameobject) = 0;
+	virtual void enableEnvironmentProbeCustomSize(GameObject gameobject, bool enable) = 0;
+	virtual Texture* getEnvironmentProbeTexture(GameObject gameobject) const = 0;
+	virtual Texture* getEnvironmentProbeIrradiance(GameObject gameobject) const = 0;
+	virtual Texture* getEnvironmentProbeRadiance(GameObject gameobject) const = 0;
+	virtual void reloadEnvironmentProbe(GameObject gameobject) = 0;
+	virtual GameObject getNearestEnvironmentProbe(const Vec3& pos) const = 0;
+	virtual u64 getEnvironmentProbeGUID(GameObject gameobject) const = 0;
 
-	virtual void setTextMeshText(Entity entity, const char* text) = 0;
-	virtual const char* getTextMeshText(Entity entity) = 0;
-	virtual void setTextMeshFontSize(Entity entity, int value) = 0;
-	virtual int getTextMeshFontSize(Entity entity) = 0;
-	virtual Vec4 getTextMeshColorRGBA(Entity entity) = 0;
-	virtual void setTextMeshColorRGBA(Entity entity, const Vec4& color) = 0;
-	virtual Path getTextMeshFontPath(Entity entity) = 0;
-	virtual void setTextMeshFontPath(Entity entity, const Path& path) = 0;
-	virtual bool isTextMeshCameraOriented(Entity entity) = 0;
-	virtual void setTextMeshCameraOriented(Entity entity, bool is_oriented) = 0;
-	virtual void getTextMeshesVertices(Array<TextMeshVertex>& vertices, Entity camera) = 0;
+	virtual void setTextMeshText(GameObject gameobject, const char* text) = 0;
+	virtual const char* getTextMeshText(GameObject gameobject) = 0;
+	virtual void setTextMeshFontSize(GameObject gameobject, int value) = 0;
+	virtual int getTextMeshFontSize(GameObject gameobject) = 0;
+	virtual Vec4 getTextMeshColorRGBA(GameObject gameobject) = 0;
+	virtual void setTextMeshColorRGBA(GameObject gameobject, const Vec4& color) = 0;
+	virtual Path getTextMeshFontPath(GameObject gameobject) = 0;
+	virtual void setTextMeshFontPath(GameObject gameobject, const Path& path) = 0;
+	virtual bool isTextMeshCameraOriented(GameObject gameobject) = 0;
+	virtual void setTextMeshCameraOriented(GameObject gameobject, bool is_oriented) = 0;
+	virtual void getTextMeshesVertices(Array<TextMeshVertex>& vertices, GameObject camera) = 0;
 
 protected:
 	virtual ~RenderScene() {}
