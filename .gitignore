@@ -1,9 +1,8 @@
 # Directories
 
 .vs/
-
 bin/
-
+data/pipelines/compiled
 
 
 # Files

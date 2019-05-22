@@ -109,6 +109,9 @@ void fillLabel(char* output, int max_size, const char* label, int count)
 
 void LogUI::showNotifications()
 {
+	//notofication cikmasin diye
+	return;
+
 	m_are_notifications_hovered = false;
 	if (m_notifications.empty()) return;
 

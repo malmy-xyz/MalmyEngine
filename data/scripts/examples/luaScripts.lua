@@ -1,11 +1,11 @@
-
+--luaScripts
 
 -- ılk calısan fonk
 function init()
     number LuaScript.addScript(Scene scene, Component script)
 	void LuaScript.setScriptSource(Scene scene, Component script, number index, string path)
 	int LuaScript.getScriptCount(Scene scene, Component script)
-	Table LuaScript.getEnvironment(Scene scene, Entity entity, number script_index)
+	Table LuaScript.getEnvironment(Scene scene, GameObject gameobject, number script_index)
 	Timer LuaScript.setTimer(Scene scene, number time_seconds, function callback)
 	void LuaScript.cancelTimer(Scene scene, Timer timer)
 

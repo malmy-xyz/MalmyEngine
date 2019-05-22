@@ -1,0 +1,68 @@
+#name
+	"player"
+#transform (0.000000, 0.000000, 0.000000)  (0.000000, 0.000000, 0.000000, 1.000000)
+	0
+	0
+	0
+	0
+	0
+	0
+	1065353216
+#scale 0.010000
+	1008981770
+#parent
+	18446744073709551615
+#renderable
+	1512583253
+#source
+	"models/utils/cube/cube_uzun.msh"
+#flags
+	8
+#custom_materials
+	1
+#
+	"models/utils/cube/defaultmaterial.mat"
+#box_rigid_actor
+	894846619
+#layer
+	0
+#dynamic_type
+	0
+#trigger
+	0
+#x 3.000000
+	1077936128
+#y 1.000000
+	1065353216
+#z 1.000000
+	1065353216
+#lua_script
+	4143584752
+#count
+	1
+#source
+	"scripts/blockbreaker/player.lua"
+#flags
+	1
+#prop_count
+	3
+#prop_name
+	"PLAYER_SPEED"
+#prop_type
+	1
+#prop_value
+	"1.00000000"
+#prop_name
+	"input_enabled"
+#prop_type
+	0
+#prop_value
+	"true"
+#prop_name
+	"temp"
+#prop_type
+	1
+#prop_value
+	"0.00000000"
+#cmp_end
+	0

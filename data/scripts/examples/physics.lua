@@ -1,4 +1,4 @@
-
+--physic
 
 -- ılk calısan fonk
 function init()

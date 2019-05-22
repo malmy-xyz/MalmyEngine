@@ -1,0 +1,36 @@
+#name
+	"ball"
+#transform (0.000000, 4.499303, 0.000000)  (0.000000, 0.000000, 0.000000, 1.000000)
+	0
+	1083177547
+	0
+	0
+	0
+	0
+	1065353216
+#scale 1.000000
+	1065353216
+#parent
+	18446744073709551615
+#renderable
+	1512583253
+#source
+	"models/utils/sphere/untitled.msh"
+#flags
+	8
+#custom_materials
+	1
+#
+	"models/utils/cube/defaultmaterial.mat"
+#sphere_rigid_actor
+	838113833
+#layer
+	0
+#dynamic_type
+	1
+#trigger
+	0
+#radius 1.000000
+	1065353216
+#cmp_end
+	0

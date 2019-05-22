@@ -1,0 +1,48 @@
+#name
+	""
+#transform (7.500000, 10.000000, 0.000000)  (0.000000, 0.000000, 0.000000, 1.000000)
+	1089470464
+	1092616192
+	0
+	0
+	0
+	0
+	1065353216
+#scale 2.000000
+	1073741824
+#parent
+	13029636414198751532
+#renderable
+	1512583253
+#source
+	"models/utils/cube/cube.msh"
+#flags
+	8
+#custom_materials
+	0
+#box_rigid_actor
+	894846619
+#layer
+	0
+#dynamic_type
+	0
+#trigger
+	0
+#x 1.000000
+	1065353216
+#y 1.000000
+	1065353216
+#z 1.000000
+	1065353216
+#lua_script
+	4143584752
+#count
+	1
+#source
+	"scripts/blockbreaker/block.lua"
+#flags
+	1
+#prop_count
+	0
+#cmp_end
+	0

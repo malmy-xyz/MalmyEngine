@@ -1,4 +1,4 @@
-
+--inputs
 
 -- ılk calısan fonk
 function init()

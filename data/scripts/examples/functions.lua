@@ -1,4 +1,11 @@
+--functions
+--variables
+Project g_project
+Engine g_engine
 
+g_scene_renderer
+g_scene_physics
+g_scene_lua_script
 
 -- ılk calısan fonk
 function init()

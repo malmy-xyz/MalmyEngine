@@ -16,4 +16,5 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT)
 	Malmy::StudioApp::destroy(*app);
 
 	return exit_code;
+
 }

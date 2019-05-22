@@ -1,4 +1,4 @@
-
+--apps
 
 -- ılk calısan fonk
 function init()

@@ -1,4 +1,4 @@
-
+--renderer
 
 -- ılk calısan fonk
 function init()

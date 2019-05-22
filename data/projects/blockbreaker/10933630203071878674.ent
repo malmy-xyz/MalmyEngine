@@ -1,0 +1,26 @@
+#name
+	"engel_0"
+#transform (6.000001, -3.000000, 0.000000)  (0.000000, 0.000000, 1.000000, 0.000000)
+	1086324738
+	3225419778
+	0
+	0
+	0
+	1065353216
+	855638016
+#scale 0.010000
+	1008981770
+#parent
+	7381104707859733658
+#renderable
+	1512583253
+#source
+	"models/utils/cube/cube_uzun.msh"
+#flags
+	8
+#custom_materials
+	1
+#
+	"models/utils/cube/defaultmaterial.mat"
+#cmp_end
+	0

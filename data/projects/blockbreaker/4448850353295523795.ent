@@ -1,0 +1,26 @@
+#name
+	""
+#transform (0.000001, 15.000001, 0.000000)  (0.000000, -0.000000, 1.000000, 0.000000)
+	895106853
+	1097859073
+	0
+	838860801
+	2776629250
+	1065353216
+	864026625
+#scale 0.010000
+	1008981766
+#parent
+	11022354952125125474
+#renderable
+	1512583253
+#source
+	"models/utils/cube/cube_uzun.msh"
+#flags
+	8
+#custom_materials
+	1
+#
+	"models/utils/cube/defaultmaterial.mat"
+#cmp_end
+	0
